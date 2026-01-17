@@ -11,8 +11,8 @@ export const ProjectCreationButtons = () => {
           open();
         }}>Créer</Button>
       </Tooltip>
-      <Tooltip content="Récupérer un projet sur un serveur (non implémenté)">
-        <Button isDisabled model="gray" >Cloner</Button>
+      <Tooltip content="Récupérer un projet sur un ordinateur distant (non implémenté)">
+        <Button isDisabled model="secondary" >Cloner</Button>
       </Tooltip>
     </div>
   )

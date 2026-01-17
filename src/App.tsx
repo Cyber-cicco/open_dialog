@@ -2,8 +2,8 @@ import "./App.css";
 import { createHashRouter, Outlet, RouterProvider } from "react-router-dom"
 import { MainLayout } from "./components/layout/main-layout";
 import { DialogPage } from "./pages/dialog-page";
-import { useGlobalState } from "./hooks/global-state";
 import { HomePage } from "./pages/home.page";
+import { useGlobalState } from "./context/global-state.context";
 
 const router = createHashRouter([
   {
@@ -24,7 +24,7 @@ const router = createHashRouter([
 
 
 function App() {
-  const { projectId } = useGlobalState()
+  const { projectId } = useGlobalState();
   if (!projectId) {
     return <HomePage />
   }

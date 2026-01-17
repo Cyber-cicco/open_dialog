@@ -1,13 +1,33 @@
+import { useEffect, useRef } from "react"
 import { useAppForm } from "../../../hooks/form"
 import { Button } from "../buttons/base.buttons"
 import { ModalProps } from "./types"
+import { useCreateProject } from "../../../hooks/queries/projects"
+import { useGlobalState } from "../../../context/global-state.context"
 
-export const ProjectCreationModale: React.FC<ModalProps> = ({ onClose }) => {
+export const ProjectCreationModale: React.FC<ModalProps> = ({ onClose, isOpen }) => {
+
+  const nameRef = useRef<HTMLInputElement | null>(null);
+  const {openProject} = useGlobalState();
+  const projMutation = useCreateProject();
   const form = useAppForm({
     defaultValues: {
       name: ''
-    }
+    },
+    onSubmit:async ({value}) => {
+      const newProj = await projMutation.mutateAsync(value.name);
+      console.log(newProj);
+      openProject(newProj.id);
+      onClose();
+    },
   })
+
+  useEffect(() => {
+    if (isOpen && nameRef.current) {
+      nameRef.current.focus();
+    }
+
+  }, [isOpen])
 
   return (
     <div 
@@ -34,8 +54,9 @@ export const ProjectCreationModale: React.FC<ModalProps> = ({ onClose }) => {
         <form
           className="p-6"
           onSubmit={(e) => {
-            e.preventDefault()
-            e.stopPropagation()
+            e.preventDefault();
+            e.stopPropagation();
+            form.handleSubmit();
           }}
         >
           <div className="space-y-4">
@@ -45,8 +66,9 @@ export const ProjectCreationModale: React.FC<ModalProps> = ({ onClose }) => {
               </label>
               <form.AppField
                 name="name"
+                
                 children={(field) => (
-                  <field.TextField />
+                  <field.TextField inputRef={nameRef} />
                 )}
               />
             </div>

@@ -1,1 +1,1 @@
-I would like a subtle way to indicate focus on the button element.
+Creating a project does not change the component that is rendered. It does not seem to rerender the App.tsx either.
