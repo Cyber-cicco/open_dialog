@@ -39,7 +39,7 @@ export const HomePage: React.FC = () => {
           <div
             role="button"
             onClick={() => {
-              openProject(projet.id);
+              openProject(projet);
             }}
             key={projet.id}
             aria-label={`open project ${projet.name}`}

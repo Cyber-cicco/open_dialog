@@ -1,10 +1,10 @@
 use std::fs;
 
-use anyhow::Result;
+use anyhow::{anyhow, Context, Result};
 use git2::Repository;
 
 use crate::shared::{
-    config::{ASSETS_DIRNAME, CHAR_DIRNAME, DIALOG_DIRNAME, ODConfig, STATS_DIRNAME},
+    config::{ODConfig, ASSETS_DIRNAME, CHAR_DIRNAME, DIALOG_DIRNAME, STATS_DIRNAME},
     types::{
         interfaces::Uploader,
         project::{AtomicProject, AtomicProjects, Project},

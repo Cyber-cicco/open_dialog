@@ -5,6 +5,8 @@ import { VariablesSvg } from "../common/svg/variables.svg";
 import { CommitsSvg } from "../common/svg/commits.svg";
 import { BranchesSvg } from "../common/svg/branches.svg";
 import { Tooltip } from "../common/tooltips";
+import { LeaveIcon } from "../common/svg/leave.svg";
+import { useGlobalState } from "../../context/global-state.context";
 
 type LeftPanelOpt = {
   name: string
@@ -40,9 +42,16 @@ const opts: LeftPanelOpt[] = [
   },
 ];
 
+const leaveOpt: LeftPanelOpt = {
+  name: 'Leave',
+  icon: <LeaveIcon width={25} height={25} color="#ffffff" />,
+  hover: "Save and go back to the project list"
+}
+
 const LayoutLeftPanel = () => {
   const [optionSelected, setOptionSelected] = useState<number | null>(null);
   const [panelOpened, setPanelOpened] = useState(!!optionSelected);
+  const  {closeProject} = useGlobalState();
 
   return (
     <div className="flex w-full h-full">
@@ -72,6 +81,19 @@ const LayoutLeftPanel = () => {
           </Tooltip>
         ))}
         <div className="grow"></div>
+        <Tooltip content={leaveOpt.hover}>
+            <button
+              aria-label={leaveOpt.hover}
+              key={leaveOpt.name}
+              role="button"
+              className='p-1 rounded hover:cursor-pointer transition-colors duration-150 hover:bg-highlight-med'
+              onClick={closeProject}
+            >
+              {leaveOpt.icon}
+            </button>
+
+        </Tooltip>
+
       </div>
       <div
         className={`left-panel-content h-full bg-base-surface text-white -translate-x-1 ${panelOpened ? 'open' : 'closed'}`}

@@ -24,8 +24,8 @@ const router = createHashRouter([
 
 
 function App() {
-  const { projectId } = useGlobalState();
-  if (!projectId) {
+  const { project } = useGlobalState();
+  if (!project) {
     return <HomePage />
   }
   return (

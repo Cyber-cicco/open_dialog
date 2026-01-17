@@ -15,9 +15,7 @@ export const ProjectCreationModale: React.FC<ModalProps> = ({ onClose, isOpen })
       name: ''
     },
     onSubmit:async ({value}) => {
-      const newProj = await projMutation.mutateAsync(value.name);
-      console.log(newProj);
-      openProject(newProj.id);
+      openProject(await projMutation.mutateAsync(value.name));
       onClose();
     },
   })

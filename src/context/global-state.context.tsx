@@ -1,26 +1,27 @@
 import { createContext, useContext, useState, useCallback, PropsWithChildren } from "react"
+import { Project } from "../bindings/Project"
 
 type GlobalStateContextType = {
-  projectId: string | undefined
-  openProject: (id: string) => void
+  project: Project | undefined
+  openProject: (project: Project) => void
   closeProject: () => void
 }
 
 const GlobalStateContext = createContext<GlobalStateContextType | undefined>(undefined)
 
 export const GlobalStateProvider = ({ children }: PropsWithChildren) => {
-  const [projectId, setProjectId] = useState<string | undefined>(undefined)
+  const [project, setProject] = useState<Project | undefined>(undefined)
 
-  const openProject = useCallback((id: string) => {
-    setProjectId(id)
+  const openProject = useCallback((project: Project) => {
+    setProject(project)
   }, [])
 
   const closeProject = useCallback(() => {
-    setProjectId(undefined)
+    setProject(undefined)
   }, [])
 
   return (
-    <GlobalStateContext.Provider value={{ projectId, openProject, closeProject }}>
+    <GlobalStateContext.Provider value={{ project, openProject, closeProject }}>
       {children}
     </GlobalStateContext.Provider>
   )

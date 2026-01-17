@@ -49,6 +49,10 @@ impl Project {
         };
     }
 
+    pub fn get_id(&self) -> &Uuid {
+        &self.id
+    }
+
     pub fn set_last_commit(&mut self, date:DateTime<Utc>) {
         self.metadata.last_commit = Some(date);
     }
