@@ -1,0 +1,20 @@
+mod factory;
+mod pkg;
+mod shared;
+
+use crate::factory::init_local_app_state;
+
+#[cfg_attr(mobile, tauri::mobile_entry_point)]
+pub fn run() {
+    let app_state = init_local_app_state().expect("Failed to initialize app state");
+
+    tauri::Builder::default()
+        .manage(app_state)
+        .plugin(tauri_plugin_opener::init())
+        .invoke_handler(tauri::generate_handler![
+            pkg::project::create_project,
+            pkg::project::get_projects,
+        ])
+        .run(tauri::generate_context!())
+        .expect("error while running tauri application");
+}
