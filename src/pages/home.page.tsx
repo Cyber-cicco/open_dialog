@@ -1,13 +1,14 @@
-// home.page.tsx
 import { useEffect, useState } from "react"
 import { useGetProjects } from "../hooks/queries/projects"
 import { formatDateFr } from "../utils/date.utils"
 import { ProjectCreationButtons } from "../components/common/home/project-creation-buttons"
+import { useGlobalState } from "../context/global-state.context"
 
 export const HomePage: React.FC = () => {
-  const { data: projets, isPending, error } = useGetProjects()
-  const [showOverlay, setShowOverlay] = useState(false)
-  const [showSpinner, setShowSpinner] = useState(false)
+  const { data: projets, isPending, error } = useGetProjects();
+  const [showOverlay, setShowOverlay] = useState(false);
+  const [showSpinner, setShowSpinner] = useState(false);
+  const {openProject} = useGlobalState();
 
   useEffect(() => {
     if (!isPending) {
@@ -23,9 +24,9 @@ export const HomePage: React.FC = () => {
       clearTimeout(overlayTimer)
       clearTimeout(spinnerTimer)
     }
-  }, [isPending])
+  }, [isPending]);
 
-  const hasProjects = projets && projets.length > 0
+  const hasProjects = projets && projets.length > 0;
 
   return (
     <div className="h-screen border-blue-deep border-2 bg-base-primary flex flex-col relative">
@@ -36,7 +37,12 @@ export const HomePage: React.FC = () => {
       <div className="p-4 flex flex-col gap-2 flex-1 overflow-auto">
         {projets?.map((projet) => (
           <div
+            role="button"
+            onClick={() => {
+              openProject(projet.id);
+            }}
             key={projet.id}
+            aria-label={`open project ${projet.name}`}
             className="p-3 rounded bg-base-surface hover:bg-base-overlay transition-colors cursor-pointer"
           >
             <div className="text-text-primary font-medium">{projet.name}</div>

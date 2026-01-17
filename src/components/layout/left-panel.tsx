@@ -71,6 +71,7 @@ const LayoutLeftPanel = () => {
             </button>
           </Tooltip>
         ))}
+        <div className="grow"></div>
       </div>
       <div
         className={`left-panel-content h-full bg-base-surface text-white -translate-x-1 ${panelOpened ? 'open' : 'closed'}`}
