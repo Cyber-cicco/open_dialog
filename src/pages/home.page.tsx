@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react"
 import { useGetProjects } from "../hooks/queries/projects"
 import { formatDateFr } from "../utils/date.utils"
-import { Button } from "../components/common/buttons/base.buttons"
 import { ProjectCreationButtons } from "../components/common/home/project-creation-buttons"
 
 export const HomePage: React.FC = () => {

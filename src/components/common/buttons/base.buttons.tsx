@@ -1,43 +1,43 @@
+// base.buttons.tsx
 import { SpinnerIcon } from "../svg/spinner.svg"
 
-const getModelStyles = (disabled: boolean, model: string) => {
+const getModelStyles = (disabled: boolean, model: ButtonModel) => {
   if (disabled) {
     return "bg-base-700 text-text-muted cursor-not-allowed"
   }
   switch (model) {
-    case "gray":
-      return "bg-gray-400 ring-white text-black hover:bg-gray-500"
-    case "empty":
-      return "bg-transparent text-blue-primary border border-blue-primary hover:bg-muted-200"
-    case "red":
-      return "bg-red-600 text-white hover:bg-red-700 hover:shadow-lg"
-    case "base":
+    case "secondary":
+      return "text-text-subtle hover:text-text-primary hover:cursor-pointer bg-base-overlay hover:bg-base-500"
+    case "danger":
+      return "text-white bg-red-600 hover:bg-red-700 hover:cursor-pointer"
+    case "primary":
     default:
-      return "bg-blue-deep ring-blue-primary text-text-primary hover:bg-blue-deepest hover:shadow-lg"
+      return "text-base-primary bg-blue-primary hover:bg-blue-light hover:cursor-pointer"
   }
 }
 
-const getSizeStyles = (size: string) => {
+const getSizeStyles = (size: ButtonSize) => {
   switch (size) {
     case "small":
-      return "px-2 py-1 text-sm"
-    case "big":
-      return "px-5 py-3 text-lg"
-    case "long":
-      return "px-8 py-2 w-full"
+      return "px-3 py-1.5 text-xs"
+    case "large":
+      return "px-5 py-3 text-base"
     case "base":
     default:
-      return "px-3 py-2"
+      return "px-4 py-2 text-sm"
   }
 }
+
+export type ButtonModel = "primary" | "secondary" | "danger"
+export type ButtonSize = "base" | "small" | "large"
 
 type ButtonProps = {
   type?: "submit" | "reset" | "button"
   isDisabled?: boolean
   isLoading?: boolean
   children?: React.ReactNode
-  model?: "base" | "gray" | "empty" | "red"
-  size?: "base" | "long" | "big" | "small"
+  model?: ButtonModel
+  size?: ButtonSize
   onClick?: () => void
 }
 
@@ -45,32 +45,29 @@ export const Button: React.FC<ButtonProps> = ({
   type = "button",
   isDisabled = false,
   isLoading = false,
-  children = "Créer",
-  model = "base",
+  children,
+  model = "primary",
   size = "base",
-  onClick = () => {},
+  onClick,
 }) => {
-
-  const spinnerSize = size === "small" ? "h-3 w-3" : size === "big" ? "h-5 w-5" : "h-4 w-4"
+  const spinnerSize = size === "small" ? "h-3 w-3" : size === "large" ? "h-5 w-5" : "h-4 w-4"
 
   return (
     <button
       type={type}
       className={`
-        relative flex items-center justify-center gap-2
+        flex items-center justify-center gap-2
         ${getSizeStyles(size)} 
-        font-medium rounded-sm
-        overflow-hidden
-        transition-all duration-100
+        font-medium rounded-sm 
+        transition-colors
+        outline-none focus-visible:ring-2 focus-visible:ring-blue-deep/50 focus-visible:ring-offset-2 focus-visible:ring-offset-base-surface
         ${getModelStyles(isDisabled, model)}
-        ring-2 focus:outline-none focus:ring-3 focus:ring-opacity-50
-        hover:cursor-pointer
       `}
       disabled={isDisabled || isLoading}
       onClick={onClick}
     >
       {isLoading && (
-        <SpinnerIcon className={`animate-spin -ml-1 mr-2 ${spinnerSize}`} />
+        <SpinnerIcon className={`animate-spin ${spinnerSize}`} />
       )}
       {children}
     </button>
