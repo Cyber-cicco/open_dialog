@@ -8,7 +8,8 @@ export const MainLayout = ({ children }: PropsWithChildren) => {
       <Header />
       <div className="w-full flex flex-1 overflow-hidden">
         <LayoutLeftPanel />
-        <div className="flex m-1 rounded-lg ring-blue-deep ring-2 flex-1 text-white justify-center items-center bg-base-primary">
+        <div className="flex m-1 rounded-lg ring-blue-deep ring-2 flex-1 text-white justify-center items-center bg-base-primary overflow-hidden">
+
           {children}
         </div>
       </div>
