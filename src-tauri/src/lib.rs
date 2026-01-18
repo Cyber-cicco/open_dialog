@@ -15,6 +15,7 @@ pub fn run() {
             pkg::project::create_project,
             pkg::project::get_projects,
             pkg::character::create_character,
+            pkg::character::change_character,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

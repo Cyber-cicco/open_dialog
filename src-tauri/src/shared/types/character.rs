@@ -34,11 +34,12 @@ pub struct Character {
 #[derive(TS)]
 #[ts(export, export_to = "../../src/bindings/")]
 #[derive(Debug, Serialize, Deserialize)]
-pub struct CharacterForm {
-    display_name: String,
-    first_name: Option<String>,
-    last_name: Option<String>,
-    description: Option<String>,
+pub struct CharacterForm<'a> {
+    pub id: &'a str,
+    pub display_name: String,
+    pub first_name: Option<String>,
+    pub last_name: Option<String>,
+    pub description: Option<String>,
 }
 
 impl Character {
@@ -97,11 +98,11 @@ impl Character {
         return &self.display_name;
     }
 
-    pub fn get_file_name(&self) -> String {
-        self.id.simple().to_string()[..16].to_string()
+    pub fn set_description(&mut self, description:Uuid) {
+        self.description = Some(description);
     }
 
-    fn validate_name(name: &str) -> Result<()> {
+    pub fn validate_name(name: &str) -> Result<()> {
         use anyhow::bail;
 
         let trimmed = name.trim();
@@ -145,6 +146,12 @@ impl Character {
         }
 
         Ok(())
+    }
+
+    pub fn change_from_form(&mut self, char_form:&CharacterForm) {
+        self.last_name = char_form.last_name.clone();
+        self.display_name = char_form.display_name.clone();
+        self.first_name = char_form.first_name.clone();
     }
 
 }
