@@ -42,9 +42,11 @@ impl ODConfig for ODConfigLocal {
 
         if Path::exists(&config_file_path) {
             let file =
-                fs::read_to_string(config_file_path).context("Failed to read config file")?;
-            return serde_json::from_str(&file)
-                .context("Failed to serialize the config file into AppConfig struct");
+                fs::read_to_string(&config_file_path).context("Failed to read config file")?;
+            let mut config:ODConfigLocal = serde_json::from_str(&file)
+                .context("Failed to serialize the config file into AppConfig struct")?;
+            config.root_dir = root_dir;
+            return Ok(config);
         }
 
         fs::create_dir_all(&root_dir)

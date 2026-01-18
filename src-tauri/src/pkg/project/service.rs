@@ -1,6 +1,6 @@
 use std::fs;
 
-use anyhow::{anyhow, Context, Result};
+use anyhow::Result;
 use git2::Repository;
 
 use crate::shared::{
@@ -11,14 +11,14 @@ use crate::shared::{
     },
 };
 
-pub struct ProjectServiceLocaleImpl<U: Uploader, C: ODConfig> {
-    uploader: U,
-    config: C,
+pub struct ProjectServiceLocaleImpl<'a, U: Uploader, C: ODConfig> {
+    uploader: &'a U,
+    config: &'a mut C,
 }
 
 // service.rs
-impl<U: Uploader, C: ODConfig> ProjectServiceLocaleImpl<U, C> {
-    pub fn new(uploader: U, config: C) -> Self {
+impl<'a, U: Uploader, C: ODConfig> ProjectServiceLocaleImpl<'a, U, C> {
+    pub fn new(uploader: &'a U, config: &'a mut C) -> Self {
         ProjectServiceLocaleImpl { uploader, config }
     }
 
