@@ -2,10 +2,11 @@ import { createFormHook } from '@tanstack/react-form'
 import { createFormHookContexts } from '@tanstack/react-form'
 import { Button, ButtonModel, ButtonSize } from '../components/common/buttons/base.buttons';
 import TextField from '../components/common/form/text-field';
+import TextAreaField from '../components/common/form/text-area-field';
 
 export const { fieldContext, useFieldContext, formContext, useFormContext } = createFormHookContexts();
 
-function SubscribeButton({ label, model = "base", size = "long" }: { label: string, model?: ButtonModel, size? : ButtonSize }) {
+function SubscribeButton({ label, model = "primary", size = "base" }: { label: string, model?: ButtonModel, size? : ButtonSize }) {
   const form = useFormContext()
   return (
     <form.Subscribe selector={(state) => state.isSubmitting}>
@@ -21,7 +22,8 @@ function SubscribeButton({ label, model = "base", size = "long" }: { label: stri
 
 export const { useAppForm, withForm } = createFormHook({
   fieldComponents: {
-    TextField
+    TextField,
+    TextAreaField,
   },
   formComponents: {
     SubscribeButton,

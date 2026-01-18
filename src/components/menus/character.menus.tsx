@@ -5,6 +5,7 @@ import { Character } from "../../bindings/Character"
 import { useGetAllCharacters } from "../../hooks/queries/character"
 import { CharacterCreationModale } from "../characters/creation-modale.characters"
 import { CharacterAvatar } from "../characters/avatar.character"
+import { Link } from "react-router-dom"
 
 export const CharacterMenu = () => {
   const { project } = useGlobalState();
@@ -41,8 +42,8 @@ export const CharacterMenu = () => {
 }
 
 const CharacterListItem = ({ character }: { character: Character }) => (
-  <div className="flex items-center gap-3 p-2 rounded-lg hover:bg-highlight-200 cursor-pointer transition-colors">
+  <Link to={`character/${character.id}`} className="flex outline-none items-center focus-visible:ring-2 focus-visible:ring-blue-deep/50 focus-visible:ring-offset-2 focus-visible:ring-offset-base-surface gap-3 p-2 rounded-lg hover:bg-highlight-200 cursor-pointer transition-colors">
     <CharacterAvatar character={character} />
     <span className="text-text-primary text-sm truncate">{character.display_name}</span>
-  </div>
+  </Link>
 )

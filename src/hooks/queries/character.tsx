@@ -64,3 +64,26 @@ export function useGetAllCharacters(projectId: string): UseQueryResult<Character
     enabled: !!projectId,
   });
 }
+
+export function useGetCharacterById(
+  projectId: string,
+  characterId: string
+): UseQueryResult<Character, Error> {
+  const queryClient = useQueryClient();
+
+  return useQuery({
+    queryKey: ['characters', 'byId', projectId, characterId],
+    queryFn: () => {
+      const cached = queryClient.getQueryData<Character[]>(['characters', 'all', projectId]);
+      if (!cached) {
+        throw new Error('Characters not loaded');
+      }
+      const character = cached.find(c => c.id === characterId);
+      if (!character) {
+        throw new Error(`Character with id "${characterId}" not found`);
+      }
+      return character;
+    },
+    enabled: !!projectId && !!characterId,
+  });
+}

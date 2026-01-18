@@ -12,6 +12,7 @@ import { DialogMenu } from "../menus/dialog.menus";
 import { VariablesMenu } from "../menus/variables.menu";
 import { VersionsMenu } from "../menus/versions.menus";
 import { BranchesMenu } from "../menus/branches.menus";
+import { useNavigate } from "react-router-dom";
 
 type LeftPanelOpt = {
   name: string
@@ -20,11 +21,11 @@ type LeftPanelOpt = {
 }
 
 const menus = [
-  <DialogMenu/>,
-  <CharacterMenu/>,
-  <VariablesMenu/>,
-  <VersionsMenu/>,
-  <BranchesMenu/>,
+  <DialogMenu />,
+  <CharacterMenu />,
+  <VariablesMenu />,
+  <VersionsMenu />,
+  <BranchesMenu />,
 ];
 
 const opts: LeftPanelOpt[] = [
@@ -65,6 +66,7 @@ const LayoutLeftPanel = () => {
   const [optionSelected, setOptionSelected] = useState<number | null>(null);
   const [panelOpened, setPanelOpened] = useState(!!optionSelected);
   const { closeProject } = useGlobalState();
+  const navigate = useNavigate();
 
   return (
     <div className="flex h-full">
@@ -100,7 +102,10 @@ const LayoutLeftPanel = () => {
             key={leaveOpt.name}
             role="button"
             className='p-1 rounded hover:cursor-pointer transition-colors duration-150 hover:bg-highlight-med'
-            onClick={closeProject}
+            onClick={() => {
+              closeProject();
+              navigate("/");
+            }}
           >
             {leaveOpt.icon}
           </button>

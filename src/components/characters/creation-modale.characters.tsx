@@ -5,10 +5,12 @@ import { useCreateCharacter } from "../../hooks/queries/character"
 import { useAppForm } from "../../hooks/form"
 import { useGlobalState } from "../../context/global-state.context"
 import { Button } from "../common/buttons/base.buttons"
+import { useNavigate } from "react-router-dom"
 
 export const CharacterCreationModale: React.FC<ModalProps> = ({ onClose, isOpen }) => {
   const { project } = useGlobalState();
   const ref = useAutoFocusRef(isOpen);
+  const navigate = useNavigate();
   const chatMutation = useCreateCharacter();
   const form = useAppForm({
     defaultValues: {
@@ -18,11 +20,12 @@ export const CharacterCreationModale: React.FC<ModalProps> = ({ onClose, isOpen 
       if (!project) {
         return
       }
-      await chatMutation.mutateAsync({
+      const newChar =  await chatMutation.mutateAsync({
         projectId: project.id,
         name: value.name,
       });
       form.reset();
+      navigate(`/character/${newChar.id}`);
       onClose();
     },
   })
