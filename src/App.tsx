@@ -4,6 +4,8 @@ import { MainLayout } from "./components/layout/main-layout";
 import { DialogPage } from "./pages/dialog-page";
 import { HomePage } from "./pages/home.page";
 import { useGlobalState } from "./context/global-state.context";
+import { CharacterPage } from "./pages/character-page";
+import { ProjectPage } from "./pages/project-page";
 
 const router = createHashRouter([
   {
@@ -12,11 +14,15 @@ const router = createHashRouter([
     children: [
       {
         path: "",
-        element: <DialogPage />
+        element: <ProjectPage />
       },
       {
         path: "home",
         element: <DialogPage />
+      },
+      {
+        path: "character/:id",
+        element: <CharacterPage />
       }
     ]
   }
