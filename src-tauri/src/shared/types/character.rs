@@ -1,4 +1,4 @@
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
@@ -54,6 +54,10 @@ impl Character {
             artwork_link: None,
             background_link: None,
         })
+    }
+
+    pub fn get_id(&self) -> &Uuid {
+        &self.id
     }
 
     pub fn upload_portrait<U: Uploader>(
@@ -142,4 +146,5 @@ impl Character {
 
         Ok(())
     }
+
 }

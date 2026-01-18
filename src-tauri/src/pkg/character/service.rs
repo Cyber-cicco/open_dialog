@@ -1,39 +1,40 @@
 use std::{
     fs::File,
     io::BufWriter,
+    path::PathBuf,
     str::FromStr,
-    sync::{Arc, Mutex},
+    sync::{Arc},
 };
 
-use anyhow::{anyhow, Context, Result};
+use anyhow::{Context, Result};
 use uuid::Uuid;
 
-use crate::shared::{
+use crate::{pkg::character::dao::CharacterDao, shared::{
     config::{CHAR_DIRNAME, ODConfig},
-    types::{character::Character, interfaces::{Shared, Uploader}},
-};
+    types::{
+        character::Character,
+        interfaces::{Shared, Uploader},
+    },
+}};
 
-pub struct CharacterServiceLocalImpl<C: ODConfig> {
-    config:Shared<C>,
+pub struct CharacterServiceLocalImpl<C: ODConfig, D: CharacterDao<C>> {
+    config: Shared<C>,
+    dao: Arc<D>,
     uploader: Arc<dyn Uploader>,
 }
 
-impl<C: ODConfig> CharacterServiceLocalImpl<C> {
-    pub fn new(config: Shared<C>, uploader: Arc<dyn Uploader>) -> Self {
-        CharacterServiceLocalImpl { config, uploader }
+impl<C: ODConfig, D: CharacterDao<C>> CharacterServiceLocalImpl<C, D> {
+    pub fn new(
+        config: Shared<C>,
+        dao: Arc<D>,
+        uploader: Arc<dyn Uploader>,
+    ) -> Self {
+        CharacterServiceLocalImpl { config, uploader, dao }
     }
 
     pub fn create_character(&self, project_id: &str, name: &str) -> Result<Character> {
         let character = Character::new(name)?;
-        let project_path = &Uuid::from_str(project_id)?.simple().to_string()[..12];
-        let char_path = self
-            .config
-            .lock()
-            .map_err(|e| anyhow!("config lock error {e}"))?
-            .get_root_dir()
-            .join(project_path)
-            .join(CHAR_DIRNAME)
-            .join(character.get_file_name());
+        let char_path = self.get_char_path(project_id, character.get_id())?;
         let file = File::create(char_path).context("error creating the character file")?;
         let writer = BufWriter::new(file);
         serde_json::to_writer(writer, &character)
@@ -41,4 +42,19 @@ impl<C: ODConfig> CharacterServiceLocalImpl<C> {
         Ok(character)
     }
 
+    pub fn get_char_path(&self, project_id: &str, char_id: &Uuid) -> Result<PathBuf> {
+        let character_file_name = &char_id.simple().to_string()[..16];
+        let project_path = &Uuid::from_str(project_id)?.simple().to_string()[..12];
+        Ok(self
+            .config
+            .lock()?
+            .get_root_dir()
+            .join(project_path)
+            .join(CHAR_DIRNAME)
+            .join(character_file_name))
+    }
+
+    fn create_description(&self, project_id: &str, char_id: &str, description: &str) -> Result<()> {
+        Ok(())
+    }
 }
