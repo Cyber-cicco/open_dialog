@@ -12,8 +12,8 @@ export const CharacterMenu = () => {
   const { data: characters, error, isPending } = useGetAllCharacters(project?.id!);
 
   return (
-    <div className="flex h-full flex-col w-full">
-      <div className="flex-1 overflow-y-auto p-2 space-y-1">
+    <div className="flex h-full flex-col w-full relative">
+      <div className="flex-1 overflow-y-auto space-y-1">
         {isPending && <p className="text-text-muted text-sm p-2">Loading...</p>}
         {error && <p className="text-red-500 text-sm p-2">Error loading characters</p>}
         {characters?.length === 0 && (
@@ -24,7 +24,7 @@ export const CharacterMenu = () => {
         ))}
       </div>
       
-      <div className="absolute bottom-4 left-4 right-4">
+      <div className="absolute bottom-0 left-0 right-0">
         <Button fullWidth onClick={() => setModaleVisible(true)}>
           New Character
         </Button>
@@ -41,7 +41,7 @@ export const CharacterMenu = () => {
 }
 
 const CharacterListItem = ({ character }: { character: Character }) => (
-  <div className="flex items-center gap-3 py-2 rounded-lg hover:bg-highlight-100 cursor-pointer transition-colors">
+  <div className="flex items-center gap-3 p-2 rounded-lg hover:bg-highlight-200 cursor-pointer transition-colors">
     <CharacterAvatar character={character} />
     <span className="text-text-primary text-sm truncate">{character.display_name}</span>
   </div>

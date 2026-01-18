@@ -20,7 +20,7 @@ export const CharacterAvatar = ({ character }: { character: Character }) => {
     .toUpperCase()
   
   return (
-    <div className="w-10 h-10 rounded-md bg-blue-700 flex items-center justify-center text-text-primary text-sm font-medium">
+    <div className="w-10 h-10 rounded-md bg-blue-900 flex items-center justify-center text-text-primary text-sm font-medium">
       {initials}
     </div>
   )

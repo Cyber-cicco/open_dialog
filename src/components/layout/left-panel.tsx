@@ -67,10 +67,10 @@ const LayoutLeftPanel = () => {
   const { closeProject } = useGlobalState();
 
   return (
-    <div className="flex w-full h-full">
-      <div className="w-12 rounded-r-sm h-full p-2 bg-base-primary flex flex-col gap-1">
+    <div className="flex h-full">
+      <div className="w-12 h-full p-2 bg-base-primary flex flex-col gap-1">
         {opts.map((opt, i) => (
-          <Tooltip content={opt.hover}>
+          <Tooltip key={i} content={opt.hover}>
             <button
               aria-label={opt.hover}
               key={opt.name}
@@ -109,7 +109,7 @@ const LayoutLeftPanel = () => {
 
       </div>
       <div
-        className={`left-panel-content rounded-r-sm h-full bg-base-surface text-white -translate-x-1 ${panelOpened ? 'open' : 'closed'}`}
+        className={`left-panel-content rounded-r-sm h-full bg-base-surface text-white ${panelOpened ? 'open' : 'closed'}`}
       >
         <div className="p-4 h-full">
 
