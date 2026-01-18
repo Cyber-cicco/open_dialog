@@ -38,6 +38,7 @@ type ButtonProps = {
   children?: React.ReactNode
   model?: ButtonModel
   size?: ButtonSize
+  fullWidth?: boolean
   onClick?: () => void
 }
 
@@ -48,6 +49,7 @@ export const Button: React.FC<ButtonProps> = ({
   children,
   model = "primary",
   size = "base",
+  fullWidth = false,
   onClick,
 }) => {
   const spinnerSize = size === "small" ? "h-3 w-3" : size === "large" ? "h-5 w-5" : "h-4 w-4"
@@ -58,6 +60,7 @@ export const Button: React.FC<ButtonProps> = ({
       className={`
         flex items-center justify-center gap-2
         ${getSizeStyles(size)} 
+        ${fullWidth && 'w-full'}
         font-medium rounded-sm 
         transition-colors
         outline-none focus-visible:ring-2 focus-visible:ring-blue-deep/50 focus-visible:ring-offset-2 focus-visible:ring-offset-base-surface

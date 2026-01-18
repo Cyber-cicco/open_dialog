@@ -7,12 +7,25 @@ import { BranchesSvg } from "../common/svg/branches.svg";
 import { Tooltip } from "../common/tooltips";
 import { LeaveIcon } from "../common/svg/leave.svg";
 import { useGlobalState } from "../../context/global-state.context";
+import { CharacterMenu } from "../menus/character.menus";
+import { DialogMenu } from "../menus/dialog.menus";
+import { VariablesMenu } from "../menus/variables.menu";
+import { VersionsMenu } from "../menus/versions.menus";
+import { BranchesMenu } from "../menus/branches.menus";
 
 type LeftPanelOpt = {
   name: string
   icon: React.ReactNode
   hover: string
 }
+
+const menus = [
+  <DialogMenu/>,
+  <CharacterMenu/>,
+  <VariablesMenu/>,
+  <VersionsMenu/>,
+  <BranchesMenu/>,
+];
 
 const opts: LeftPanelOpt[] = [
   {
@@ -51,7 +64,7 @@ const leaveOpt: LeftPanelOpt = {
 const LayoutLeftPanel = () => {
   const [optionSelected, setOptionSelected] = useState<number | null>(null);
   const [panelOpened, setPanelOpened] = useState(!!optionSelected);
-  const  {closeProject} = useGlobalState();
+  const { closeProject } = useGlobalState();
 
   return (
     <div className="flex w-full h-full">
@@ -82,24 +95,25 @@ const LayoutLeftPanel = () => {
         ))}
         <div className="grow"></div>
         <Tooltip content={leaveOpt.hover}>
-            <button
-              aria-label={leaveOpt.hover}
-              key={leaveOpt.name}
-              role="button"
-              className='p-1 rounded hover:cursor-pointer transition-colors duration-150 hover:bg-highlight-med'
-              onClick={closeProject}
-            >
-              {leaveOpt.icon}
-            </button>
+          <button
+            aria-label={leaveOpt.hover}
+            key={leaveOpt.name}
+            role="button"
+            className='p-1 rounded hover:cursor-pointer transition-colors duration-150 hover:bg-highlight-med'
+            onClick={closeProject}
+          >
+            {leaveOpt.icon}
+          </button>
 
         </Tooltip>
 
       </div>
       <div
-        className={`left-panel-content h-full bg-base-surface text-white -translate-x-1 ${panelOpened ? 'open' : 'closed'}`}
+        className={`left-panel-content rounded-r-sm h-full bg-base-surface text-white -translate-x-1 ${panelOpened ? 'open' : 'closed'}`}
       >
-        <div className="w-[200px] pl-4 pr-2">
-          bonjour
+        <div className="p-4 h-full">
+
+          {optionSelected !== null && menus[optionSelected]}
         </div>
       </div>
     </div>

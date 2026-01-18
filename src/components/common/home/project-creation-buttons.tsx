@@ -9,10 +9,10 @@ export const ProjectCreationButtons = () => {
       <Tooltip content="Créer un nouveau projet vide">
         <Button onClick={() => {
           open();
-        }}>Créer</Button>
+        }}>New</Button>
       </Tooltip>
       <Tooltip content="Récupérer un projet sur un ordinateur distant (non implémenté)">
-        <Button isDisabled model="secondary" >Cloner</Button>
+        <Button isDisabled model="secondary" >Clone</Button>
       </Tooltip>
     </div>
   )

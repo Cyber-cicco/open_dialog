@@ -26,30 +26,29 @@ pub trait CharacterDao<C: ODConfig> {
 
 impl<C: ODConfig> CharacterDao<C> for FileCharacterDao<C> {
     fn persist_character(&self, project_id: &str, character: &Character) -> Result<()> {
-        self.get_char_path(project_id, character.get_id())
+        Ok(self
+            .get_char_path(project_id, character.get_id())
             .map(|cp| File::create(cp))
             .context("error creating the character file")?
             .map(|file| BufWriter::new(file))
             .map(|writer| serde_json::to_writer(writer, &character))
-            .context("could not serialize character to write into file")??;
-        Ok(())
+            .context("could not serialize character to write into file")??)
     }
 
     fn get_character(&self, project_id: &str, char_id: &Uuid) -> Result<Character> {
-        let character = self
+        Ok(self
             .get_char_path(project_id, char_id)
             .map(|path| fs::read(&path))
             .context("could not read character file")?
             .map(|b| serde_json::from_slice(&b))
-            .context("could not deserialize file into character.")??;
-        Ok(character)
+            .context("could not deserialize file into character.")??)
     }
 
     fn persist_description(&self, project_id: &str, desc_id: &Uuid, desc: &str) -> Result<()> {
-        self.get_desc_file_name(project_id, desc_id)
+        Ok(self.get_desc_file_name(project_id, desc_id)
             .map(|dfs| fs::write(dfs, desc))
-            .context("could not write description to file")??;
-        Ok(())
+            .context("could not write description to file")??)
+        
     }
 
     fn get_all_characters(&self, project_id: &str) -> Result<Vec<Character>> {
