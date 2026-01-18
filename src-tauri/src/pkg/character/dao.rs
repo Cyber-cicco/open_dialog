@@ -26,31 +26,34 @@ pub trait CharacterDao<C: ODConfig> {
 
 impl<C: ODConfig> CharacterDao<C> for FileCharacterDao<C> {
     fn persist_character(&self, project_id: &str, character: &Character) -> Result<()> {
-        let char_path = self.get_char_path(project_id, character.get_id())?;
-        let file = File::create(char_path).context("error creating the character file")?;
-        let writer = BufWriter::new(file);
-        serde_json::to_writer(writer, &character)
-            .context("could not serialize character to write into file")?;
+        self.get_char_path(project_id, character.get_id())
+            .map(|cp| File::create(cp))
+            .context("error creating the character file")?
+            .map(|file| BufWriter::new(file))
+            .map(|writer| serde_json::to_writer(writer, &character))
+            .context("could not serialize character to write into file")??;
         Ok(())
     }
 
     fn get_character(&self, project_id: &str, char_id: &Uuid) -> Result<Character> {
-        let char_path = self.get_char_path(project_id, char_id)?;
-        let file = fs::read(char_path).context("character did not exist")?;
-        let character: Character =
-            serde_json::from_slice(&file).context("could not deserialize file into character.")?;
+        let character = self
+            .get_char_path(project_id, char_id)
+            .map(|path| fs::read(&path))
+            .context("could not read character file")?
+            .map(|b| serde_json::from_slice(&b))
+            .context("could not deserialize file into character.")??;
         Ok(character)
     }
 
     fn persist_description(&self, project_id: &str, desc_id: &Uuid, desc: &str) -> Result<()> {
-        let desc_path = self.get_desc_file_name(project_id, desc_id)?;
-        fs::write(desc_path, desc).context("could not write description to file")?;
+        self.get_desc_file_name(project_id, desc_id)
+            .map(|dfs| fs::write(dfs, desc))
+            .context("could not write description to file")??;
         Ok(())
     }
 
     fn get_all_characters(&self, project_id: &str) -> Result<Vec<Character>> {
         let char_dir = self.get_char_dir(project_id)?;
-
         let res = fs::read_dir(&char_dir)
             .context("Could not access this character directory")?
             .filter_map(|entry| entry.ok())
@@ -66,7 +69,6 @@ impl<C: ODConfig> CharacterDao<C> for FileCharacterDao<C> {
                     })
             })
             .collect();
-
         Ok(res)
     }
 }
