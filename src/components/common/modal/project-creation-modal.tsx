@@ -34,14 +34,10 @@ export const ProjectCreationModale: React.FC<ModalProps> = ({ onClose, isOpen })
       >
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-text-subtle mb-2">
-              Nom du projet
-            </label>
             <form.AppField
               name="name"
-
               children={(field) => (
-                <field.TextField inputRef={nameRef} />
+                <field.TextField label="Name of the project" inputRef={nameRef} />
               )}
             />
           </div>

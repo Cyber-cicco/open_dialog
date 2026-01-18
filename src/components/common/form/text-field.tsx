@@ -59,7 +59,7 @@ export default function TextField({ label, placeholder, mode = "normal", type = 
   const inputType = isPassword ? (showPassword ? "text" : "password") : type
 
   return (
-    <div>
+    <div className='space-y-4'>
       {label && (
         <label className={getLabelStyles(mode)}>
           {label} {required && <span className="text-red-400">*</span>}
