@@ -1,4 +1,5 @@
 use std::path::{Path, PathBuf};
+use std::sync::Arc;
 
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
@@ -42,6 +43,15 @@ pub struct CharacterForm<'a> {
     pub description: Option<String>,
 }
 
+#[derive(TS)]
+#[ts(export, export_to = "../../src/bindings/")]
+#[derive(Debug, Clone, Copy)]
+pub enum ImageField {
+    Portrait,
+    Artwork,
+    Background,
+}
+
 impl Character {
     pub fn new(display_name: &str) -> Result<Self> {
         Character::validate_name(display_name)?;
@@ -61,44 +71,27 @@ impl Character {
         &self.id
     }
 
-    pub fn upload_portrait<U: Uploader>(
+    pub fn upload_image(
         &mut self,
-        from: String,
-        to: &Path,
-        uploader: U,
+        from: &str,
+        project_path: &Path,
+        uploader: Arc<dyn Uploader>,
+        field:ImageField,
     ) -> Result<()> {
-        let uuid = uploader.updload(from, to)?;
-        self.portrait_link = Some(uuid);
-        return Ok(());
-    }
-
-    pub fn upload_artwork<U: Uploader>(
-        &mut self,
-        from: String,
-        to: &Path,
-        uploader: U,
-    ) -> Result<()> {
-        let uuid = uploader.updload(from, to)?;
-        self.artwork_link = Some(uuid);
-        return Ok(());
-    }
-
-    pub fn upload_background_link<U: Uploader>(
-        &mut self,
-        from: String,
-        to: &Path,
-        uploader: U,
-    ) -> Result<()> {
-        let uuid = uploader.updload(from, to)?;
-        self.background_link = Some(uuid);
-        return Ok(());
+        let uuid = uploader.updload(from, project_path)?;
+        match field {
+            ImageField::Artwork => self.artwork_link = Some(uuid),
+            ImageField::Portrait => self.portrait_link = Some(uuid),
+            ImageField::Background => self.background_link = Some(uuid)
+        };
+        Ok(())
     }
 
     pub fn get_name(&self) -> &String {
         return &self.display_name;
     }
 
-    pub fn set_description(&mut self, description:Uuid) {
+    pub fn set_description(&mut self, description: Uuid) {
         self.description = Some(description);
     }
 
@@ -148,10 +141,9 @@ impl Character {
         Ok(())
     }
 
-    pub fn change_from_form(&mut self, char_form:&CharacterForm) {
+    pub fn change_from_form(&mut self, char_form: &CharacterForm) {
         self.last_name = char_form.last_name.clone();
         self.display_name = char_form.display_name.clone();
         self.first_name = char_form.first_name.clone();
     }
-
 }

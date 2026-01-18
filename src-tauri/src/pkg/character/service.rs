@@ -1,14 +1,16 @@
-use std::{str::FromStr, sync::Arc};
+use std::{char, str::FromStr, sync::Arc};
 
-use anyhow::{Result};
+use anyhow::{Context, Result};
+use serde_json::from_str;
+use tokio::io::join;
 use uuid::Uuid;
 
 use crate::{
     pkg::character::dao::CharacterDao,
     shared::{
-        config::{ODConfig},
+        config::ODConfig,
         types::{
-            character::{Character, CharacterForm},
+            character::{Character, CharacterForm, ImageField},
             interfaces::{Shared, Uploader},
         },
     },
@@ -72,4 +74,13 @@ impl<C: ODConfig, D: CharacterDao<C>> CharacterServiceLocalImpl<C, D> {
         character.set_description(description_uuid);
         Ok(())
     }
+
+    pub fn upload_image(&self, project_id: &str, char_id: &str, from: &str, field:ImageField) -> Result<()> {
+        let char_uuid = Uuid::from_str(char_id).context(format!("invalid uuid {char_id}"))?;
+        let mut character = self.dao.get_character(project_id, &char_uuid)?;
+        let project_path = self.config.lock()?.get_project_dir(project_id)?;
+        character.upload_image(from, &project_path, self.uploader.clone(), field)?;
+        self.dao.persist_character(project_id, &character)
+    }
+
 }

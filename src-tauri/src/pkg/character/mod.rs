@@ -1,8 +1,8 @@
-use tauri::State;
+use tauri::{State};
 
 use crate::shared::{
     state::AppState,
-    types::character::{Character, CharacterForm},
+    types::character::{Character, CharacterForm, ImageField},
 };
 
 pub mod dao;
@@ -29,5 +29,19 @@ pub fn change_character<'a>(
     state
         .character_service
         .change_character(project_id, char_form)
+        .map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+pub fn upload_image<'a>(
+    project_id: &str,
+    char_id: &str,
+    path:&str,
+    field:ImageField,
+    state: State<'a, AppState>,
+) -> Result<(), String> {
+    state
+        .character_service
+        .upload_image(project_id, char_id, path, field)
         .map_err(|e| e.to_string())
 }

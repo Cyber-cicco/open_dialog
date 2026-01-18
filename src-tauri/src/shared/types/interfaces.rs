@@ -11,9 +11,9 @@ use uuid::Uuid;
 /// git repository or on a remote server depending
 /// on the version of the application.
 pub trait Uploader: Send + Sync {
-    fn updload(&self, from_path: String, project_path: &Path) -> Result<Uuid> {
+    fn updload(&self, from_path: &str, project_path: &Path) -> Result<Uuid> {
         let uuid = Uuid::new_v4();
-        let to_path = project_path.join("assets/").join(uuid.to_string());
+        let to_path = project_path.join("assets").join(uuid.to_string());
         fs::copy(from_path, to_path).expect("Could not copy the file to the repository");
         Ok(uuid)
     }

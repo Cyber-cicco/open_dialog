@@ -2,6 +2,7 @@ use std::{
     fs::{self, File},
     io::BufWriter,
     path::{Path, PathBuf},
+    str::FromStr,
     sync::{Arc, RwLock},
 };
 
@@ -9,6 +10,7 @@ use crate::shared::types::project::{AtomicProject, AtomicProjects, Project};
 use anyhow::{Context, Result};
 use directories::ProjectDirs;
 use serde::{Deserialize, Serialize};
+use uuid::Uuid;
 
 pub const CONFIG_FILE_PATH: &str = "open_dialog_config.json";
 pub const CHAR_DIRNAME: &str = "character";
@@ -22,6 +24,7 @@ pub trait ODConfig: Sized + Clone + Send + Sync + 'static {
     fn init() -> Result<Self>;
     fn append_project(&mut self, project: Project) -> Result<AtomicProject>;
     fn get_projects(&self) -> AtomicProjects;
+    fn get_project_dir(&self, project_id: &str) -> Result<PathBuf>;
     async fn save_async(&self) -> Result<()>;
 }
 
@@ -43,7 +46,7 @@ impl ODConfig for ODConfigLocal {
         if Path::exists(&config_file_path) {
             let file =
                 fs::read_to_string(&config_file_path).context("Failed to read config file")?;
-            let mut config:ODConfigLocal = serde_json::from_str(&file)
+            let mut config: ODConfigLocal = serde_json::from_str(&file)
                 .context("Failed to serialize the config file into AppConfig struct")?;
             config.root_dir = root_dir;
             return Ok(config);
@@ -81,6 +84,11 @@ impl ODConfig for ODConfigLocal {
 
     fn get_projects(&self) -> AtomicProjects {
         self.projects.clone()
+    }
+
+    fn get_project_dir(&self, project_id: &str) -> Result<PathBuf> {
+        let res = &Uuid::from_str(project_id)?.simple().to_string()[..12];
+        Ok(self.get_root_dir().join(res))
     }
 
     async fn save_async(&self) -> Result<()> {

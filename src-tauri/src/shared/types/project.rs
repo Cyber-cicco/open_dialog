@@ -1,4 +1,7 @@
-use std::{path::{Path, PathBuf}, sync::{Arc, RwLock}};
+use std::{
+    path::{Path, PathBuf},
+    sync::{Arc, RwLock},
+};
 
 use chrono::prelude::*;
 use serde::{Deserialize, Serialize};
@@ -11,7 +14,7 @@ use uuid::Uuid;
 pub struct Project {
     id: Uuid,
     name: String,
-    path:PathBuf,
+    path: PathBuf,
     metadata: ProjectMetadata,
 }
 
@@ -29,17 +32,16 @@ pub type AtomicProject = Arc<RwLock<Project>>;
 pub type AtomicProjects = Arc<RwLock<Vec<AtomicProject>>>;
 
 impl Project {
-
-    pub fn new(name: &str, root_path:&PathBuf) -> Self {
+    pub fn new(name: &str, root_path: &PathBuf) -> Self {
         let created_at = Utc::now();
         let id = Uuid::new_v4();
         let path = root_path.join(&id.simple().to_string()[..12]);
         let name = String::from(name);
-        let metadata = ProjectMetadata{
+        let metadata = ProjectMetadata {
             created_at,
-            last_commit:None,
-            current_branch:None,
-            branches:vec![],
+            last_commit: None,
+            current_branch: None,
+            branches: vec![],
         };
         return Self {
             path,
@@ -53,7 +55,7 @@ impl Project {
         &self.id
     }
 
-    pub fn set_last_commit(&mut self, date:DateTime<Utc>) {
+    pub fn set_last_commit(&mut self, date: DateTime<Utc>) {
         self.metadata.last_commit = Some(date);
     }
 
@@ -71,7 +73,6 @@ impl Project {
     }
 
     pub fn get_path(&self) -> &Path {
-        return &self.path
+        return &self.path;
     }
-
 }

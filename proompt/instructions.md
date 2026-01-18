@@ -1,1 +1,1 @@
-In persist_description, I want to write the description string to the file in plain text.
+So here is the thing: the workflow for artwork, portrait and background is exactly the same. So I was thinking about passing a function into another function to have the three in as little lines of code as possible. But it might not be possible.
