@@ -17,9 +17,10 @@ pub fn create_project<'a>(name: &str, state: State<'a, AppState>) -> Result<Arc<
 
 #[command]
 pub fn get_projects<'a>(state: State<'a, AppState>) -> Result<AtomicProjects, String> {
-    let res = state.project_service
+    state.project_service
         .lock()
         .map_err(|e| e.to_string())?
-        .get_projects();
-    return Ok(res);
+        .get_projects()
+        .map_err(|e| e.to_string())
+    
 }

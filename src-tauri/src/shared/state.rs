@@ -5,6 +5,6 @@ use crate::shared::config::ODConfigLocal;
 use crate::shared::types::interfaces::FSUploader;
 
 pub struct AppState {
-    pub project_service: Mutex<ProjectServiceLocaleImpl<FSUploader, ODConfigLocal>>,
-    pub character_service: Mutex<CharacterServiceLocalImpl<FSUploader, ODConfigLocal>>,
+    pub project_service: Mutex<ProjectServiceLocaleImpl<ODConfigLocal>>,
+    pub character_service: Mutex<CharacterServiceLocalImpl<ODConfigLocal>>,
 }
