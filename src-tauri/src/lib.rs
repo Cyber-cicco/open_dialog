@@ -14,6 +14,7 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             pkg::project::create_project,
             pkg::project::get_projects,
+            pkg::character::create_character,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

@@ -4,6 +4,7 @@ use crate::shared::{state::AppState, types::character::Character};
 
 pub mod service;
 
+#[tauri::command]
 pub fn create_character<'a>(project_id:&str, name:&str, state:State<'a, AppState>) -> Result<Character, String> {
     state.character_service
         .lock()
