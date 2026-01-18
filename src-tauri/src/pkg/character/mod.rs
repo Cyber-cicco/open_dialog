@@ -45,3 +45,14 @@ pub fn upload_image<'a>(
         .upload_image(project_id, char_id, path, field)
         .map_err(|e| e.to_string())
 }
+
+#[tauri::command]
+pub fn get_all_characters<'a>(
+    project_id: &str,
+    state: State<'a, AppState>,
+) -> Result<Vec<Character>, String> {
+    state
+        .character_service
+        .get_all_characters(project_id)
+        .map_err(|e| e.to_string())
+}

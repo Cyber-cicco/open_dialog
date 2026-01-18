@@ -1,8 +1,6 @@
-use std::{char, str::FromStr, sync::Arc};
+use std::{str::FromStr, sync::Arc};
 
 use anyhow::{Context, Result};
-use serde_json::from_str;
-use tokio::io::join;
 use uuid::Uuid;
 
 use crate::{
@@ -59,7 +57,8 @@ impl<C: ODConfig, D: CharacterDao<C>> CharacterServiceLocalImpl<C, D> {
             }
         }
         character.change_from_form(&char_form);
-        todo!()
+        self.dao.persist_character(project_id, &character)?;
+        Ok(character)
     }
 
     fn create_description(
@@ -81,6 +80,13 @@ impl<C: ODConfig, D: CharacterDao<C>> CharacterServiceLocalImpl<C, D> {
         let project_path = self.config.lock()?.get_project_dir(project_id)?;
         character.upload_image(from, &project_path, self.uploader.clone(), field)?;
         self.dao.persist_character(project_id, &character)
+    }
+
+    pub fn get_all_characters(
+        &self,
+        project_id: &str,
+    ) -> Result<Vec<Character>> {
+        self.dao.get_all_characters(project_id)
     }
 
 }

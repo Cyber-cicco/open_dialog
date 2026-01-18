@@ -45,7 +45,7 @@ pub struct CharacterForm<'a> {
 
 #[derive(TS)]
 #[ts(export, export_to = "../../src/bindings/")]
-#[derive(Debug, Clone, Copy)]
+#[derive(Serialize, Deserialize, Debug, Clone, Copy)]
 pub enum ImageField {
     Portrait,
     Artwork,

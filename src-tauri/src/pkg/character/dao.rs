@@ -1,6 +1,6 @@
 use std::{
     fs::{self, File},
-    io::{BufWriter},
+    io::BufWriter,
     path::PathBuf,
     str::FromStr,
 };
@@ -21,6 +21,7 @@ pub trait CharacterDao<C: ODConfig> {
     fn persist_character(&self, project_id: &str, character: &Character) -> Result<()>;
     fn get_character(&self, project_id: &str, char_id: &Uuid) -> Result<Character>;
     fn persist_description(&self, project_id: &str, desc_id: &Uuid, desc: &str) -> Result<()>;
+    fn get_all_characters(&self, project_id: &str) -> Result<Vec<Character>>;
 }
 
 impl<C: ODConfig> CharacterDao<C> for FileCharacterDao<C> {
@@ -46,6 +47,28 @@ impl<C: ODConfig> CharacterDao<C> for FileCharacterDao<C> {
         fs::write(desc_path, desc).context("could not write description to file")?;
         Ok(())
     }
+
+    fn get_all_characters(&self, project_id: &str) -> Result<Vec<Character>> {
+        let char_dir = self.get_char_dir(project_id)?;
+
+        let res = fs::read_dir(&char_dir)
+            .context("Could not access this character directory")?
+            .filter_map(|entry| entry.ok())
+            .map(|e| e.path())
+            .filter(|path| path.extension().is_some_and(|ext| ext == "char"))
+            .filter_map(|path| {
+                fs::read(&path)
+                    .ok()
+                    .and_then(|data| serde_json::from_slice(&data).ok())
+                    .or_else(|| {
+                        eprintln!("character file was corrupted: {}", path.display());
+                        None
+                    })
+            })
+            .collect();
+
+        Ok(res)
+    }
 }
 
 impl<C: ODConfig> FileCharacterDao<C> {
@@ -55,14 +78,16 @@ impl<C: ODConfig> FileCharacterDao<C> {
 
     pub fn get_char_path(&self, project_id: &str, char_id: &Uuid) -> Result<PathBuf> {
         let character_file_name = &char_id.simple().to_string()[..16];
-        Ok(self.get_char_dir(project_id)?.join(character_file_name))
+        Ok(self
+            .get_char_dir(project_id)?
+            .join(format!("{character_file_name}.char")))
     }
 
     pub fn get_desc_file_name(&self, project_id: &str, desc_id: &Uuid) -> Result<PathBuf> {
         let desc_file_name = &desc_id.simple().to_string()[..16];
         Ok(self
             .get_char_dir(project_id)?
-            .join(format!("desc-{desc_file_name}.txt")))
+            .join(format!("{desc_file_name}.desc")))
     }
 
     pub fn get_char_dir(&self, project_id: &str) -> Result<PathBuf> {

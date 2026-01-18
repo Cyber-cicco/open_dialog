@@ -1,1 +1,1 @@
-So here is the thing: the workflow for artwork, portrait and background is exactly the same. So I was thinking about passing a function into another function to have the three in as little lines of code as possible. But it might not be possible.
+Is there any way to make the get_all_characters method cleaner ?
