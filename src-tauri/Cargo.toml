@@ -31,3 +31,5 @@ git2 = { version = "0.20.3" }
 tokio = { version = "1.49.0", features = ["full"] }
 async-trait = { version = "0.1.89" }
 tauri-plugin-dialog = "2"
+email_address = "0.2.9"
+whoami = "2.0.2"

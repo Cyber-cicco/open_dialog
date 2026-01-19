@@ -43,7 +43,7 @@ impl<C: ODConfig, D: CharacterDao<C>> CharacterServiceLocalImpl<C, D> {
         let char_uuid = Uuid::from_str(char_form.id)?;
         let mut character = self.dao.get_character(project_id, &char_uuid)?;
         match &char_form.description {
-            Some(desc) => self.create_description(project_id, &mut character, &desc)?,
+            Some(desc) => self.persist_description(project_id, &mut character, &desc)?,
             None => (),
         }
         Character::validate_name(character.get_name())?;
@@ -52,15 +52,15 @@ impl<C: ODConfig, D: CharacterDao<C>> CharacterServiceLocalImpl<C, D> {
         Ok(character)
     }
 
-    fn create_description(
+    fn persist_description(
         &self,
         project_id: &str,
         character: &mut Character,
         description: &str,
     ) -> Result<()> {
-        let description_uuid = Uuid::new_v4();
-        self.dao
-            .persist_description(project_id, &description_uuid, description)?;
+        let description_uuid = character.get_description_link()
+            .unwrap_or(Uuid::new_v4());
+        self.dao.persist_description(project_id, &description_uuid, description)?;
         character.set_description_link(description_uuid);
         character.set_description(description);
         Ok(())

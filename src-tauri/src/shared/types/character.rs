@@ -151,5 +151,6 @@ impl Character {
         self.last_name = char_form.last_name.clone();
         self.display_name = char_form.display_name.clone();
         self.first_name = char_form.first_name.clone();
+        self.description = None;
     }
 }

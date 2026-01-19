@@ -7,8 +7,9 @@ use std::{
 };
 
 use crate::shared::types::project::{AtomicProject, AtomicProjects, Project};
-use anyhow::{Context, Result};
+use anyhow::{bail, Context, Result};
 use directories::ProjectDirs;
+use email_address::EmailAddress;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
@@ -25,12 +26,16 @@ pub trait ODConfig: Sized + Clone + Send + Sync + 'static {
     fn append_project(&mut self, project: Project) -> Result<AtomicProject>;
     fn get_projects(&self) -> AtomicProjects;
     fn get_project_dir(&self, project_id: &str) -> Result<PathBuf>;
+    fn set_user(&mut self, name: &str);
+    fn set_email(&mut self, email: &str) -> Result<()>;
     async fn save_async(&self) -> Result<()>;
 }
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct ODConfigLocal {
     root_dir: PathBuf,
+    user: String,
+    email: Option<String>,
     projects: AtomicProjects,
     current_project_index: u64,
 }
@@ -54,8 +59,11 @@ impl ODConfig for ODConfigLocal {
 
         fs::create_dir_all(&root_dir)
             .context("échec de la création du répertoire de la configuration")?;
+        let name = whoami::username()?;
         let config = ODConfigLocal {
             root_dir,
+            user: name,
+            email: None,
             projects: Arc::new(RwLock::new(vec![])),
             current_project_index: 0,
         };
@@ -71,6 +79,18 @@ impl ODConfig for ODConfigLocal {
 
     fn get_root_dir(&self) -> &PathBuf {
         return &self.root_dir;
+    }
+
+    fn set_user(&mut self, name: &str) {
+        self.user = String::from(name);
+    }
+
+    fn set_email(&mut self, email: &str) -> Result<()> {
+        if !EmailAddress::is_valid(email) {
+            bail!("invalid email adress")
+        }
+        self.email = Some(String::from(email));
+        Ok(())
     }
 
     fn append_project(&mut self, project: Project) -> Result<AtomicProject> {
