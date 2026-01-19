@@ -1,6 +1,6 @@
 use std::{collections::HashMap, str::FromStr};
 
-use anyhow::Result;
+use anyhow::{bail, Result};
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use ts_rs::TS;
@@ -43,9 +43,10 @@ pub struct Node {
 
 #[derive(TS, Serialize, Deserialize, Debug)]
 #[ts(export, export_to = "../../src/bindings/")]
+#[enum_dispatch::enum_dispatch(Coherent)]
 pub enum NodeData {
     Dialog(DialogNode),
-    Conditions(Phylum),
+    Phylum(Phylum),
     Choices(Choices),
 }
 
@@ -100,6 +101,11 @@ pub struct DialogCreationForm<'a> {
     pub main_char_id: &'a str,
 }
 
+#[enum_dispatch::enum_dispatch]
+trait Coherent {
+    fn enforce_coherence(&self, dialog: &Dialog) -> Result<()>;
+}
+
 impl DialogMetadata {
     pub fn new() -> Self {
         DialogMetadata {
@@ -124,6 +130,50 @@ impl Dialog {
 
     pub fn get_id(&self) -> Uuid {
         return self.id;
+    }
+
+    pub fn enforce_links_coherence(&self) -> Result<()> {
+        for (_, v) in &self.nodes {
+            v.data.enforce_coherence(&self)?;
+        }
+        Ok(())
+    }
+}
+
+impl Coherent for DialogNode {
+    fn enforce_coherence(&self, dialog: &Dialog) -> Result<()> {
+        if let Some(n) = self.next_node {
+            if !dialog.nodes.contains_key(&n) {
+                bail!("incoherent key found : {n}")
+            }
+        }
+        Ok(())
+    }
+}
+
+impl Coherent for Choices {
+    fn enforce_coherence(&self, dialog: &Dialog) -> Result<()> {
+        for choice in &self.choices {
+            if let Some(n) = choice.next_node {
+                if !dialog.nodes.contains_key(&n) {
+                    bail!("incoherent key found : {n}")
+                }
+            }
+        }
+        Ok(())
+    }
+}
+
+impl Coherent for Phylum {
+    fn enforce_coherence(&self, dialog: &Dialog) -> Result<()> {
+        for condition in &self.branches {
+            if let Some(n) = condition.next_node {
+                if !dialog.nodes.contains_key(&n) {
+                    bail!("incoherent key found {n}")
+                }
+            }
+        }
+        Ok(())
     }
 }
 
