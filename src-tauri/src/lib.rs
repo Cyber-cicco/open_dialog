@@ -13,12 +13,21 @@ pub fn run() {
         .manage(app_state)
         .plugin(tauri_plugin_opener::init())
         .invoke_handler(tauri::generate_handler![
+
             pkg::project::create_project,
             pkg::project::get_projects,
+
             pkg::character::create_character,
             pkg::character::change_character,
             pkg::character::upload_image,
             pkg::character::get_all_characters,
+
+            pkg::dialog::create_dialog,
+            pkg::dialog::get_dialog_by_id,
+            pkg::dialog::get_dialog_metadata,
+            pkg::dialog::save_dialog,
+            pkg::dialog::save_dialog_content,
+
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

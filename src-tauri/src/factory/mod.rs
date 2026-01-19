@@ -16,16 +16,20 @@ pub fn init_local_app_state() -> Result<AppState> {
     let uploader = FSUploader {};
     let uploader_ref = Arc::new(uploader);
     let shared_conf = Shared::new(config);
-    let character_dao = FileCharacterDao::new(shared_conf.clone());
-    let dialog_dao = FileDialogDao::new(shared_conf.clone());
+    let character_dao = Arc::new(FileCharacterDao::new(shared_conf.clone()));
+    let dialog_dao = Arc::new(FileDialogDao::new(shared_conf.clone()));
 
     Ok(AppState {
         project_service: ProjectServiceLocaleImpl::new(shared_conf.clone()),
         character_service: CharacterServiceLocalImpl::new(
             shared_conf.clone(),
-            Arc::new(character_dao),
+            character_dao.clone(),
             uploader_ref,
         ),
-        dialog_service: DialogServiceLocalImpl::new(shared_conf.clone(), Arc::new(dialog_dao))
+        dialog_service: DialogServiceLocalImpl::new(
+            shared_conf.clone(),
+            dialog_dao.clone(),
+            character_dao.clone(),
+        ),
     })
 }

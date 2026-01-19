@@ -1,18 +1,20 @@
-use tauri::State;
-
-use crate::shared::{state::AppState, types::dialog::DialogCreationForm};
+use crate::shared::types::dialog::{Dialog, DialogCreationForm, DialogMetadata};
+use od_macros::tauri_command;
 
 pub mod dao;
 pub mod service;
 
-#[tauri::command]
-pub fn create_dialog<'a>(
-    project_id: &str,
-    form: DialogCreationForm,
-    state: State<'a, AppState>,
-) -> Result<(), String> {
-    state
-        .dialog_service
-        .create_dialog(project_id, form)
-        .map_err(|e| e.to_string())
-}
+#[tauri_command(dialog_service)]
+pub fn create_dialog(project_id: &str, form: DialogCreationForm) {}
+
+#[tauri_command(dialog_service)]
+pub fn get_dialog_by_id(project_id: &str, dialog_id: &str) -> Dialog {}
+
+#[tauri_command(dialog_service)]
+pub fn get_dialog_metadata(project_id: &str) -> DialogMetadata {}
+
+#[tauri_command(dialog_service)]
+pub fn save_dialog(project_id: &str, dialog: Dialog) {}
+
+#[tauri_command(dialog_service)]
+pub fn save_dialog_content(dialog_id: &str, content: &str) {}

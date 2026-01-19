@@ -5,7 +5,7 @@ use std::{
     str::FromStr,
 };
 
-use anyhow::{Context, Result};
+use anyhow::{bail, Context, Ok, Result};
 use uuid::Uuid;
 
 use crate::shared::{
@@ -22,6 +22,7 @@ pub trait CharacterDao<C: ODConfig> {
     fn get_character(&self, project_id: &str, char_id: &Uuid) -> Result<Character>;
     fn persist_description(&self, project_id: &str, desc_id: &Uuid, desc: &str) -> Result<()>;
     fn get_all_characters(&self, project_id: &str) -> Result<Vec<Character>>;
+    fn enforce_character_existence(&self, project_id: &str, char_id: &Uuid) -> Result<()>;
 }
 
 impl<C: ODConfig> CharacterDao<C> for FileCharacterDao<C> {
@@ -79,6 +80,15 @@ impl<C: ODConfig> CharacterDao<C> for FileCharacterDao<C> {
             character.set_description(&file);
         }
         Ok(res)
+    }
+
+    fn enforce_character_existence(&self, project_id: &str, char_id: &Uuid) -> Result<()> {
+        let char_path = self.get_char_path(project_id, char_id)?;
+        if fs::exists(char_path)? {
+            return Ok(());
+        } else {
+            bail!("char {char_id} did not exist")
+        }
     }
 }
 
