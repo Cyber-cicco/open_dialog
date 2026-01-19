@@ -30,7 +30,7 @@ impl<C: ODConfig, DD: DialogDao<C>, CD: CharacterDao<C>> DialogServiceLocalImpl<
     }
 
     pub fn create_dialog(&self, project_id: &str, form: DialogCreationForm) -> Result<()> {
-        let uuid = &Uuid::from_str(form.name)?;
+        let uuid = &Uuid::from_str(form.main_char_id)?;
         self.char_dao
             .enforce_character_existence(project_id, &uuid)?;
         let mut metadata = self
@@ -44,8 +44,7 @@ impl<C: ODConfig, DD: DialogDao<C>, CD: CharacterDao<C>> DialogServiceLocalImpl<
         self.dialog_dao.persist_dialog(project_id, new_dialog)?;
 
         //TODO: should retry and delete the dialog if it fails.
-        self.dialog_dao.persist_metadata(project_id, metadata)?;
-        Ok(())
+        self.dialog_dao.persist_metadata(project_id, &metadata)
     }
 
     pub fn get_dialog_by_id(&self, project_id: &str, dialog_id: &str) -> Result<Dialog> {
@@ -58,11 +57,16 @@ impl<C: ODConfig, DD: DialogDao<C>, CD: CharacterDao<C>> DialogServiceLocalImpl<
 
     pub fn save_dialog(&self, project_id: &str, dialog: Dialog) -> Result<()> {
         dialog.enforce_links_coherence()?;
-        Ok(())
+        let mut metadata = self.dialog_dao.get_metadata(project_id)?;
+        let simple_dialog = SimpleDialog::from_dialog(&dialog);
+        metadata.data.insert(dialog.get_id(), simple_dialog);
+
+        self.dialog_dao.persist_dialog(project_id, dialog)?;
+        self.dialog_dao.persist_metadata(project_id, &metadata)
     }
 
 
-    pub fn save_dialog_content(&self, dialog_id: &str, content: &str) -> Result<()> {
-        unimplemented!()
+    pub fn save_dialog_content(&self, project_id: &str, dialog_id: &str, node_id:&str, content: &str) -> Result<()> {
+        self.dialog_dao.persist_dialog_content(project_id, dialog_id, node_id, content)
     }
 }
