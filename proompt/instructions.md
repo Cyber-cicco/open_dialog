@@ -1,2 +1,2 @@
-Create a directory icon for the projects.
+I feel like there is an opportunity for a proc macro here.
 
