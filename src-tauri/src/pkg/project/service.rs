@@ -21,7 +21,7 @@ impl<C: ODConfig> ProjectServiceLocaleImpl<C> {
         ProjectServiceLocaleImpl { config }
     }
 
-    pub fn post_project(&self, name: &str) -> Result<AtomicProject> {
+    pub fn create_project(&self, name: &str) -> Result<AtomicProject> {
         let project = Project::new(name, &self.config.lock()?.get_root_dir());
         for dir in [CHAR_DIRNAME, DIALOG_DIRNAME, STATS_DIRNAME, ASSETS_DIRNAME] {
             fs::create_dir_all(project.get_path().join(dir))?;
