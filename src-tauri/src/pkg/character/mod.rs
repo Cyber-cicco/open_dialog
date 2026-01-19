@@ -1,4 +1,4 @@
-use tauri::{State};
+use tauri::State;
 
 use crate::shared::{
     state::AppState,
@@ -36,8 +36,8 @@ pub fn change_character<'a>(
 pub fn upload_image<'a>(
     project_id: &str,
     char_id: &str,
-    path:&str,
-    field:ImageField,
+    path: &str,
+    field: ImageField,
     state: State<'a, AppState>,
 ) -> Result<(), String> {
     state

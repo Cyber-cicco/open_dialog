@@ -22,4 +22,4 @@ impl std::fmt::Display for ValdidationError {
     }
 }
 
-impl std::error::Error for ValdidationError { }
+impl std::error::Error for ValdidationError {}

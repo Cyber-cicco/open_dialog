@@ -1,4 +1,4 @@
-pub mod project;
 pub mod character;
-pub mod interfaces;
 pub mod errors;
+pub mod interfaces;
+pub mod project;

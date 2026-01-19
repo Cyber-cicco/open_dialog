@@ -15,10 +15,13 @@ pub fn init_local_app_state() -> Result<AppState> {
     let uploader_ref = Arc::new(uploader);
     let shared_conf = Shared::new(config);
     let character_dao = FileCharacterDao::new(shared_conf.clone());
-        
 
     Ok(AppState {
         project_service: ProjectServiceLocaleImpl::new(shared_conf.clone()),
-        character_service: CharacterServiceLocalImpl::new(shared_conf.clone(), Arc::new(character_dao), uploader_ref),
+        character_service: CharacterServiceLocalImpl::new(
+            shared_conf.clone(),
+            Arc::new(character_dao),
+            uploader_ref,
+        ),
     })
 }

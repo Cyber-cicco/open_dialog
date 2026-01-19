@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, FocusEvent } from 'react'
 import { useFieldContext } from '../../../hooks/form'
 import { EyeIcon } from '../svg/eye.svg'
 import { FieldSize } from './types'
@@ -10,6 +10,7 @@ type TextFieldProps = {
   type?: "text" | "password"
   err?: string
   required?: boolean
+  onBlur?: (e:FocusEvent<HTMLInputElement, Element>) => void
   inputRef?: React.RefObject<HTMLInputElement | null>
 }
 
@@ -47,7 +48,7 @@ const getIconSize = (mode: FieldSize) => {
   }
 }
 
-export default function TextField({ label, placeholder, mode = "normal", type = "text", required = false, err, inputRef }: TextFieldProps) {
+export default function TextField({ label, placeholder, mode = "normal", type = "text", required = false, err, inputRef, onBlur }: TextFieldProps) {
   const field = useFieldContext<string>()
   const [showPassword, setShowPassword] = useState(false)
   const isPassword = type === "password"
@@ -71,7 +72,10 @@ export default function TextField({ label, placeholder, mode = "normal", type = 
           ref={inputRef}
           value={field.state.value}
           onChange={(e) => field.handleChange(e.target.value)}
-          onBlur={field.handleBlur}
+          onBlur={(e) => {
+            field.handleBlur();
+            onBlur?.(e);
+          }}
           className={getInputStyles(mode, isPassword)}
           placeholder={placeholder}
           required={required}

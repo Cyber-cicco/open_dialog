@@ -1,12 +1,15 @@
 import { Character } from "../../bindings/Character"
+import { Project } from "../../bindings/Project"
+import { getImageSrc } from "../common/img"
 
-export const CharacterAvatar = ({ character }: { character: Character }) => {
-  if (character.portrait_link) {
+export const CharacterAvatar = ({project, character }: {project:Project | undefined, character: Character }) => {
+  if (character.portrait_link && project) { 
+    const portraitSrc = getImageSrc(project, character.portrait_link)
     return (
       <img 
-        src={character.portrait_link} 
+        src={portraitSrc!} 
         alt={character.display_name}
-        className="w-10 h-10 rounded-full object-cover"
+        className="w-10 h-10 rounded-md object-cover"
       />
     )
   }

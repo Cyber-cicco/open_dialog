@@ -39,8 +39,10 @@ export function useChangeCharacter(): UseMutationResult<Character, Error, Change
     mutationKey: ['characters', 'change'],
     mutationFn: async ({ projectId, charForm }: ChangeCharacterParams) =>
       invoke<Character>("change_character", { projectId, charForm }),
-    onSuccess: (_, { projectId }) => {
-      queryClient.invalidateQueries({ queryKey: ['characters', 'all', projectId] });
+    onSuccess: (character, { projectId }) => {
+      queryClient.invalidateQueries({ queryKey: ['characters', 'all', projectId] }).then(() => {
+        queryClient.invalidateQueries({ queryKey: ['characters', 'byId', projectId, character.id] })
+      });
     }
   });
 }
@@ -51,8 +53,10 @@ export function useUploadImage(): UseMutationResult<void, Error, UploadImagePara
     mutationKey: ['characters', 'upload-image'],
     mutationFn: async ({ projectId, charId, path, field }: UploadImageParams) =>
       invoke<void>("upload_image", { projectId, charId, path, field }),
-    onSuccess: (_, { projectId }) => {
-      queryClient.invalidateQueries({ queryKey: ['characters', 'all', projectId] });
+    onSuccess: (_, { projectId, charId }) => {
+      queryClient.invalidateQueries({ queryKey: ['characters', 'all', projectId] }).then(() => {
+        queryClient.invalidateQueries({ queryKey: ['characters', 'byId', projectId, charId] })
+      });;
     }
   });
 }

@@ -1,1 +1,1 @@
-There is this thing that bothers me a lot : on the corners of the page, it seems like the rounded border is getting eaten by the inner square border.
+The Image uploading thingy has almost all of it's pieces. Use the custom image component and wire it all together.

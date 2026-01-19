@@ -1,8 +1,9 @@
-use std::path::{Path, PathBuf};
+use std::path::Path;
 use std::sync::Arc;
 
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
+use tauri::http::header::RETRY_AFTER;
 use ts_rs::TS;
 use uuid::Uuid;
 
@@ -24,10 +25,11 @@ pub struct Character {
     display_name: String,
     first_name: Option<String>,
     last_name: Option<String>,
-    description: Option<Uuid>,
-    portrait_link: Option<Uuid>,
-    artwork_link: Option<Uuid>,
-    background_link: Option<Uuid>,
+    description: Option<String>,
+    description_link: Option<Uuid>,
+    portrait_link: Option<String>,
+    artwork_link: Option<String>,
+    background_link: Option<String>,
 }
 
 /// CharacterForm represents the form a user can fill
@@ -61,6 +63,7 @@ impl Character {
             first_name: None,
             last_name: None,
             description: None,
+            description_link: None,
             portrait_link: None,
             artwork_link: None,
             background_link: None,
@@ -76,23 +79,31 @@ impl Character {
         from: &str,
         project_path: &Path,
         uploader: Arc<dyn Uploader>,
-        field:ImageField,
+        field: ImageField,
     ) -> Result<()> {
-        let uuid = uploader.updload(from, project_path)?;
+        let name = uploader.updload(from, project_path)?;
         match field {
-            ImageField::Artwork => self.artwork_link = Some(uuid),
-            ImageField::Portrait => self.portrait_link = Some(uuid),
-            ImageField::Background => self.background_link = Some(uuid)
+            ImageField::Artwork => self.artwork_link = Some(name),
+            ImageField::Portrait => self.portrait_link = Some(name),
+            ImageField::Background => self.background_link = Some(name),
         };
         Ok(())
     }
 
-    pub fn get_name(&self) -> &String {
-        return &self.display_name;
+    pub fn set_description_link(&mut self, description: Uuid) {
+        self.description_link = Some(description);
     }
 
-    pub fn set_description(&mut self, description: Uuid) {
-        self.description = Some(description);
+    pub fn get_description_link(&self) -> Option<Uuid> {
+        return self.description_link;
+    }
+
+    pub fn set_description(&mut self, description: &str) {
+        self.description = Some(String::from(description))
+    }
+
+    pub fn get_name(&self) -> &String {
+        return &self.display_name
     }
 
     pub fn validate_name(name: &str) -> Result<()> {
@@ -108,7 +119,6 @@ impl Character {
             bail!("Character name cannot have leading or trailing whitespace");
         }
 
-        // Path traversal and separators
         if name.contains('/') || name.contains('\\') {
             bail!("Character name cannot contain path separators");
         }
@@ -117,23 +127,19 @@ impl Character {
             bail!("Character name cannot contain path traversal sequences");
         }
 
-        // Null byte injection
         if name.contains('\0') {
             bail!("Character name cannot contain null bytes");
         }
 
-        // Windows-reserved characters (safe cross-platform)
         const RESERVED: &[char] = &['<', '>', ':', '"', '|', '?', '*'];
         if name.chars().any(|c| RESERVED.contains(&c)) {
             bail!("Character name contains reserved characters: < > : \" | ? *");
         }
 
-        // Control characters
         if name.chars().any(|c| c.is_control()) {
             bail!("Character name cannot contain control characters");
         }
 
-        // Reasonable length limit (filesystem + UUID suffix in get_file_name)
         if name.len() > 200 {
             bail!("Character name cannot exceed 200 characters");
         }

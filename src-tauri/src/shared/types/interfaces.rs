@@ -1,8 +1,8 @@
 use std::fs;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::sync::{Arc, Mutex, MutexGuard, RwLock};
 
-use anyhow::{anyhow, Result};
+use anyhow::{anyhow, Context, Result};
 use uuid::Uuid;
 
 /// Allows for uploads and retreiving of
@@ -11,11 +11,19 @@ use uuid::Uuid;
 /// git repository or on a remote server depending
 /// on the version of the application.
 pub trait Uploader: Send + Sync {
-    fn updload(&self, from_path: &str, project_path: &Path) -> Result<Uuid> {
+    fn updload(&self, from: &str, project_path: &Path) -> Result<String> {
         let uuid = Uuid::new_v4();
-        let to_path = project_path.join("assets").join(uuid.to_string());
+        let from_path = PathBuf::from(&from);
+        let extension = from_path
+            .extension()
+            .context("no extension")
+            .map(|e| e.to_str())
+            .context("no extension")?
+            .context("no extension")?;
+        let name = format!("{}.{}", uuid.to_string(), extension);
+        let to_path = project_path.join("assets").join(&name);
         fs::copy(from_path, to_path).expect("Could not copy the file to the repository");
-        Ok(uuid)
+        Ok(name)
     }
 }
 

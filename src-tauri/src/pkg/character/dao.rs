@@ -45,15 +45,15 @@ impl<C: ODConfig> CharacterDao<C> for FileCharacterDao<C> {
     }
 
     fn persist_description(&self, project_id: &str, desc_id: &Uuid, desc: &str) -> Result<()> {
-        Ok(self.get_desc_file_name(project_id, desc_id)
+        Ok(self
+            .get_desc_file_name(project_id, desc_id)
             .map(|dfs| fs::write(dfs, desc))
             .context("could not write description to file")??)
-        
     }
 
     fn get_all_characters(&self, project_id: &str) -> Result<Vec<Character>> {
         let char_dir = self.get_char_dir(project_id)?;
-        let res = fs::read_dir(&char_dir)
+        let mut res: Vec<Character> = fs::read_dir(&char_dir)
             .context("Could not access this character directory")?
             .filter_map(|entry| entry.ok())
             .map(|e| e.path())
@@ -68,6 +68,16 @@ impl<C: ODConfig> CharacterDao<C> for FileCharacterDao<C> {
                     })
             })
             .collect();
+        for character in &mut res {
+            let dl_opt = character.get_description_link();
+            let dl = match dl_opt {
+                Some(dl) => dl,
+                None => continue,
+            };
+            let desc_file_path = self.get_desc_file_name(project_id, &dl)?;
+            let file = fs::read_to_string(desc_file_path)?;
+            character.set_description(&file);
+        }
         Ok(res)
     }
 }

@@ -46,16 +46,7 @@ impl<C: ODConfig, D: CharacterDao<C>> CharacterServiceLocalImpl<C, D> {
             Some(desc) => self.create_description(project_id, &mut character, &desc)?,
             None => (),
         }
-        for name in [
-            &Some(char_form.display_name.clone()),
-            &char_form.first_name,
-            &char_form.last_name,
-        ] {
-            match name {
-                Some(n) => Character::validate_name(&n)?,
-                None => (),
-            }
-        }
+        Character::validate_name(character.get_name())?;
         character.change_from_form(&char_form);
         self.dao.persist_character(project_id, &character)?;
         Ok(character)
@@ -70,11 +61,18 @@ impl<C: ODConfig, D: CharacterDao<C>> CharacterServiceLocalImpl<C, D> {
         let description_uuid = Uuid::new_v4();
         self.dao
             .persist_description(project_id, &description_uuid, description)?;
-        character.set_description(description_uuid);
+        character.set_description_link(description_uuid);
+        character.set_description(description);
         Ok(())
     }
 
-    pub fn upload_image(&self, project_id: &str, char_id: &str, from: &str, field:ImageField) -> Result<()> {
+    pub fn upload_image(
+        &self,
+        project_id: &str,
+        char_id: &str,
+        from: &str,
+        field: ImageField,
+    ) -> Result<()> {
         let char_uuid = Uuid::from_str(char_id).context(format!("invalid uuid {char_id}"))?;
         let mut character = self.dao.get_character(project_id, &char_uuid)?;
         let project_path = self.config.lock()?.get_project_dir(project_id)?;
@@ -82,11 +80,7 @@ impl<C: ODConfig, D: CharacterDao<C>> CharacterServiceLocalImpl<C, D> {
         self.dao.persist_character(project_id, &character)
     }
 
-    pub fn get_all_characters(
-        &self,
-        project_id: &str,
-    ) -> Result<Vec<Character>> {
+    pub fn get_all_characters(&self, project_id: &str) -> Result<Vec<Character>> {
         self.dao.get_all_characters(project_id)
     }
-
 }

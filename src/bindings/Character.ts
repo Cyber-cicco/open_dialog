@@ -10,4 +10,4 @@
  * It is always linked to a project and it's
  * stats
  */
-export type Character = { id: string, display_name: string, first_name: string | null, last_name: string | null, description: string | null, portrait_link: string | null, artwork_link: string | null, background_link: string | null, };
+export type Character = { id: string, display_name: string, first_name: string | null, last_name: string | null, description: string | null, description_link: string | null, portrait_link: string | null, artwork_link: string | null, background_link: string | null, };

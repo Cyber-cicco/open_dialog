@@ -13,9 +13,7 @@ impl GitImpl {
         return GitImpl { root_dir: None };
     }
 
-    pub fn set_path(path:PathBuf) {
-
-    }
+    pub fn set_path(path: PathBuf) {}
 
     pub fn init(path: &str) -> Result<()> {
         unimplemented!("todo")
