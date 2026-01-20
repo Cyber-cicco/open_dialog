@@ -97,3 +97,12 @@ body {
 .left-panel-content.open {
   width: 250px; /* adjust to your desired width */
 }
+
+.react-flow__controls-button {
+  background-color: #191724 !important;
+  fill: #e0def4 !important;
+}
+
+.react-flow__controls-button:hover {
+  background-color: #26233a !important;
+}
