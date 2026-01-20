@@ -20,7 +20,7 @@ export const DialogNodeComp = ({ data, selected }: NodeProps<DialogNodeType>) =>
   })
 
   return (
-    <div className={`p-4 hover:cursor-pointer bg-base-surface rounded border w-90 ${selected ? 'border-blue-primary' : 'border-base-600'}`}>
+    <div className={`p-4 hover:cursor-pointer min-h-68 bg-base-surface rounded border w-90 ${selected ? 'border-blue-primary' : 'border-base-600'}`}>
       <Handle type="target" position={Position.Left} />
       <form onSubmit={(e) => {
         e.preventDefault();

@@ -5,18 +5,25 @@ import { useGlobalState } from "../context/global-state.context"
 import { Project } from "../bindings/Project"
 import { useDialog } from "../context/dialog.context"
 import { Dialog } from "../bindings/Dialog"
-import { Background, Controls, ReactFlow, ReactFlowProvider, useReactFlow } from "@xyflow/react"
+import { Background, Controls, MarkerType, ReactFlow, ReactFlowProvider, useReactFlow } from "@xyflow/react"
 import { useRef } from "react"
 import { DialogNodeComp } from "../components/dialogs/dialog-node.dialogs"
 import { PhylumNode } from "../components/dialogs/phylum-node.dialog"
 import { ChoiceNode } from "../components/dialogs/choice-node.dialogs"
 import '@xyflow/react/dist/style.css'
+import { KEYMAP_PRIO, useKeybindings } from "../context/keymap.context"
 
 export enum NodeType {
   DIALOG = 1,
   CHOICE = 2,
   PHYLUM = 3,
 }
+
+const NODE_SIZES = {
+  [NodeType.DIALOG]: { width: 360, height: 272 }, // w-90, h-68
+  [NodeType.CHOICE]: { width: 360, height: 200 },
+  [NodeType.PHYLUM]: { width: 360, height: 150 },
+};
 
 const nodeTypes = {
   dialogNode: DialogNodeComp,
@@ -77,7 +84,7 @@ export const OuterDialogPage: React.FC = () => {
 }
 
 const InnerDialogPage: React.FC<{ project: Project; dialog: Dialog }> = ({ dialog }) => {
-  const { 
+  const {
     createNode,
     nodes,
     edges,
@@ -87,6 +94,11 @@ const InnerDialogPage: React.FC<{ project: Project; dialog: Dialog }> = ({ dialo
   } = useDialog(dialog);
   const panelRef = useRef<HTMLDivElement>(null);
   const { screenToFlowPosition } = useReactFlow();
+  useKeybindings({
+    "Ctrl+n": () => createDialogNodeOnCursor(),
+
+  }, { enabled: true, priority: KEYMAP_PRIO.PANEL })
+
   const getCanvasCenter = () => {
     const container = panelRef.current;
     if (!container) return { x: 0, y: 0 };
@@ -100,7 +112,23 @@ const InnerDialogPage: React.FC<{ project: Project; dialog: Dialog }> = ({ dialo
 
   const handleNodeCreate = (nodeType: NodeType) => {
     const pos = getCanvasCenter()
-    createNode(nodeType, pos);
+    const size = NODE_SIZES[NodeType.DIALOG]
+    createNode(nodeType, {
+      x: pos.x - (size.width / 2),
+      y: pos.y - (size.height / 2),
+    });
+  };
+
+  const mousePosRef = useRef({ x: 0, y: 0 });
+
+  const createDialogNodeOnCursor = () => {
+    const flowPos = screenToFlowPosition(mousePosRef.current);
+    const size = NODE_SIZES[NodeType.DIALOG]
+
+    createNode(NodeType.DIALOG, {
+      x: flowPos.x - (size.width / 2),
+      y: flowPos.y - (size.height / 2),
+    });
   };
 
   return (
@@ -113,6 +141,16 @@ const InnerDialogPage: React.FC<{ project: Project; dialog: Dialog }> = ({ dialo
           onNodesChange={onNodesChange}
           onEdgesChange={onEdgesChange}
           onConnect={onConnect}
+          onMouseMove={(e) => {
+            mousePosRef.current = { x: e.clientX, y: e.clientY };
+          }}
+          defaultEdgeOptions={{
+            markerEnd: {
+              type: MarkerType.ArrowClosed,
+              width: 20,
+              height: 20,
+            },
+          }}
           nodeTypes={nodeTypes}
         >
           <Background />
