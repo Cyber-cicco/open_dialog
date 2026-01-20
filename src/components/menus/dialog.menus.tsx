@@ -48,7 +48,6 @@ export const DialogMenu = () => {
 
 const DialogListItem = ({ project, dialog }: { project: Project; dialog: SimpleDialog }) => {
   const { data: character, error, isPending } = useGetCharacterById(project?.id, dialog.main_character)
-  console.log(dialog);
   
   return (
     <Link

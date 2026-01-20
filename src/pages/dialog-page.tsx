@@ -1,20 +1,28 @@
-// dialog-page.tsx
 import { useParams } from "react-router-dom"
-import { DialogMainPanel, DialogMainPanelHandle } from "../components/dialogs/main-panel.dialogs"
 import { NodeToolbar } from "../components/dialogs/toolbar.dialogs"
 import { useGetDialogById } from "../hooks/queries/dialogs"
 import { useGlobalState } from "../context/global-state.context"
 import { Project } from "../bindings/Project"
 import { useDialog } from "../context/dialog.context"
 import { Dialog } from "../bindings/Dialog"
-import { ReactFlowProvider } from "@xyflow/react"
+import { Background, Controls, ReactFlow, ReactFlowProvider, useReactFlow } from "@xyflow/react"
 import { useRef } from "react"
+import { DialogNodeComp } from "../components/dialogs/dialog-node.dialogs"
+import { PhylumNode } from "../components/dialogs/phylum-node.dialog"
+import { ChoiceNode } from "../components/dialogs/choice-node.dialogs"
+import '@xyflow/react/dist/style.css'
 
 export enum NodeType {
   DIALOG = 1,
   CHOICE = 2,
   PHYLUM = 3,
 }
+
+const nodeTypes = {
+  dialogNode: DialogNodeComp,
+  phylumNode: PhylumNode,
+  choiceNode: ChoiceNode,
+};
 
 export const OuterDialogPage: React.FC = () => {
   const { project } = useGlobalState();
@@ -69,18 +77,41 @@ export const OuterDialogPage: React.FC = () => {
 }
 
 const InnerDialogPage: React.FC<{ project: Project; dialog: Dialog }> = ({ dialog }) => {
-  const { createNode } = useDialog(dialog);
-  const panelRef = useRef<DialogMainPanelHandle>(null);
+  const { createNode, nodes, edges } = useDialog(dialog);
+  const panelRef = useRef<HTMLDivElement>(null);
+  const { screenToFlowPosition } = useReactFlow();
+  const getCanvasCenter = () => {
+    const container = panelRef.current;
+    if (!container) return { x: 0, y: 0 };
+
+    const rect = container.getBoundingClientRect();
+    return screenToFlowPosition({
+      x: rect.left + rect.width / 2,
+      y: rect.top + rect.height / 2,
+    });
+  }
 
   const handleNodeCreate = (nodeType: NodeType) => {
-    const pos = panelRef.current?.getCanvasCenter() ?? { x: 0, y: 0 };
+    const pos = getCanvasCenter()
     createNode(nodeType, pos);
   };
 
   return (
     <div className="w-full h-full relative">
       <NodeToolbar onNodeCreate={handleNodeCreate} />
-      <DialogMainPanel ref={panelRef} />
+      <div ref={panelRef} style={{ width: "100%", height: "100%" }}>
+        <ReactFlow nodes={nodes} edges={edges} nodeTypes={nodeTypes}>
+          <Background />
+          <Controls
+            style={{
+              backgroundColor: '#191724',
+              border: '2px solid #31748f',
+              borderRadius: '0.375rem',
+              overflow: 'hidden',
+            }}
+          />
+        </ReactFlow>
+      </div>
     </div>
   )
 }

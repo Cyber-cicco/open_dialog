@@ -1,6 +1,6 @@
 import { createContext, PropsWithChildren, useCallback, useContext, useEffect, useRef, useState } from "react"
 import { Dialog } from "../bindings/Dialog"
-import { useSaveDialog, useSaveDialogContent } from "../hooks/queries/dialogs";
+import { useSaveDialog } from "../hooks/queries/dialogs";
 import { NodeType } from "../pages/dialog-page";
 import { Node, type Edge } from "@xyflow/react";
 import { Node as RustNode } from '../bindings/Node';
@@ -27,15 +27,7 @@ export type DisplayedNode = Node & {
   isRootNode: boolean,
   visited: boolean
 }
-  ;
 
-type DialogContextType = {
-  createDialogNode: (pos: Pos) => void
-  loadDialog: (dialog: Dialog) => void
-  nodes: Node[],
-  edges: Edge[],
-
-}
 
 function buildBackDialogFromNodesAndEdges(
   nodes: AppNode[],
@@ -155,6 +147,13 @@ function traverseDialogAndGetNodesAndEdges(dialog: Dialog): { nodes: AppNode[], 
   return { nodes, edges };
 }
 
+type DialogContextType = {
+  createDialogNode: (pos: Pos) => void
+  loadDialog: (dialog: Dialog) => void
+  saveDialog: () => Promise<void>
+  nodes: Node[],
+  edges: Edge[],
+}
 
 const DialogContext = createContext<DialogContextType | undefined>(undefined);
 
@@ -168,7 +167,6 @@ export const DialogProvider = ({ children }: PropsWithChildren) => {
   const lastNodeRef = useRef<Node | undefined>(undefined);
   const rootNodeRef = useRef<string | null>(null);
   const saveDialogMutation = useSaveDialog();
-  const saveDialogContentMutation = useSaveDialogContent();
 
   const loadDialog = useCallback((dialog: Dialog) => {
     dialogRef.current = dialog;
@@ -184,10 +182,11 @@ export const DialogProvider = ({ children }: PropsWithChildren) => {
     };
     const res = buildBackDialogFromNodesAndEdges(nodes, edges);
     const dialog = dialogRef.current
-    dialog?.root_node
+    dialog.root_node = rootNodeRef.current;
+    dialog.nodes = res;
     await saveDialogMutation.mutateAsync({
-      projectId:project.id,
-      dialog:dialog
+      projectId: project.id,
+      dialog: dialog
     })
   }, [dialogRef.current, rootNodeRef.current])
 
@@ -226,6 +225,7 @@ export const DialogProvider = ({ children }: PropsWithChildren) => {
       loadDialog,
       nodes,
       edges,
+      saveDialog,
     }}>
       {children}
     </DialogContext.Provider>
@@ -252,7 +252,10 @@ export const useDialog = (dialog: Dialog) => {
       case NodeType.PHYLUM:
     }
   }
+
   return {
-    createNode
+    createNode,
+    nodes: ctx.nodes,
+    edges: ctx.edges,
   }
 }
