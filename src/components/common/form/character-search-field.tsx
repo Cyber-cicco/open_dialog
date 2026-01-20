@@ -1,4 +1,3 @@
-// character-search-field.tsx
 import { useState, useRef, useEffect } from 'react'
 import { useFieldContext } from '../../../hooks/form'
 import { useGetAllCharacters } from '../../../hooks/queries/character'
