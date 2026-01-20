@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { Button } from "../common/buttons/base.buttons";
 import { useGlobalState } from "../../context/global-state.context";
 import { useGetDialogMetadata } from "../../hooks/queries/dialogs";
-import { DialogCreationModale } from "../dialogs/creation-modale.dialog";
+import { DialogCreationModale } from "../dialogs/creation-modale.dialogs";
 import { Project } from "../../bindings/Project";
 import { SimpleDialog } from "../../bindings/SimpleDialog";
 import { useGetCharacterById } from "../../hooks/queries/character";
@@ -48,6 +48,7 @@ export const DialogMenu = () => {
 
 const DialogListItem = ({ project, dialog }: { project: Project; dialog: SimpleDialog }) => {
   const { data: character, error, isPending } = useGetCharacterById(project?.id, dialog.main_character)
+  console.log(dialog);
   
   return (
     <Link

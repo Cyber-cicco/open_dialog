@@ -1,5 +1,7 @@
 import { useCallback, useState } from "react"
 import { useKeybindings } from "../context/keymap.context"
+import { useParams } from "react-router-dom"
+import { DialogMainPanel } from "../components/dialogs/main-panel.dialogs"
 
 export enum NodeType {
   DIALOG = 1,
@@ -14,20 +16,22 @@ type ModalControl = {
 
 export const OuterDialogPage: React.FC = () => {
 
+  const { id } = useParams();
+
   const [isNewNodeModalVisible, setIsNewNodeModalVisible] = useState({
     defaultOption: NodeType.DIALOG,
-    opened:false,
+    opened: false,
   });
 
   useKeybindings({
     "Ctrl+n": () => {
       setIsNewNodeModalVisible((prev) => {
-        return {defaultOption:prev.defaultOption, opened:true}
+        return { defaultOption: prev.defaultOption, opened: true }
       })
     },
   })
 
   return (
-    <div>Dialogs</div>
+      <DialogMainPanel />
   )
 }

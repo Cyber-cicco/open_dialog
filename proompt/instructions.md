@@ -1,1 +1,3 @@
-We are going to need some planification here.
+So we need to 
+
+
