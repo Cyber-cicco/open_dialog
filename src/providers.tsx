@@ -3,6 +3,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ProjectCreationModalProvider } from "./context/project-creation-modal.context";
 import { GlobalStateProvider } from "./context/global-state.context";
 import { KeymapProvider } from "./context/keymap.context";
+import { DialogProvider } from "./context/dialog.context";
 
 
 export const Providers = ({ children }: PropsWithChildren) => {
@@ -12,7 +13,9 @@ export const Providers = ({ children }: PropsWithChildren) => {
       <GlobalStateProvider>
         <KeymapProvider>
           <ProjectCreationModalProvider>
-            {children}
+            <DialogProvider>
+              {children}
+            </DialogProvider>
           </ProjectCreationModalProvider>
         </KeymapProvider>
       </GlobalStateProvider>
