@@ -1,6 +1,6 @@
 use std::{str::FromStr, sync::Arc};
 
-use anyhow::{Ok, Result};
+use anyhow::{Result};
 use uuid::Uuid;
 
 use crate::{
@@ -52,7 +52,10 @@ impl<C: ODConfig, DD: DialogDao<C>, CD: CharacterDao<C>> DialogServiceLocalImpl<
     }
 
     pub fn get_dialog_metadata(&self, project_id: &str) -> Result<DialogMetadata> {
-        self.dialog_dao.get_dialog_metadata(project_id)
+        match self.dialog_dao.get_dialog_metadata(project_id) {
+            Ok(d) => Ok(d),
+            Err(_) => self.dialog_dao.create_metadata(project_id)
+        }
     }
 
     pub fn save_dialog(&self, project_id: &str, dialog: Dialog) -> Result<()> {
