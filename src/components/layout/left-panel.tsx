@@ -116,7 +116,7 @@ const LayoutLeftPanel = () => {
       <div
         className={`left-panel-content rounded-r-sm h-full bg-base-surface text-white ${panelOpened ? 'open' : 'closed'}`}
       >
-        <div className="p-4 h-full">
+        <div className="p-4 border-base-100 border-2 h-full">
 
           {optionSelected !== null && menus[optionSelected]}
         </div>

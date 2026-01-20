@@ -77,7 +77,14 @@ export const OuterDialogPage: React.FC = () => {
 }
 
 const InnerDialogPage: React.FC<{ project: Project; dialog: Dialog }> = ({ dialog }) => {
-  const { createNode, nodes, edges } = useDialog(dialog);
+  const { 
+    createNode,
+    nodes,
+    edges,
+    onEdgesChange,
+    onConnect,
+    onNodesChange,
+  } = useDialog(dialog);
   const panelRef = useRef<HTMLDivElement>(null);
   const { screenToFlowPosition } = useReactFlow();
   const getCanvasCenter = () => {
@@ -100,7 +107,14 @@ const InnerDialogPage: React.FC<{ project: Project; dialog: Dialog }> = ({ dialo
     <div className="w-full h-full relative">
       <NodeToolbar onNodeCreate={handleNodeCreate} />
       <div ref={panelRef} style={{ width: "100%", height: "100%" }}>
-        <ReactFlow nodes={nodes} edges={edges} nodeTypes={nodeTypes}>
+        <ReactFlow
+          nodes={nodes}
+          edges={edges}
+          onNodesChange={onNodesChange}
+          onEdgesChange={onEdgesChange}
+          onConnect={onConnect}
+          nodeTypes={nodeTypes}
+        >
           <Background />
           <Controls
             style={{
