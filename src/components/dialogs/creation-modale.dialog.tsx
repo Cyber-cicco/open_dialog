@@ -19,12 +19,12 @@ export const DialogCreationModale: React.FC<ModalProps> = ({ onClose, isOpen }) 
     },
     onSubmit: async ({ value }) => {
       if (!project) return;
-      
+
       await createMutation.mutateAsync({
         projectId: project.id,
         form: {
           name: value.name,
-          main_character: value.mainCharacterId,
+          main_char_id: value.mainCharacterId,
         },
       });
       form.reset();
@@ -56,15 +56,7 @@ export const DialogCreationModale: React.FC<ModalProps> = ({ onClose, isOpen }) 
         <form.AppField
           name="mainCharacterId"
           children={(field) => (
-            <div className="mt-4">
-              <label className="block text-sm font-medium text-text-primary mb-2">
-                Main Character
-              </label>
-              <div className="border border-highlight-300 rounded-md p-3 text-text-muted text-sm bg-base-surface min-h-[42px]">
-                [ Character autocomplete placeholder ]
-              </div>
-              {/* When implemented, pass field.setValue to update mainCharacterId */}
-            </div>
+            <field.CharacterSearchField label="Main interlocutor"/>
           )}
         />
 
