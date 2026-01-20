@@ -77,12 +77,17 @@ export function useGetCharacterById(
 
   return useQuery({
     queryKey: ['characters', 'byId', projectId, characterId],
-    queryFn: () => {
-      const cached = queryClient.getQueryData<Character[]>(['characters', 'all', projectId]);
+    queryFn: async () => {
+      let cached = queryClient.getQueryData<Character[]>(['characters', 'all', projectId]);
+      
       if (!cached) {
-        throw new Error('Characters not loaded');
+        cached = await queryClient.fetchQuery({
+          queryKey: ['characters', 'all', projectId],
+          queryFn: () => invoke<Character[]>("get_all_characters", { projectId }),
+        });
       }
-      const character = cached.find(c => c.id === characterId);
+      
+      const character = cached?.find(c => c.id === characterId);
       if (!character) {
         throw new Error(`Character with id "${characterId}" not found`);
       }
@@ -91,3 +96,4 @@ export function useGetCharacterById(
     enabled: !!projectId && !!characterId,
   });
 }
+

@@ -6,6 +6,8 @@ import { useGetDialogMetadata } from "../../hooks/queries/dialogs";
 import { DialogCreationModale } from "../dialogs/creation-modale.dialog";
 import { Project } from "../../bindings/Project";
 import { SimpleDialog } from "../../bindings/SimpleDialog";
+import { useGetCharacterById } from "../../hooks/queries/character";
+import { CharacterAvatar } from "../characters/avatar.character";
 
 export const DialogMenu = () => {
   const { project } = useGlobalState();
@@ -23,7 +25,7 @@ export const DialogMenu = () => {
 
         {metadata?.data && Object.values(metadata.data).map((dialog) =>
           dialog && (
-            <DialogListItem key={dialog.id} project={project} dialog={dialog} />
+            <DialogListItem key={dialog.id} project={project!} dialog={dialog} />
           )
         )}
       </div>
@@ -44,14 +46,23 @@ export const DialogMenu = () => {
   );
 };
 
-const DialogListItem = ({ project, dialog }: { project: Project | undefined; dialog: SimpleDialog }) => (
-  <Link
-    to={`dialog/${dialog.id}`}
-    className="flex outline-none items-center focus-visible:ring-2 focus-visible:ring-blue-deep/50 focus-visible:ring-offset-2 focus-visible:ring-offset-base-surface gap-3 p-2 rounded-lg hover:bg-highlight-200 cursor-pointer transition-colors"
-  >
-    <div className="w-10 h-10 rounded-md bg-purple-900 flex items-center justify-center text-text-primary text-sm font-medium">
-      💬
-    </div>
-    <span className="text-text-primary text-sm truncate">{dialog.name}</span>
-  </Link>
-);
+const DialogListItem = ({ project, dialog }: { project: Project; dialog: SimpleDialog }) => {
+  const { data: character, error, isPending } = useGetCharacterById(project?.id, dialog.main_character)
+  
+  return (
+    <Link
+      to={`dialog/${dialog.id}`}
+      className="flex outline-none items-center focus-visible:ring-2 focus-visible:ring-blue-deep/50 focus-visible:ring-offset-2 focus-visible:ring-offset-base-surface gap-3 p-2 rounded-lg hover:bg-highlight-200 cursor-pointer transition-colors"
+    >
+      {isPending ? (
+        <div className="w-8 h-8 rounded-full bg-base-600 animate-pulse" />
+      ) : error ? (
+        <div className="w-8 h-8 rounded-full bg-red-900/30 flex items-center justify-center text-red-400 text-xs font-medium">!</div>
+      ) : (
+        <CharacterAvatar project={project} character={character} />
+      )}
+      <span className="text-text-primary text-sm truncate">{dialog.name}</span>
+    </Link>
+  )
+}
+

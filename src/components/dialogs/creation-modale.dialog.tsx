@@ -1,4 +1,3 @@
-// creation-modale.dialog.tsx
 import { TinyModaleWrapper } from "../common/modal/modal-wrapper"
 import { ModalProps } from "../common/modal/types"
 import { useAutoFocusRef } from "../../hooks/useAutofocusRef"
@@ -6,8 +5,15 @@ import { useCreateDialog } from "../../hooks/queries/dialogs"
 import { useAppForm } from "../../hooks/form"
 import { useGlobalState } from "../../context/global-state.context"
 import { Button } from "../common/buttons/base.buttons"
+import { KEYMAP_PRIO, useKeyBinding } from "../../context/keymap.context"
 
 export const DialogCreationModale: React.FC<ModalProps> = ({ onClose, isOpen }) => {
+
+  useKeyBinding('Escape', () => {
+    onClose();
+    return true;
+  }, {enabled:true, priority:KEYMAP_PRIO.MODAL})
+
   const { project } = useGlobalState();
   const ref = useAutoFocusRef(isOpen);
   const createMutation = useCreateDialog();
@@ -56,7 +62,7 @@ export const DialogCreationModale: React.FC<ModalProps> = ({ onClose, isOpen }) 
         <form.AppField
           name="mainCharacterId"
           children={(field) => (
-            <field.CharacterSearchField label="Main interlocutor"/>
+            <field.CharacterSearchField label="Main interlocutor" />
           )}
         />
 
