@@ -144,7 +144,9 @@ const InnerDialogPage: React.FC<{ project: Project; dialog: Dialog }> = ({ dialo
           onMouseMove={(e) => {
             mousePosRef.current = { x: e.clientX, y: e.clientY };
           }}
+          deleteKeyCode={["Backspace", "Delete"]}
           defaultEdgeOptions={{
+            focusable:true,
             markerEnd: {
               type: MarkerType.ArrowClosed,
               width: 20,

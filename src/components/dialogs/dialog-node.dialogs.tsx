@@ -1,6 +1,7 @@
 import { Handle, Position, type NodeProps, type Node } from '@xyflow/react';
 import { DialogNode } from '../../bindings/DialogNode';
 import { useAppForm } from '../../hooks/form';
+import { useEffect, useRef } from 'react';
 
 // Extend with any display-specific fields
 type DialogNodeData = DialogNode & {
@@ -10,7 +11,7 @@ type DialogNodeData = DialogNode & {
 export type DialogNodeType = Node<DialogNodeData, 'dialogNode'>;
 
 export const DialogNodeComp = ({ data, selected }: NodeProps<DialogNodeType>) => {
-  // Access typed properties
+  const inputRef = useRef<HTMLInputElement>(null);
   const { character_id } = data;
   const form = useAppForm({
     defaultValues: {
@@ -18,10 +19,14 @@ export const DialogNodeComp = ({ data, selected }: NodeProps<DialogNodeType>) =>
       content: '',
     }
   })
+  useEffect(() => {
+    inputRef.current?.focus();
+  }, [inputRef.current])
 
   return (
     <div className={`p-4 hover:cursor-pointer min-h-68 bg-base-surface rounded border w-90 ${selected ? 'border-blue-primary' : 'border-base-600'}`}>
-      <Handle type="target" position={Position.Left} />
+      <Handle type="target" position={Position.Left} id="left-target" />
+      <Handle type="source" position={Position.Left} id="left-source" />
       <form onSubmit={(e) => {
         e.preventDefault();
         e.stopPropagation();
@@ -29,7 +34,7 @@ export const DialogNodeComp = ({ data, selected }: NodeProps<DialogNodeType>) =>
           <form.AppField
             name="character_id"
             children={(field) => (
-              <field.CharacterSearchField label="Locutor" />
+              <field.CharacterSearchField inputRef={inputRef} label="Locutor" />
             )}
           />
           <form.AppField
@@ -45,7 +50,8 @@ export const DialogNodeComp = ({ data, selected }: NodeProps<DialogNodeType>) =>
           />
         </div>
       </form>
-      <Handle type="source" position={Position.Right} />
+      <Handle type="target" position={Position.Right} id="right-target" />
+      <Handle type="source" position={Position.Right} id="right-source" />
     </div>
   );
 };

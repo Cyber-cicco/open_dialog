@@ -1,4 +1,4 @@
-import { Edge, NodeChange } from "@xyflow/react";
+import { Edge, EdgeChange, NodeChange } from "@xyflow/react";
 import { AppNode } from "../dialog.context";
 import { Node as RustNode } from '../../bindings/Node';
 import { Dialog } from "../../bindings/Dialog";
@@ -121,3 +121,18 @@ export function traverseDialogAndGetNodesAndEdges(dialog: Dialog): { nodes: AppN
   return { nodes, edges };
 }
 
+export function getOptimalHandles(
+  sourcePos: { x: number },
+  targetPos: { x: number },
+  sourceWidth = 360,
+  targetWidth = 360
+): { sourceHandle: string; targetHandle: string } {
+  const sourceCenterX = sourcePos.x + sourceWidth / 2;
+  const targetCenterX = targetPos.x + targetWidth / 2;
+
+  if (targetCenterX >= sourceCenterX) {
+    return { sourceHandle: 'right-source', targetHandle: 'left-target' };
+  } else {
+    return { sourceHandle: 'left-source', targetHandle: 'right-target' };
+  }
+}

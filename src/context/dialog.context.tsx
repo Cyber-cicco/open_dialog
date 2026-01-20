@@ -7,7 +7,7 @@ import { DialogNode } from "../bindings/DialogNode";
 import { Choices } from "../bindings/Choices";
 import { Phylum } from "../bindings/Phylum";
 import { useGlobalState } from "./global-state.context";
-import { buildBackDialogFromNodesAndEdges, traverseDialogAndGetNodesAndEdges } from "./helpers/dialog.helpers";
+import { buildBackDialogFromNodesAndEdges, getOptimalHandles, traverseDialogAndGetNodesAndEdges } from "./helpers/dialog.helpers";
 
 // Node data types matching your Rust NodeData enum
 type DialogNodeData = DialogNode & { isRootNode?: boolean };
@@ -48,6 +48,14 @@ export const DialogProvider = ({ children }: PropsWithChildren) => {
   const [nodes, setNodes] = useState<AppNode[]>([]);
   const [edges, setEdges] = useState<Edge[]>([]);
 
+  // Ref to avoid stale closure in onConnect
+  const nodesRef = useRef<AppNode[]>([]);
+
+  // Keep ref in sync with state
+  useEffect(() => {
+    nodesRef.current = nodes;
+  }, [nodes]);
+
   // Pour créer automatiquement un edge avec l'ancien node
   const lastNodeRef = useRef<Node | undefined>(undefined);
   const rootNodeRef = useRef<string | null>(null);
@@ -59,28 +67,39 @@ export const DialogProvider = ({ children }: PropsWithChildren) => {
     const res = traverseDialogAndGetNodesAndEdges(dialogRef.current);
     setNodes(res.nodes);
     setEdges(res.edges);
-  }, [dialogRef.current, rootNodeRef.current]);
+  }, []);
 
   const onNodesChange = useCallback((changes: NodeChange<AppNode>[]) => {
-    console.log("---------Nodes-----------")
-    console.log(changes)
-    console.log("-------------------------")
     setNodes((prev) => applyNodeChanges(changes, prev));
   }, []);
 
   const onEdgesChange = useCallback((changes: EdgeChange<Edge>[]) => {
-    console.log("---------Edges-----------")
-    console.log(changes)
-    console.log("-------------------------")
     setEdges((prev) => applyEdgeChanges(changes, prev));
   }, []);
 
   const onConnect = useCallback((connection: Connection) => {
-    console.log("---------Conn------------")
-    console.log(connection);
-    console.log("-------------------------")
-    setEdges((prev) => addEdge(connection, prev));
+    setEdges((prev) => {
+      const sourceNode = nodesRef.current.find(n => n.id === connection.source);
 
+      // DialogNodes can only have one outgoing edge - replace existing if present
+      if (sourceNode?.type === 'dialogNode') {
+        const filtered = prev.filter(e => e.source !== connection.source);
+        return addEdge(connection, filtered);
+      }
+
+      // For ChoiceNode/PhylumNode, edges are tied to specific handles
+      // Replace only if same sourceHandle
+      if (sourceNode?.type === 'choiceNode' || sourceNode?.type === 'phylumNode') {
+        if (connection.sourceHandle) {
+          const filtered = prev.filter(
+            e => !(e.source === connection.source && e.sourceHandle === connection.sourceHandle)
+          );
+          return addEdge(connection, filtered);
+        }
+      }
+
+      return addEdge(connection, prev);
+    });
   }, []);
 
 
@@ -96,13 +115,13 @@ export const DialogProvider = ({ children }: PropsWithChildren) => {
       projectId: project.id,
       dialog: dialog
     })
-  }, [dialogRef.current, rootNodeRef.current])
+  }, [project, nodes, edges, saveDialogMutation])
 
 
-  const createDialogNode = (pos: Pos) => {
-    const isRootNode = nodes.length === 0;
+  const createDialogNode = useCallback((pos: Pos) => {
+    const isRootNode = nodesRef.current.length === 0;
     const id = crypto.randomUUID();
-    const previousNode = lastNodeRef.current; // capture before updating
+    const previousNode = lastNodeRef.current;
 
     const newNode: DialogFlowNode = {
       id,
@@ -120,12 +139,18 @@ export const DialogProvider = ({ children }: PropsWithChildren) => {
     lastNodeRef.current = newNode;
 
     if (previousNode) {
-      setEdges((prev) => [
-        ...prev,
-        { id: `${previousNode.id}-${id}`, source: previousNode.id, target: id },
-      ]);
+      const handles = getOptimalHandles(previousNode.position, pos);
+      setEdges((prev) => {
+        const filtered = prev.filter(e => e.source !== previousNode.id);
+        return [...filtered, {
+          id: `${previousNode.id}-${id}`,
+          source: previousNode.id,
+          target: id,
+          ...handles
+        }];
+      });
     }
-  };
+  }, []);
 
   return (
     <DialogContext.Provider value={{

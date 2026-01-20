@@ -9,24 +9,26 @@ import { KEYMAP_PRIO, useKeybindings } from '../../../context/keymap.context'
 type CharacterSearchFieldProps = {
   label?: string
   required?: boolean
+  inputRef?: React.RefObject<HTMLInputElement | null>
 }
 
-export const CharacterSearchField: React.FC<CharacterSearchFieldProps> = ({ 
+export const CharacterSearchField: React.FC<CharacterSearchFieldProps> = ({
   label,
-  required = false 
+  required = false,
+  inputRef,
 }) => {
   const { project } = useGlobalState()
   const field = useFieldContext<string>()
   const { data: characters, isPending } = useGetAllCharacters(project?.id!)
-  
+
   const [query, setQuery] = useState('')
   const [isOpen, setIsOpen] = useState(false)
   const [highlightedIndex, setHighlightedIndex] = useState(0)
   const containerRef = useRef<HTMLDivElement>(null)
 
   const selectedCharacter = characters?.find(c => c.id === field.state.value)
-  
-  const filtered = characters?.filter(c => 
+
+  const filtered = characters?.filter(c =>
     c.display_name.toLowerCase().includes(query.toLowerCase())
   ) ?? []
 
@@ -89,7 +91,7 @@ export const CharacterSearchField: React.FC<CharacterSearchFieldProps> = ({
           {label} {required && <span className="text-red-400">*</span>}
         </label>
       )}
-      
+
       {selectedCharacter ? (
         <div className="flex items-center gap-3 bg-base-overlay px-3 py-2 rounded">
           <CharacterAvatar project={project} character={selectedCharacter} />
@@ -106,6 +108,7 @@ export const CharacterSearchField: React.FC<CharacterSearchFieldProps> = ({
         <div className="relative">
           <input
             type="text"
+            ref={inputRef}
             value={query}
             onChange={(e) => {
               setQuery(e.target.value)
@@ -115,7 +118,7 @@ export const CharacterSearchField: React.FC<CharacterSearchFieldProps> = ({
             placeholder={isPending ? 'Loading...' : 'Search character...'}
             className="w-full bg-base-overlay text-text-primary placeholder:text-text-muted px-3 py-2 focus:outline-none focus:bg-highlight-low transition-colors duration-150"
           />
-          
+
           {isOpen && filtered.length > 0 && (
             <ul className="absolute z-10 w-full mt-1 bg-base-surface border border-base-600 rounded shadow-lg max-h-60 overflow-auto">
               {filtered.map((character, index) => (
@@ -123,11 +126,10 @@ export const CharacterSearchField: React.FC<CharacterSearchFieldProps> = ({
                   key={character.id}
                   onClick={() => handleSelect(character)}
                   onMouseEnter={() => setHighlightedIndex(index)}
-                  className={`flex items-center gap-3 px-3 py-2 cursor-pointer transition-colors ${
-                    index === highlightedIndex 
-                      ? 'bg-highlight-med' 
+                  className={`flex items-center gap-3 px-3 py-2 cursor-pointer transition-colors ${index === highlightedIndex
+                      ? 'bg-highlight-med'
                       : 'hover:bg-highlight-low'
-                  }`}
+                    }`}
                 >
                   <CharacterAvatar project={project} character={character} />
                   <span className="text-text-primary">{character.display_name}</span>
@@ -135,7 +137,7 @@ export const CharacterSearchField: React.FC<CharacterSearchFieldProps> = ({
               ))}
             </ul>
           )}
-          
+
           {isOpen && query && filtered.length === 0 && (
             <div className="absolute z-10 w-full mt-1 bg-base-surface border border-base-600 rounded px-3 py-2 text-text-muted text-sm">
               No characters found
@@ -143,7 +145,7 @@ export const CharacterSearchField: React.FC<CharacterSearchFieldProps> = ({
           )}
         </div>
       )}
-      
+
       {field.state.meta.isDirty && field.state.meta.errors.length > 0 && (
         <div className="text-red-400 text-sm">
           {field.state.meta.errors.join(', ')}
