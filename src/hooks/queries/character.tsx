@@ -96,4 +96,3 @@ export function useGetCharacterById(
     enabled: !!projectId && !!characterId,
   });
 }
-

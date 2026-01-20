@@ -1,7 +1,7 @@
 import "./App.css";
 import { createHashRouter, Outlet, RouterProvider } from "react-router-dom"
 import { MainLayout } from "./components/layout/main-layout";
-import { DialogPage } from "./pages/dialog-page";
+import { OuterDialogPage } from "./pages/dialog-page";
 import { HomePage } from "./pages/home.page";
 import { useGlobalState } from "./context/global-state.context";
 import { CharacterPage } from "./pages/character-page";
@@ -17,8 +17,8 @@ const router = createHashRouter([
         element: <ProjectPage />
       },
       {
-        path: "home",
-        element: <DialogPage />
+        path: "dialog/:id",
+        element: <OuterDialogPage />
       },
       {
         path: "character/:id",
