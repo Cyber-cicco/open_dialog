@@ -1,6 +1,7 @@
 import { PropsWithChildren } from "react"
 import { Header } from "./header"
 import LayoutLeftPanel from "./left-panel"
+import LayoutRightPanel from "./right-panel"
 
 export const MainLayout = ({ children }: PropsWithChildren) => {
   return (
@@ -9,9 +10,9 @@ export const MainLayout = ({ children }: PropsWithChildren) => {
       <div className="w-full flex flex-1 overflow-hidden">
         <LayoutLeftPanel />
         <div className="flex m-1 rounded-sm ring-blue-deep ring-2 flex-1 text-white justify-center items-center bg-base-primary overflow-hidden">
-
           {children}
         </div>
+        <LayoutRightPanel />
       </div>
     </div>
   )

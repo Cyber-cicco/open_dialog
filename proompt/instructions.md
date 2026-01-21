@@ -1,3 +1,3 @@
-Is there any way to determine if it is better to use the left or right source node to connect to the left or right target node ?
+Something is off here. There is a lot of connecting the top source to the left target that is not right.
 
 

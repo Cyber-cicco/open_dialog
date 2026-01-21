@@ -15,7 +15,7 @@ type TextFieldProps = {
 }
 
 const getInputStyles = (mode: FieldSize, isPassword: boolean) => {
-  const base = "w-full bg-base-overlay text-text-primary placeholder:text-text-muted focus:outline-none focus:bg-highlight-low transition-colors duration-150"
+  const base = "w-full bg-base-overlay/60 text-text-primary placeholder:text-text-muted focus:outline-none focus:bg-highlight-low transition-colors duration-150"
   const pr = isPassword ? "pr-10" : ""
 
   switch (mode) {

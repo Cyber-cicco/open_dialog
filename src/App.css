@@ -106,3 +106,19 @@ body {
 .react-flow__controls-button:hover {
   background-color: #26233a !important;
 }
+
+/* Right Panel Animation */
+.right-panel-content {
+  overflow: hidden;
+  transition: width 200ms ease-out;
+}
+
+.right-panel-content.closed {
+  width: 0;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.right-panel-content.open {
+  width: 520px;
+}

@@ -117,6 +117,10 @@ export const DialogProvider = ({ children }: PropsWithChildren) => {
     })
   }, [project, nodes, edges, saveDialogMutation])
 
+  useEffect(() => {
+    saveDialog().then(() => console.log("dialog saved"))
+  }, [nodes, edges])
+
 
   const createDialogNode = useCallback((pos: Pos) => {
     const isRootNode = nodesRef.current.length === 0;

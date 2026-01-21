@@ -16,7 +16,7 @@ type TextAreaFieldProps = {
 }
 
 const getTextAreaStyles = (mode: FieldSize, resize: string, fillContainer: boolean) => {
-  const base = "w-full bg-base-overlay text-text-primary placeholder:text-text-muted focus:outline-none focus:bg-highlight-low border border-base-600 focus:border-blue-deep rounded transition-colors duration-150 nodrag nopan nowheel "
+  const base = "w-full bg-base-overlay/60 text-text-primary placeholder:text-text-muted focus:outline-none focus:bg-highlight-low border border-base-600 focus:border-blue-deep rounded transition-colors duration-150 nodrag nopan nowheel "
 
   const resizeClass = fillContainer ? 'resize-none' : {
     none: 'resize-none',

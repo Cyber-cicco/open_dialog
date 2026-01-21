@@ -4,6 +4,7 @@ import { ProjectCreationModalProvider } from "./context/project-creation-modal.c
 import { GlobalStateProvider } from "./context/global-state.context";
 import { KeymapProvider } from "./context/keymap.context";
 import { DialogProvider } from "./context/dialog.context";
+import { RightPanelProvider } from "./context/right-panel.context";
 
 
 export const Providers = ({ children }: PropsWithChildren) => {
@@ -14,7 +15,9 @@ export const Providers = ({ children }: PropsWithChildren) => {
         <KeymapProvider>
           <ProjectCreationModalProvider>
             <DialogProvider>
-              {children}
+              <RightPanelProvider>
+                {children}
+              </RightPanelProvider>
             </DialogProvider>
           </ProjectCreationModalProvider>
         </KeymapProvider>

@@ -1,4 +1,6 @@
-import { Edge, EdgeChange, NodeChange } from "@xyflow/react";
+// dialog.helpers.ts
+
+import { Edge } from "@xyflow/react";
 import { AppNode } from "../dialog.context";
 import { Node as RustNode } from '../../bindings/Node';
 import { Dialog } from "../../bindings/Dialog";
@@ -9,7 +11,6 @@ export function buildBackDialogFromNodesAndEdges(
 ): Record<string, RustNode> {
   const result: Record<string, RustNode> = {};
 
-  // Index edges by source node
   const edgesBySource = new Map<string, Edge[]>();
   for (const edge of edges) {
     const arr = edgesBySource.get(edge.source) ?? [];
@@ -69,10 +70,38 @@ export function buildBackDialogFromNodesAndEdges(
   return result;
 }
 
+export function getOptimalHandles(
+  sourcePos: { x: number; y: number },
+  targetPos: { x: number; y: number },
+  sourceWidth = 360,
+  sourceHeight = 272,
+  targetWidth = 360,
+  targetHeight = 272
+): { sourceHandle: string; targetHandle: string } {
+  const sourceCenterX = sourcePos.x + sourceWidth / 2;
+  const sourceCenterY = sourcePos.y + sourceHeight / 2;
+  const targetCenterX = targetPos.x + targetWidth / 2;
+  const targetCenterY = targetPos.y + targetHeight / 2;
+
+  const dx = targetCenterX - sourceCenterX;
+  const dy = targetCenterY - sourceCenterY;
+
+  if (Math.abs(dx) >= Math.abs(dy)) {
+    return dx >= 0
+      ? { sourceHandle: 'right-source', targetHandle: 'left-target' }
+      : { sourceHandle: 'left-source', targetHandle: 'right-target' };
+  } else {
+    return dy >= 0
+      ? { sourceHandle: 'bottom-source', targetHandle: 'top-target' }
+      : { sourceHandle: 'top-source', targetHandle: 'bottom-target' };
+  }
+}
+
 export function traverseDialogAndGetNodesAndEdges(dialog: Dialog): { nodes: AppNode[], edges: Edge[] } {
   const nodes: AppNode[] = [];
   const edges: Edge[] = [];
 
+  // First pass: create all nodes
   for (const [id, node] of Object.entries(dialog.nodes)) {
     if (!node) continue;
     const isRootNode = dialog.root_node === id;
@@ -81,58 +110,77 @@ export function traverseDialogAndGetNodesAndEdges(dialog: Dialog): { nodes: AppN
     if ('Dialog' in node.data) {
       const data = node.data.Dialog;
       nodes.push({ id, type: 'dialogNode', position, data: { ...data, isRootNode } });
-
-      if (data.next_node) {
-        edges.push({ id: `${id}-${data.next_node}`, source: id, target: data.next_node });
-      }
     }
     else if ('Choices' in node.data) {
       const data = node.data.Choices;
       nodes.push({ id, type: 'choiceNode', position, data: { ...data, isRootNode } });
+    }
+    else if ('Phylum' in node.data) {
+      const data = node.data.Phylum;
+      nodes.push({ id, type: 'phylumNode', position, data: { ...data, isRootNode } });
+    }
+  }
 
+  // Second pass: create edges with optimal handles
+  for (const [id, node] of Object.entries(dialog.nodes)) {
+    if (!node) continue;
+    const sourcePos = { x: node.pos_x, y: node.pos_y };
+
+    if ('Dialog' in node.data) {
+      const data = node.data.Dialog;
+      if (data.next_node) {
+        const targetNode = dialog.nodes[data.next_node];
+        if (targetNode) {
+          const targetPos = { x: targetNode.pos_x, y: targetNode.pos_y };
+          const handles = getOptimalHandles(sourcePos, targetPos);
+          edges.push({
+            id: `${id}-${data.next_node}`,
+            source: id,
+            target: data.next_node,
+            ...handles
+          });
+        }
+      }
+    }
+    else if ('Choices' in node.data) {
+      const data = node.data.Choices;
       data.choices.forEach((choice, idx) => {
         if (choice.next_node) {
-          edges.push({
-            id: `${id}-choice-${idx}-${choice.next_node}`,
-            source: id,
-            target: choice.next_node,
-            sourceHandle: `choice-${idx}`,
-          });
+          const targetNode = dialog.nodes[choice.next_node];
+          if (targetNode) {
+            const targetPos = { x: targetNode.pos_x, y: targetNode.pos_y };
+            const handles = getOptimalHandles(sourcePos, targetPos);
+            edges.push({
+              id: `${id}-choice-${idx}-${choice.next_node}`,
+              source: id,
+              target: choice.next_node,
+              sourceHandle: `choice-${idx}`,
+              targetHandle: handles.targetHandle,
+            });
+          }
         }
       });
     }
     else if ('Phylum' in node.data) {
       const data = node.data.Phylum;
-      nodes.push({ id, type: 'phylumNode', position, data: { ...data, isRootNode } });
-
       data.branches.forEach((branch, idx) => {
         if (branch.next_node) {
-          edges.push({
-            id: `${id}-branch-${idx}-${branch.next_node}`,
-            source: id,
-            target: branch.next_node,
-            sourceHandle: `branch-${idx}`,
-          });
+          const targetNode = dialog.nodes[branch.next_node];
+          if (targetNode) {
+            const targetPos = { x: targetNode.pos_x, y: targetNode.pos_y };
+            const handles = getOptimalHandles(sourcePos, targetPos);
+            edges.push({
+              id: `${id}-branch-${idx}-${branch.next_node}`,
+              source: id,
+              target: branch.next_node,
+              sourceHandle: `branch-${idx}`,
+              targetHandle: handles.targetHandle,
+            });
+          }
         }
       });
     }
   }
 
   return { nodes, edges };
-}
-
-export function getOptimalHandles(
-  sourcePos: { x: number },
-  targetPos: { x: number },
-  sourceWidth = 360,
-  targetWidth = 360
-): { sourceHandle: string; targetHandle: string } {
-  const sourceCenterX = sourcePos.x + sourceWidth / 2;
-  const targetCenterX = targetPos.x + targetWidth / 2;
-
-  if (targetCenterX >= sourceCenterX) {
-    return { sourceHandle: 'right-source', targetHandle: 'left-target' };
-  } else {
-    return { sourceHandle: 'left-source', targetHandle: 'right-target' };
-  }
 }

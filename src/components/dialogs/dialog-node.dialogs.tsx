@@ -26,7 +26,9 @@ export const DialogNodeComp = ({ data, selected }: NodeProps<DialogNodeType>) =>
   return (
     <div className={`p-4 hover:cursor-pointer min-h-68 bg-base-surface rounded border w-90 ${selected ? 'border-blue-primary' : 'border-base-600'}`}>
       <Handle type="target" position={Position.Left} id="left-target" />
+      <Handle type="target" position={Position.Bottom} id="bottom-target" />
       <Handle type="source" position={Position.Left} id="left-source" />
+      <Handle type="source" position={Position.Bottom} id="bottom-source" />
       <form onSubmit={(e) => {
         e.preventDefault();
         e.stopPropagation();
@@ -50,7 +52,9 @@ export const DialogNodeComp = ({ data, selected }: NodeProps<DialogNodeType>) =>
           />
         </div>
       </form>
+      <Handle type="target" position={Position.Top} id="top-target" />
       <Handle type="target" position={Position.Right} id="right-target" />
+      <Handle type="source" position={Position.Top} id="top-source" />
       <Handle type="source" position={Position.Right} id="right-source" />
     </div>
   );
