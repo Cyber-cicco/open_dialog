@@ -25,7 +25,7 @@ export function buildBackDialogFromNodesAndEdges(
         if (node.type === 'dialogNode') {
             const edge = nodeEdges[0];
             result[node.id] = {
-                id:node.id,
+                id: node.id,
                 pos_x,
                 pos_y,
                 data: {
@@ -44,7 +44,7 @@ export function buildBackDialogFromNodesAndEdges(
                 return { ...choice, next_node: edge?.target ?? null };
             });
             result[node.id] = {
-                id:node.id,
+                id: node.id,
                 pos_x,
                 pos_y,
                 data: { Choices: { choices } }
@@ -56,7 +56,7 @@ export function buildBackDialogFromNodesAndEdges(
                 return { ...branch, next_node: edge?.target ?? null };
             });
             result[node.id] = {
-                id:node.id,
+                id: node.id,
                 pos_x,
                 pos_y,
                 data: {
@@ -188,16 +188,16 @@ export function traverseDialogAndGetNodesAndEdges(dialog: Dialog): { nodes: AppN
     return { nodes, edges };
 }
 
-export function findFirstTerminatingPath(visited:Set<string>, fwm: Map<string, string[]>, curr:string, res:string[]):string[] {
+export function findFirstTerminatingPath(visited: Set<string>, fwm: Map<string, string[]>, curr: string, res: string[]): string[] {
     if (visited.has(curr)) {
         return res;
     }
 
+    res.push(curr);
+    visited.add(curr);
     if (!fwm.has(curr)) {
         return res;
     }
-    visited.add(curr);
-    res.push(curr);
 
     for (let fwn of fwm.get(curr)!) {
         return findFirstTerminatingPath(visited, fwm, fwn, res);
@@ -205,18 +205,18 @@ export function findFirstTerminatingPath(visited:Set<string>, fwm: Map<string, s
     return res;
 }
 
-function findLongestNonRedondantPath(visited:Set<string>, res:string[], fwm:Map<string, string[]>, curr:string) {
+function findLongestNonRedondantPath(visited: Set<string>, res: string[], fwm: Map<string, string[]>, curr: string) {
     if (visited.has(curr)) {
         return res;
     }
 
+    res.push(curr);
+    visited.add(curr);
     if (!fwm.has(curr)) {
         return res;
     }
-    visited.add(curr);
-    res.push(curr);
 
-    let paths: string[][] =  []
+    let paths: string[][] = []
     for (let fwn of fwm.get(curr)!) {
         let curr_visited = new Set(visited);
         paths.push(findLongestNonRedondantPath(curr_visited, [], fwm, fwn))
@@ -225,11 +225,47 @@ function findLongestNonRedondantPath(visited:Set<string>, res:string[], fwm:Map<
         return [...res, ...paths[0]]
     }
     let longestArrayid = 0;
-    for (let i = 0; i <paths.length; i++) {
+    for (let i = 0; i < paths.length; i++) {
         if (paths[i].length > paths[longestArrayid].length) {
             longestArrayid = i;
         }
     }
+    if (paths.length === 0) {
+        return [];
+    }
 
     return [...res, ...paths[longestArrayid]]
 }
+
+
+function findPathContainingNode(curr: string, visited: Set<string>, res: string[], haystack: Map<string, string[]>, needle: string): string[] {
+    if (needle === curr) {
+        return res
+    }
+    res.push(curr);
+    if (visited.has(curr)) {
+        return [];
+    }
+
+    if (!haystack.has(curr)) {
+        return [];
+    }
+    visited.add(curr);
+
+    let paths: string[][] = []
+    for (let node of haystack.get(curr)!) {
+        let curr_visited = new Set(visited);
+        paths.push(findPathContainingNode(node, curr_visited, [], haystack, needle))
+    }
+    if (paths.length === 1) {
+        return [...res, ...paths[0]]
+    }
+
+    for (let path of paths) {
+        if (path.length > 0) {
+            return [...res, ...path]
+        }
+    }
+    return []
+}
+
