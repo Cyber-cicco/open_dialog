@@ -53,8 +53,10 @@ export function useSaveDialog(): UseMutationResult<void, Error, SaveDialogParams
   const queryClient = useQueryClient();
   return useMutation({
     mutationKey: ['dialogs', 'save'],
-    mutationFn: async ({ projectId, dialog }: SaveDialogParams) =>
-      invoke<void>("save_dialog", { projectId, dialog }),
+    mutationFn: async ({ projectId, dialog }: SaveDialogParams) => {
+      console.log(dialog);
+      invoke<void>("save_dialog", { projectId, dialog })
+    },
     onSuccess: (_, { projectId, dialog }) => {
       queryClient.invalidateQueries({ queryKey: ['dialogs', 'byId', projectId, dialog.id] });
       queryClient.invalidateQueries({ queryKey: ['dialogs', 'metadata', projectId] });

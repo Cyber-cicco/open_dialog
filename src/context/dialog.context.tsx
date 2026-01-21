@@ -36,6 +36,8 @@ type DialogContextType = {
   onNodesChange: (changes: NodeChange<AppNode>[]) => void
   onEdgesChange: (changes: EdgeChange<Edge>[]) => void
   onConnect: (connection: Connection) => void
+  updateNodeData: (nodeId: string, data: Partial<DialogNodeData> | Partial<ChoicesNodeData> | Partial<PhylumNodeData>) => void
+
   nodes: AppNode[],
   edges: Edge[],
 }
@@ -118,7 +120,7 @@ export const DialogProvider = ({ children }: PropsWithChildren) => {
   }, [project, nodes, edges, saveDialogMutation])
 
   useEffect(() => {
-    saveDialog().then(() => console.log("dialog saved"))
+    saveDialog().then(() => {})
   }, [nodes, edges])
 
 
@@ -133,6 +135,7 @@ export const DialogProvider = ({ children }: PropsWithChildren) => {
       position: { x: pos.x, y: pos.y },
       data: {
         next_node: null,
+        content:'',
         character_id: null,
         content_link: null,
         isRootNode,
@@ -156,8 +159,22 @@ export const DialogProvider = ({ children }: PropsWithChildren) => {
     }
   }, []);
 
+  const updateNodeData = useCallback((
+    nodeId: string,
+    newData: Partial<DialogNodeData> | Partial<ChoicesNodeData> | Partial<PhylumNodeData>
+  ) => {
+    setNodes((prev) =>
+      prev.map((node) =>
+        node.id === nodeId
+          ? { ...node, data: { ...node.data, ...newData } } as AppNode
+          : node
+      )
+    );
+  }, []);
+
   return (
     <DialogContext.Provider value={{
+      updateNodeData,
       createDialogNode,
       loadDialog,
       nodes,
@@ -201,4 +218,12 @@ export const useDialog = (dialog: Dialog) => {
     onConnect: ctx.onConnect,
     onEdgesChange: ctx.onEdgesChange,
   }
+}
+
+export const useDialogContext = () => {
+  const ctx = useContext(DialogContext);
+  if (!ctx) {
+    throw new Error("Cannot use dialog context outside of dialog provider")
+  }
+  return ctx
 }

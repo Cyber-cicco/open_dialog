@@ -27,11 +27,17 @@ pub trait DialogDao<C: ODConfig> {
     fn create_metadata(&self, project_id: &str) -> Result<DialogMetadata>;
     fn get_dialog_by_id(&self, project_id: &str, dialog_id: &str) -> Result<Dialog>;
     fn get_dialog_metadata(&self, project_id: &str) -> Result<DialogMetadata>;
+    fn get_content(
+        &self,
+        project_id: &str,
+        character_id: &str,
+        node_id: &str,
+    ) -> Result<String>;
     fn persist_dialog_content(
         &self,
         project_id: &str,
         dialog_id: &str,
-        node_id:&str,
+        node_id: &str,
         content: &str,
     ) -> Result<()>;
 }
@@ -96,6 +102,16 @@ impl<C: ODConfig> DialogDao<C> for FileDialogDao<C> {
         fs::write(path, content).context("could not write dialog content to file")?;
         Ok(())
     }
+
+    fn get_content(
+        &self,
+        project_id: &str,
+        dialog_id: &str,
+        node_id: &str,
+    ) -> Result<String> {
+        let path = self.get_dialog_content_node_file(project_id, dialog_id, node_id)?;
+        fs::read_to_string(path).context("could not read content file")
+    }
 }
 
 impl<C: ODConfig> FileDialogDao<C> {
@@ -118,11 +134,19 @@ impl<C: ODConfig> FileDialogDao<C> {
     }
 
     pub fn get_dialog_meta_file(&self, project_id: &str, dialog_id: &str) -> Result<PathBuf> {
-        Ok(self.get_dialog_dir_id(project_id, dialog_id)?.join("meta.json"))
-
+        Ok(self
+            .get_dialog_dir_id(project_id, dialog_id)?
+            .join("meta.json"))
     }
 
-    pub fn get_dialog_content_node_file(&self, project_id: &str, dialog_id: &str, node_id: &str) -> Result<PathBuf> {
-        Ok(self.get_dialog_dir_id(project_id, dialog_id)?.join(format!("{node_id}.txt")))
+    pub fn get_dialog_content_node_file(
+        &self,
+        project_id: &str,
+        dialog_id: &str,
+        node_id: &str,
+    ) -> Result<PathBuf> {
+        Ok(self
+            .get_dialog_dir_id(project_id, dialog_id)?
+            .join(format!("{node_id}.txt")))
     }
 }

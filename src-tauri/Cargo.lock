@@ -2410,6 +2410,7 @@ dependencies = [
  "email_address",
  "enum_dispatch",
  "git2",
+ "log",
  "od-macros",
  "serde",
  "serde_json",

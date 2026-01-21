@@ -41,7 +41,10 @@ pub fn tauri_command(attr: TokenStream, item: TokenStream) -> TokenStream {
             state: tauri::State<'a, crate::shared::state::AppState>,
         ) -> Result<#return_type, String> {
             state.#service_name.#fn_name(#(#arg_names),*)
-                .map_err(|e| e.to_string())
+                .map_err(|e| {
+                    log::error!("Error in {}: {}", stringify!(#fn_name), e);
+                    e.to_string()
+                })
         }
     };
     

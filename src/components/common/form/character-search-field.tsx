@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, FocusEvent } from 'react'
 import { useFieldContext } from '../../../hooks/form'
 import { useGetAllCharacters } from '../../../hooks/queries/character'
 import { useGlobalState } from '../../../context/global-state.context'
@@ -10,12 +10,14 @@ type CharacterSearchFieldProps = {
   label?: string
   required?: boolean
   inputRef?: React.RefObject<HTMLInputElement | null>
+  onBlur?: (e: FocusEvent<HTMLInputElement, Element>) => void
 }
 
 export const CharacterSearchField: React.FC<CharacterSearchFieldProps> = ({
   label,
   required = false,
   inputRef,
+  onBlur,
 }) => {
   const { project } = useGlobalState()
   const field = useFieldContext<string>()
@@ -108,6 +110,10 @@ export const CharacterSearchField: React.FC<CharacterSearchFieldProps> = ({
         <div className="relative">
           <input
             type="text"
+            onBlur={(e) => {
+              field.handleBlur();
+              onBlur?.(e);
+            }}
             ref={inputRef}
             value={query}
             onChange={(e) => {
@@ -127,8 +133,8 @@ export const CharacterSearchField: React.FC<CharacterSearchFieldProps> = ({
                   onClick={() => handleSelect(character)}
                   onMouseEnter={() => setHighlightedIndex(index)}
                   className={`flex items-center gap-3 px-3 py-2 cursor-pointer transition-colors ${index === highlightedIndex
-                      ? 'bg-highlight-med'
-                      : 'hover:bg-highlight-low'
+                    ? 'bg-highlight-med'
+                    : 'hover:bg-highlight-low'
                     }`}
                 >
                   <CharacterAvatar project={project} character={character} />

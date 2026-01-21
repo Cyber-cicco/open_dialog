@@ -36,6 +36,7 @@ pub struct Dialog {
 #[derive(TS, Serialize, Deserialize, Debug)]
 #[ts(export, export_to = "../../src/bindings/")]
 pub struct Node {
+    id: Uuid,
     pos_x: i32,
     pos_y: i32,
     data: NodeData,
@@ -68,7 +69,8 @@ pub struct Choice {
 pub struct DialogNode {
     next_node: Option<Uuid>,
     character_id: Option<Uuid>,
-    content_link: Option<Uuid>,
+    pub content_link: Option<Uuid>,
+    pub content: Option<String>,
 }
 
 #[derive(TS, Serialize, Deserialize, Debug)]
@@ -99,6 +101,11 @@ pub struct VarNecessity {
 pub struct DialogCreationForm<'a> {
     pub name: &'a str,
     pub main_char_id: &'a str,
+}
+
+pub struct DialogContent<'a> {
+    pub content: String,
+    pub node_id: &'a Uuid,
 }
 
 #[enum_dispatch::enum_dispatch]
@@ -132,12 +139,32 @@ impl Dialog {
         return self.id;
     }
 
+    pub fn get_nodes(&mut self) -> &mut HashMap<Uuid, Node> {
+        &mut self.nodes
+    }
+
     pub fn enforce_links_coherence(&self) -> Result<()> {
         for (_, v) in &self.nodes {
             v.data.enforce_coherence(&self)?;
         }
         Ok(())
     }
+
+
+    pub fn collect_content<'a>(&'a mut self, collector:&mut Vec<DialogContent<'a>>) {
+        for (_uuid, node) in &mut self.nodes {
+            if let NodeData::Dialog(dialog) = &mut node.data {
+                let content  = match &dialog.content {
+                    Some(str) => str.clone(),
+                    None => continue,
+                };
+                dialog.content = None;
+                dialog.content_link = Some(node.id);
+                collector.push(DialogContent { content, node_id: &node.id });
+            }
+        }
+    }
+
 }
 
 impl Coherent for DialogNode {
@@ -185,5 +212,15 @@ impl SimpleDialog {
             main_character: dialog.main_character,
             characters: dialog.characters_ids.clone(),
         }
+    }
+}
+
+impl Node {
+    pub fn get_data(&mut self) -> &mut NodeData {
+        &mut self.data
+    }
+
+    pub fn get_id(&self) -> &Uuid {
+        return &self.id
     }
 }

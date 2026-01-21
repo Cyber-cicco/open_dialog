@@ -2,23 +2,31 @@ import { Handle, Position, type NodeProps, type Node } from '@xyflow/react';
 import { DialogNode } from '../../bindings/DialogNode';
 import { useAppForm } from '../../hooks/form';
 import { useEffect, useRef } from 'react';
+import { useDialogContext } from '../../context/dialog.context';
 
-// Extend with any display-specific fields
-type DialogNodeData = DialogNode & {
-  // add UI-specific fields if needed
-};
+type DialogNodeData = DialogNode & {};
 
 export type DialogNodeType = Node<DialogNodeData, 'dialogNode'>;
 
-export const DialogNodeComp = ({ data, selected }: NodeProps<DialogNodeType>) => {
+export const DialogNodeComp = ({ data, selected, id }: NodeProps<DialogNodeType>) => {
   const inputRef = useRef<HTMLInputElement>(null);
-  const { character_id } = data;
+  const { updateNodeData } = useDialogContext()
+  const { character_id, content } = data;
+
   const form = useAppForm({
     defaultValues: {
       character_id: character_id || '',
-      content: '',
+      content: content,
+    },
+    onSubmit: async ({ value }) => {
+      updateNodeData(id, { ...value })
     }
   })
+
+  const submitOnBlur = () => {
+    form.handleSubmit()
+  }
+
   useEffect(() => {
     inputRef.current?.focus();
   }, [inputRef.current])
@@ -32,11 +40,16 @@ export const DialogNodeComp = ({ data, selected }: NodeProps<DialogNodeType>) =>
       <form onSubmit={(e) => {
         e.preventDefault();
         e.stopPropagation();
+        form.handleSubmit();
       }}><div className='space-y-2'>
           <form.AppField
             name="character_id"
             children={(field) => (
-              <field.CharacterSearchField inputRef={inputRef} label="Locutor" />
+              <field.CharacterSearchField 
+                inputRef={inputRef}
+                onBlur={submitOnBlur}
+                label="Locutor"
+              />
             )}
           />
           <form.AppField
@@ -44,6 +57,7 @@ export const DialogNodeComp = ({ data, selected }: NodeProps<DialogNodeType>) =>
             children={(field) => (
               <field.TextAreaField
                 label="Content"
+                onBlur={submitOnBlur}
                 placeholder="Hello !"
                 mode="normal"
                 resize="vertical"
