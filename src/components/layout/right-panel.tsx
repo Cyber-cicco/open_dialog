@@ -19,7 +19,7 @@ const LayoutRightPanel = () => {
       <div
         className={`right-panel-content rounded-l-sm h-full bg-base-surface text-white ${isOpen ? "open" : "closed"}`}
       >
-        <div className="p-4 border-base-100 border-2 h-full overflow-y-auto">
+        <div className="h-full overflow-hidden">
           <DialogFeed />
         </div>
       </div>

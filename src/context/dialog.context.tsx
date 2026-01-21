@@ -41,6 +41,9 @@ type DialogContextType = {
   dialogFeed: AppNode[],
   nodes: AppNode[],
   edges: Edge[],
+  rootNodeId: string | null
+  setRootNode: (nodeId: string) => void
+
 }
 
 const DialogContext = createContext<DialogContextType | undefined>(undefined);
@@ -62,14 +65,25 @@ export const DialogProvider = ({ children }: PropsWithChildren) => {
   // Pour créer automatiquement un edge avec l'ancien node
   const lastNodeRef = useRef<Node | undefined>(undefined);
   const rootNodeRef = useRef<string | null>(null);
+  const isInitialLoadRef = useRef(true);
   const saveDialogMutation = useSaveDialog();
+  const [rootNodeId, setRootNodeId] = useState<string | null>(null);
 
   const loadDialog = useCallback((dialog: Dialog) => {
+    isInitialLoadRef.current = true;
     dialogRef.current = dialog;
-    rootNodeRef.current = dialogRef.current.root_node
+
+    //TODO: smells like shit, should have thought this through
+    setRootNodeId(dialog.root_node);
+    rootNodeRef.current = dialog.root_node;
+
     const res = traverseDialogAndGetNodesAndEdges(dialogRef.current);
     setNodes(res.nodes);
     setEdges(res.edges);
+  }, []);
+
+  const setRootNode = useCallback((nodeId: string) => {
+    setRootNodeId(nodeId);
   }, []);
 
   const onNodesChange = useCallback((changes: NodeChange<AppNode>[]) => {
@@ -126,13 +140,9 @@ export const DialogProvider = ({ children }: PropsWithChildren) => {
   }, [nodes])
 
   const dialogFeed = useMemo(() => {
-    console.log(forwardMap);
-    console.log(dialogRef.current);
     if (dialogRef.current?.root_node) {
 
-      // this path is never seen
       const path = getLongestPathFromRoot(dialogRef.current.root_node, forwardMap);
-      console.log(path)
       return path.map((p) => nodeMap.get(p)!);
     }
     return []
@@ -154,7 +164,13 @@ export const DialogProvider = ({ children }: PropsWithChildren) => {
   }, [project, nodes, edges, saveDialogMutation])
 
   useEffect(() => {
-    saveDialog().then(() => { })
+    if (isInitialLoadRef.current) {
+      isInitialLoadRef.current = false;
+      return;
+    }
+
+    saveDialog().then(() => {
+    }).catch((e) => console.error(e))
   }, [nodes, edges])
 
 
@@ -164,6 +180,7 @@ export const DialogProvider = ({ children }: PropsWithChildren) => {
 
     if (isRootNode) {
       rootNodeRef.current = id;
+      setRootNode(id);
     }
 
     const previousNode = lastNodeRef.current;
@@ -223,6 +240,8 @@ export const DialogProvider = ({ children }: PropsWithChildren) => {
       onConnect,
       onEdgesChange,
       dialogFeed,
+      rootNodeId,
+      setRootNode,
     }}>
       {children}
     </DialogContext.Provider>

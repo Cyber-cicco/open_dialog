@@ -1,7 +1,7 @@
 import { Handle, Position, type NodeProps, type Node } from '@xyflow/react';
 import { DialogNode } from '../../bindings/DialogNode';
 import { useAppForm } from '../../hooks/form';
-import { useEffect, useRef } from 'react';
+import { useRef } from 'react';
 import { useDialogContext } from '../../context/dialog.context';
 
 type DialogNodeData = DialogNode & {};
@@ -10,7 +10,7 @@ export type DialogNodeType = Node<DialogNodeData, 'dialogNode'>;
 
 export const DialogNodeComp = ({ data, selected, id }: NodeProps<DialogNodeType>) => {
   const inputRef = useRef<HTMLInputElement>(null);
-  const { updateNodeData } = useDialogContext()
+  const { updateNodeData, rootNodeId } = useDialogContext()
   const { character_id, content } = data;
 
   const form = useAppForm({
@@ -19,7 +19,10 @@ export const DialogNodeComp = ({ data, selected, id }: NodeProps<DialogNodeType>
       content: content,
     },
     onSubmit: async ({ value }) => {
-      updateNodeData(id, { ...value })
+      updateNodeData(id, {
+        ...value,
+        character_id: value.character_id || null  // Convert '' to null
+      })
     }
   })
 
@@ -28,7 +31,10 @@ export const DialogNodeComp = ({ data, selected, id }: NodeProps<DialogNodeType>
   }
 
   return (
-    <div className={`p-4 hover:cursor-pointer min-h-68 bg-base-surface rounded border w-90 ${selected ? 'border-blue-primary' : 'border-base-600'}`}>
+    <div className={`p-4 hover:cursor-pointer min-h-68 bg-base-surface rounded border w-90 
+      ${selected ? 'border-blue-primary' : 'border-base-600'}
+      ${rootNodeId === id ? 'ring-2 ring-blue-500/50 shadow-[0_0_15px_rgba(59,130,246,0.3)]' : ''}`}
+    >
       <Handle type="target" position={Position.Left} id="left-target" />
       <Handle type="target" position={Position.Bottom} id="bottom-target" />
       <Handle type="source" position={Position.Left} id="left-source" />
@@ -41,7 +47,7 @@ export const DialogNodeComp = ({ data, selected, id }: NodeProps<DialogNodeType>
           <form.AppField
             name="character_id"
             children={(field) => (
-              <field.CharacterSearchField 
+              <field.CharacterSearchField
                 autofocus
                 inputRef={inputRef}
                 onBlur={submitOnBlur}

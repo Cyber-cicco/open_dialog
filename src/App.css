@@ -122,3 +122,81 @@ body {
 .right-panel-content.open {
   width: 520px;
 }
+
+/* Dialog Feed - Disco Elysium style */
+.dialog-feed-container {
+  position: relative;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.dialog-feed-gradient {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 20%;
+  background: linear-gradient(
+    to bottom,
+    #1f1d2e 0%,
+    #1f1d2e 20%,
+    rgba(31, 29, 46, 0.8) 50%,
+    rgba(31, 29, 46, 0) 100%
+  );
+  pointer-events: none;
+  z-index: 10;
+}
+
+.dialog-feed-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding: 1rem;
+  max-height: 100%;
+  overflow-y: auto;
+  padding-bottom: 100%;
+}
+
+.dialog-feed-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.dialog-feed-content::-webkit-scrollbar-track {
+  background: #26233a;
+  border-radius: 4px;
+}
+
+.dialog-feed-content::-webkit-scrollbar-thumb {
+  background: #403d52;
+  border-radius: 4px;
+}
+
+.dialog-feed-content::-webkit-scrollbar-thumb:hover {
+  background: #524f67;
+}
+
+.dialog-feed-gradient-bottom {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 20%;
+  background: linear-gradient(
+    to top,
+    #1f1d2e 0%,
+    #1f1d2e 20%,
+    rgba(31, 29, 46, 0.8) 50%,
+    rgba(31, 29, 46, 0) 100%
+  );
+  pointer-events: none;
+  z-index: 10;
+}
+
+.dialog-feed-spacer {
+  flex-shrink: 0;
+  min-height: 50vh;
+}

@@ -1,36 +1,51 @@
 import { useDialogContext } from "../../context/dialog.context";
 
 const DialogFeed = () => {
-  const { dialogFeed:nodes } = useDialogContext();
-  console.log(nodes)
+  const { dialogFeed: nodes } = useDialogContext();
+
+  const dialogNodes = nodes.filter((node) => node.type === "dialogNode");
 
   return (
-    <div className="flex flex-col gap-3">
-      {nodes.map((node) => {
-        if (node.type !== "dialogNode") return null;
+    <div className="dialog-feed-container">
+      <div className="dialog-feed-gradient" />
+      <div className="dialog-feed-content">
+        {dialogNodes.map((node, index) => {
+          const { content, character_id } = node.data;
+          const isLast = index === dialogNodes.length - 1;
+          const isFirst = index === 0
 
-        const { content, character_id } = node.data;
-
-        return (
-          <div
-            key={node.id}
-            className="p-3 rounded bg-base-700 border border-base-600"
-          >
-            {character_id && (
-              <div className="text-sm font-medium text-text-subtle mb-1">
-                {character_id}
-              </div>
-            )}
-            <div className="text-text-primary">
-              {content || <span className="text-text-subtle italic">Empty</span>}
+          return (
+            <div key={node.id}>
+              {isFirst && <div className="m-[50%]"></div>}
+              <div
+                className={`p-3 rounded border transition-all duration-200 text-lg ${isLast
+                  ? "bg-base-600 border-blue-deep text-text-100 shadow-lg shadow-blue-deep/20"
+                  : "bg-base-700/60 border-base-700 text-gray-300"
+                  }`}
+              >
+                {character_id && (
+                  <div
+                    className={`text-base font-medium mb-1 ${isLast ? "text-blue-primary" : "text-text-muted"
+                      }`}
+                  >
+                    {character_id}
+                  </div>
+                )}
+                <div className="whitespace-pre-wrap">
+                  {content || (
+                    <span className="text-text-muted italic">Empty</span>
+                  )}
+                </div>
+              </div >
             </div>
-          </div>
-        );
-      })}
+          );
+        })}
 
-      {nodes.length === 0 && (
-        <div className="text-text-subtle text-sm italic">No dialog nodes</div>
-      )}
+        {dialogNodes.length === 0 && (
+          <div className="text-text-subtle text-sm italic">No dialog nodes</div>
+        )}
+      </div>
+      <div className="dialog-feed-gradient-bottom" />
     </div>
   );
 };

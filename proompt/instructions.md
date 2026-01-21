@@ -1,1 +1,1 @@
-Need a way to set the root node automatically when there is no previous node.
+Every time a node changes, it saves the dialog. That means the dialog gets saved when it gets loaded. That's quite stupid.
