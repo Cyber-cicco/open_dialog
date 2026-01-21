@@ -10,7 +10,7 @@ export type DialogNodeType = Node<DialogNodeData, 'dialogNode'>;
 
 export const DialogNodeComp = ({ data, selected, id }: NodeProps<DialogNodeType>) => {
   const inputRef = useRef<HTMLInputElement>(null);
-  const { updateNodeData, rootNodeId } = useDialogContext()
+  const { updateNodeData, rootNodeId, setRootNode } = useDialogContext()
   const { character_id, content } = data;
 
   const form = useAppForm({
@@ -35,6 +35,16 @@ export const DialogNodeComp = ({ data, selected, id }: NodeProps<DialogNodeType>
       ${selected ? 'border-blue-primary' : 'border-base-600'}
       ${rootNodeId === id ? 'ring-2 ring-blue-500/50 shadow-[0_0_15px_rgba(59,130,246,0.3)]' : ''}`}
     >
+      {rootNodeId !== id && (
+        <button
+          type="button"
+          onClick={() => setRootNode(id)}
+          className="absolute top-2 right-2 p-1 rounded text-xs bg-base-600 hover:bg-blue-deep text-text-subtle hover:text-text-primary transition-colors"
+          title="Set as root node"
+        >
+          ⚑
+        </button>
+      )}
       <Handle type="target" position={Position.Left} id="left-target" />
       <Handle type="target" position={Position.Bottom} id="bottom-target" />
       <Handle type="source" position={Position.Left} id="left-source" />

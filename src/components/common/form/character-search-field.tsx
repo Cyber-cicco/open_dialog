@@ -11,7 +11,7 @@ type CharacterSearchFieldProps = {
   required?: boolean
   inputRef?: React.RefObject<HTMLInputElement | null>
   autofocus?: boolean
-  onBlur?: (e: FocusEvent<HTMLInputElement, Element>) => void
+  onBlur?: (e: FocusEvent<HTMLInputElement, Element> | undefined) => void
 }
 
 export const CharacterSearchField: React.FC<CharacterSearchFieldProps> = ({
@@ -62,6 +62,7 @@ export const CharacterSearchField: React.FC<CharacterSearchFieldProps> = ({
     field.handleChange(character.id)
     setQuery('')
     setIsOpen(false)
+    onBlur?.(undefined);
   }
 
   const handleClear = () => {

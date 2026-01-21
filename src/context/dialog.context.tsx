@@ -42,6 +42,7 @@ type DialogContextType = {
   nodes: AppNode[],
   edges: Edge[],
   rootNodeId: string | null
+  dialog:Dialog | undefined,
   setRootNode: (nodeId: string) => void
 
 }
@@ -83,6 +84,7 @@ export const DialogProvider = ({ children }: PropsWithChildren) => {
   }, []);
 
   const setRootNode = useCallback((nodeId: string) => {
+    rootNodeRef.current = nodeId;
     setRootNodeId(nodeId);
   }, []);
 
@@ -242,6 +244,7 @@ export const DialogProvider = ({ children }: PropsWithChildren) => {
       dialogFeed,
       rootNodeId,
       setRootNode,
+      dialog:dialogRef.current,
     }}>
       {children}
     </DialogContext.Provider>
