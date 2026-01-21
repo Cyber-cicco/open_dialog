@@ -7,7 +7,7 @@ import { DialogNode } from "../bindings/DialogNode";
 import { Choices } from "../bindings/Choices";
 import { Phylum } from "../bindings/Phylum";
 import { useGlobalState } from "./global-state.context";
-import { buildBackDialogFromNodesAndEdges, getOptimalHandles, traverseDialogAndGetNodesAndEdges } from "./helpers/dialog.helpers";
+import { buildBackDialogFromNodesAndEdges, getLongestPathFromRoot, getOptimalHandles, traverseDialogAndGetNodesAndEdges } from "./helpers/dialog.helpers";
 
 // Node data types matching your Rust NodeData enum
 type DialogNodeData = DialogNode & { isRootNode?: boolean };
@@ -38,6 +38,7 @@ type DialogContextType = {
   onConnect: (connection: Connection) => void
   updateNodeData: (nodeId: string, data: Partial<DialogNodeData> | Partial<ChoicesNodeData> | Partial<PhylumNodeData>) => void
 
+  dialogFeed: AppNode[],
   nodes: AppNode[],
   edges: Edge[],
 }
@@ -116,6 +117,27 @@ export const DialogProvider = ({ children }: PropsWithChildren) => {
     return { forwardMap: fwd, reverseMap: rev };
   }, [edges]);
 
+  const nodeMap = useMemo(() => {
+    const res = new Map<string, AppNode>();
+    for (const node of nodes) {
+      res.set(node.id, node);
+    }
+    return res
+  }, [nodes])
+
+  const dialogFeed = useMemo(() => {
+    console.log(forwardMap);
+    console.log(dialogRef.current);
+    if (dialogRef.current?.root_node) {
+
+      // this path is never seen
+      const path = getLongestPathFromRoot(dialogRef.current.root_node, forwardMap);
+      console.log(path)
+      return path.map((p) => nodeMap.get(p)!);
+    }
+    return []
+  }, [forwardMap, nodeMap]);
+
 
   const saveDialog = useCallback(async () => {
     if (!project || !dialogRef.current) {
@@ -139,6 +161,11 @@ export const DialogProvider = ({ children }: PropsWithChildren) => {
   const createDialogNode = useCallback((pos: Pos) => {
     const isRootNode = nodesRef.current.length === 0;
     const id = crypto.randomUUID();
+
+    if (isRootNode) {
+      rootNodeRef.current = id;
+    }
+
     const previousNode = lastNodeRef.current;
 
     const newNode: DialogFlowNode = {
@@ -195,6 +222,7 @@ export const DialogProvider = ({ children }: PropsWithChildren) => {
       onNodesChange,
       onConnect,
       onEdgesChange,
+      dialogFeed,
     }}>
       {children}
     </DialogContext.Provider>

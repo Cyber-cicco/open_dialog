@@ -205,6 +205,10 @@ export function findFirstTerminatingPath(visited: Set<string>, fwm: Map<string, 
     return res;
 }
 
+export function getLongestPathFromRoot(rootNode:string, fwm: Map<string, string[]>): string[] {
+    return findLongestNonRedondantPath(new Set(), [], fwm, rootNode);
+}
+
 function findLongestNonRedondantPath(visited: Set<string>, res: string[], fwm: Map<string, string[]>, curr: string) {
     if (visited.has(curr)) {
         return res;

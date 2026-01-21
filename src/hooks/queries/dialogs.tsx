@@ -54,7 +54,6 @@ export function useSaveDialog(): UseMutationResult<void, Error, SaveDialogParams
   return useMutation({
     mutationKey: ['dialogs', 'save'],
     mutationFn: async ({ projectId, dialog }: SaveDialogParams) => {
-      console.log(dialog);
       invoke<void>("save_dialog", { projectId, dialog })
     },
     onSuccess: (_, { projectId, dialog }) => {
