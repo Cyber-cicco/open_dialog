@@ -27,10 +27,6 @@ export const DialogNodeComp = ({ data, selected, id }: NodeProps<DialogNodeType>
     form.handleSubmit()
   }
 
-  useEffect(() => {
-    inputRef.current?.focus();
-  }, [inputRef.current])
-
   return (
     <div className={`p-4 hover:cursor-pointer min-h-68 bg-base-surface rounded border w-90 ${selected ? 'border-blue-primary' : 'border-base-600'}`}>
       <Handle type="target" position={Position.Left} id="left-target" />
@@ -46,6 +42,7 @@ export const DialogNodeComp = ({ data, selected, id }: NodeProps<DialogNodeType>
             name="character_id"
             children={(field) => (
               <field.CharacterSearchField 
+                autofocus
                 inputRef={inputRef}
                 onBlur={submitOnBlur}
                 label="Locutor"

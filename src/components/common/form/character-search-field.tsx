@@ -10,6 +10,7 @@ type CharacterSearchFieldProps = {
   label?: string
   required?: boolean
   inputRef?: React.RefObject<HTMLInputElement | null>
+  autofocus?: boolean
   onBlur?: (e: FocusEvent<HTMLInputElement, Element>) => void
 }
 
@@ -17,6 +18,7 @@ export const CharacterSearchField: React.FC<CharacterSearchFieldProps> = ({
   label,
   required = false,
   inputRef,
+  autofocus = false,
   onBlur,
 }) => {
   const { project } = useGlobalState()
@@ -38,6 +40,12 @@ export const CharacterSearchField: React.FC<CharacterSearchFieldProps> = ({
   useEffect(() => {
     setHighlightedIndex(0)
   }, [filtered.length, query])
+
+  useEffect(() => {
+    if (autofocus && !selectedCharacter) {
+      inputRef?.current?.focus();
+    }
+  })
 
   // Close dropdown on outside click
   useEffect(() => {

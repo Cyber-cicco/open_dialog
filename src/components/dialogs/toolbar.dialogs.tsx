@@ -4,6 +4,7 @@ import { NodeType } from "../../pages/dialog-page"
 import { ChoiceSvg } from "../common/svg/choice.svg"
 
 type NodeToolbarProps = {
+  dialogName: string
   onNodeCreate?: (type: NodeType) => void
 }
 
@@ -27,9 +28,10 @@ const ToolbarButton: React.FC<ToolbarButtonProps> = ({ icon, label, onClick }) =
   )
 }
 
-export const NodeToolbar: React.FC<NodeToolbarProps> = ({ onNodeCreate }) => {
+export const NodeToolbar: React.FC<NodeToolbarProps> = ({ dialogName, onNodeCreate }) => {
   return (
     <div className="absolute top-4 left-4 z-10 flex flex-col gap-2">
+      <h2 className="text-text-primary text-lg font-medium mb-1">{dialogName}</h2>
       <ToolbarButton
         icon={<DialogSvg width={18} height={18} />}
         label="Dialog"

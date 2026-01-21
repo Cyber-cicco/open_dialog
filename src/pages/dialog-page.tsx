@@ -133,7 +133,7 @@ const InnerDialogPage: React.FC<{ project: Project; dialog: Dialog }> = ({ dialo
 
   return (
     <div className="w-full h-full relative">
-      <NodeToolbar onNodeCreate={handleNodeCreate} />
+      <NodeToolbar dialogName={dialog.name} onNodeCreate={handleNodeCreate} />
       <div ref={panelRef} style={{ width: "100%", height: "100%" }}>
         <ReactFlow
           nodes={nodes}

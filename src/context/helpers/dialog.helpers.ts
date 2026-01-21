@@ -187,3 +187,49 @@ export function traverseDialogAndGetNodesAndEdges(dialog: Dialog): { nodes: AppN
 
     return { nodes, edges };
 }
+
+export function findFirstTerminatingPath(visited:Set<string>, fwm: Map<string, string[]>, curr:string, res:string[]):string[] {
+    if (visited.has(curr)) {
+        return res;
+    }
+
+    if (!fwm.has(curr)) {
+        return res;
+    }
+    visited.add(curr);
+    res.push(curr);
+
+    for (let fwn of fwm.get(curr)!) {
+        return findFirstTerminatingPath(visited, fwm, fwn, res);
+    }
+    return res;
+}
+
+function findLongestNonRedondantPath(visited:Set<string>, res:string[], fwm:Map<string, string[]>, curr:string) {
+    if (visited.has(curr)) {
+        return res;
+    }
+
+    if (!fwm.has(curr)) {
+        return res;
+    }
+    visited.add(curr);
+    res.push(curr);
+
+    let paths: string[][] =  []
+    for (let fwn of fwm.get(curr)!) {
+        let curr_visited = new Set(visited);
+        paths.push(findLongestNonRedondantPath(curr_visited, [], fwm, fwn))
+    }
+    if (paths.length === 1) {
+        return [...res, ...paths[0]]
+    }
+    let longestArrayid = 0;
+    for (let i = 0; i <paths.length; i++) {
+        if (paths[i].length > paths[longestArrayid].length) {
+            longestArrayid = i;
+        }
+    }
+
+    return [...res, ...paths[longestArrayid]]
+}

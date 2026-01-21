@@ -1,4 +1,4 @@
-import { createContext, PropsWithChildren, useCallback, useContext, useEffect, useRef, useState } from "react"
+import { createContext, PropsWithChildren, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react"
 import { Dialog } from "../bindings/Dialog"
 import { useSaveDialog } from "../hooks/queries/dialogs";
 import { NodeType } from "../pages/dialog-page";
@@ -104,6 +104,18 @@ export const DialogProvider = ({ children }: PropsWithChildren) => {
     });
   }, []);
 
+  const { forwardMap, reverseMap } = useMemo(() => {
+    const fwd = new Map<string, string[]>();
+    const rev = new Map<string, string[]>();
+
+    for (const edge of edges) {
+      fwd.set(edge.source, [...(fwd.get(edge.source) ?? []), edge.target]);
+      rev.set(edge.target, [...(rev.get(edge.target) ?? []), edge.source]);
+    }
+
+    return { forwardMap: fwd, reverseMap: rev };
+  }, [edges]);
+
 
   const saveDialog = useCallback(async () => {
     if (!project || !dialogRef.current) {
@@ -120,7 +132,7 @@ export const DialogProvider = ({ children }: PropsWithChildren) => {
   }, [project, nodes, edges, saveDialogMutation])
 
   useEffect(() => {
-    saveDialog().then(() => {})
+    saveDialog().then(() => { })
   }, [nodes, edges])
 
 
@@ -135,7 +147,7 @@ export const DialogProvider = ({ children }: PropsWithChildren) => {
       position: { x: pos.x, y: pos.y },
       data: {
         next_node: null,
-        content:'',
+        content: '',
         character_id: null,
         content_link: null,
         isRootNode,
@@ -190,15 +202,17 @@ export const DialogProvider = ({ children }: PropsWithChildren) => {
 }
 
 
-export const useDialog = (dialog: Dialog) => {
+export const useDialog = (dialog: Dialog | undefined) => {
   const ctx = useContext(DialogContext);
   if (!ctx) {
     throw new Error("Cannot use dialog context outside of dialog provider")
   }
 
   useEffect(() => {
-    ctx.loadDialog(dialog);
-  }, [dialog.id]);
+    if (dialog) {
+      ctx.loadDialog(dialog);
+    }
+  }, [dialog?.id]);
 
 
   function createNode(nodeType: NodeType, middlePos: Pos) {
