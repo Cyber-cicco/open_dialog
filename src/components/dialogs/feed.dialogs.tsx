@@ -50,14 +50,6 @@ const DialogFeed = () => {
 
   const dialogNodes = nodes.filter((node) => node.type === "dialogNode");
 
-  const lastCharacterId = (() => {
-    for (let i = dialogNodes.length - 1; i >= 0; i--) {
-      const charId = dialogNodes[i]?.data.character_id;
-      if (charId) return charId;
-    }
-    return dialog?.main_character ?? "";
-  })();
-
   const getCharacterIdForNode = (index: number): string => {
     const currentCharId = dialogNodes[index]?.data.character_id;
     if (currentCharId) return currentCharId;

@@ -1,1 +1,1 @@
-Portrait should be at the top of the screen;
+Portrait should be at the top of the screen.
