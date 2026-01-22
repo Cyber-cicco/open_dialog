@@ -4,6 +4,7 @@ import { Button, ButtonModel, ButtonSize } from '../components/common/buttons/ba
 import TextField from '../components/common/form/text-field';
 import TextAreaField from '../components/common/form/text-area-field';
 import { CharacterSearchField } from '../components/common/form/character-search-field';
+import ArrayTextField from '../components/common/form/array-text-field';
 
 export const { fieldContext, useFieldContext, formContext, useFormContext } = createFormHookContexts();
 
@@ -26,6 +27,7 @@ export const { useAppForm, withForm } = createFormHook({
     TextField,
     TextAreaField,
     CharacterSearchField,
+    ArrayTextField,
   },
   formComponents: {
     SubscribeButton,

@@ -106,7 +106,8 @@ impl<C: ODConfig> DialogDao<C> for FileDialogDao<C> {
         fs::read_dir(path)?
             .filter_map(|entry| entry.ok())
             .filter_map(|e| e.path().file_name()?.to_str().map(String::from))
-            .map(|name| Uuid::from_str(&name).context("could not create uuid from string"))
+            .filter(|file_name| file_name != "meta.json")
+            .map(|name| Uuid::from_str(&name).context(format!("could not create uuid from string {name}")))
             .collect::<Result<HashSet<Uuid>>>()
     }
 }

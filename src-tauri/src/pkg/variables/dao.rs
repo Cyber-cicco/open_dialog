@@ -13,13 +13,13 @@ pub struct FileVariableDao<C: ODConfig> {
 }
 
 pub trait VariableDao<C: ODConfig> {
-    fn persist_variables(&self, project_id: &str, vars: VariableStore) -> Result<()>;
+    fn persist_variables(&self, project_id: &str, vars: &VariableStore) -> Result<()>;
 
     fn load_variables(&self, project_id: &str) -> Result<VariableStore>;
 }
 
 impl<C: ODConfig> VariableDao<C> for FileVariableDao<C> {
-    fn persist_variables(&self, project_id: &str, vars: VariableStore) -> Result<()> {
+    fn persist_variables(&self, project_id: &str, vars: &VariableStore) -> Result<()> {
         Ok(self
             .get_var_file_name(project_id)
             .map(|cp| File::create(cp))

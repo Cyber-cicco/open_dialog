@@ -3,9 +3,7 @@ use std::sync::Arc;
 use anyhow::Result;
 
 use crate::{
-    pkg::{
-        character::dao::CharacterDao, dialog::dao::DialogDao, variables::dao::VariableDao,
-    },
+    pkg::{character::dao::CharacterDao, dialog::dao::DialogDao, variables::dao::VariableDao},
     shared::{
         config::ODConfig,
         types::{interfaces::Shared, variables::VariableStore},
@@ -45,10 +43,19 @@ impl<C: ODConfig, VD: VariableDao<C>, CD: CharacterDao<C>, DD: DialogDao<C>>
         let char_ids = self.char_dao.get_character_identifiers(project_id)?;
         let dialog_ids = self.dialog_dao.get_dialog_identifiers(project_id)?;
         vars.enforce_coherence(dialog_ids, char_ids)?;
-        self.var_dao.persist_variables(project_id, vars)
+        self.var_dao.persist_variables(project_id, &vars)
     }
 
     pub fn load_variables(&self, project_id: &str) -> Result<VariableStore> {
-        self.var_dao.load_variables(project_id)
+        let res = self.var_dao.load_variables(project_id);
+        match res {
+            Ok(v) => Ok(v),
+            Err(_) => {
+                let new_store = VariableStore::new();
+                self.var_dao.persist_variables(project_id, &new_store)?;
+                Ok(new_store)
+            }
+        }
+        
     }
 }

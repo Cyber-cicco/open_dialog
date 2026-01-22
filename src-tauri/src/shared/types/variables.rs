@@ -5,8 +5,6 @@ use serde::{Deserialize, Serialize};
 use ts_rs::TS;
 use uuid::Uuid;
 
-use crate::pkg::dialog;
-
 #[derive(TS)]
 #[ts(export, export_to = "../../src/bindings/")]
 #[derive(Debug, Serialize, Deserialize)]
@@ -145,5 +143,11 @@ impl CoherentVar for DialogVariable {
             bail!("incoherent character id in character variable")
         }
         Ok(())
+    }
+}
+
+impl VariableStore {
+    pub fn new() -> Self {
+        Self { data: vec![] }
     }
 }

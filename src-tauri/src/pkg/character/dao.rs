@@ -96,7 +96,7 @@ impl<C: ODConfig> CharacterDao<C> for FileCharacterDao<C> {
             .filter_map(|entry| entry.ok())
             .filter(|path| path.path().extension().is_some_and(|e| e == "char"))
             .filter_map(|e| e.path().file_stem()?.to_str().map(String::from))
-            .map(|name| Uuid::from_str(&name).context("could not create uuid from string"))
+            .map(|name| Uuid::from_str(&name).context("could not create uuid from string {name}"))
             .collect::<Result<HashSet<Uuid>>>()?;
         return Ok(res);
     }
@@ -108,14 +108,14 @@ impl<C: ODConfig> FileCharacterDao<C> {
     }
 
     pub fn get_char_path(&self, project_id: &str, char_id: &Uuid) -> Result<PathBuf> {
-        let character_file_name = &char_id.simple().to_string()[..16];
+        let character_file_name = &char_id.to_string();
         Ok(self
             .get_char_dir(project_id)?
             .join(format!("{character_file_name}.char")))
     }
 
     pub fn get_desc_file_name(&self, project_id: &str, desc_id: &Uuid) -> Result<PathBuf> {
-        let desc_file_name = &desc_id.simple().to_string()[..16];
+        let desc_file_name = &desc_id.to_string();
         Ok(self
             .get_char_dir(project_id)?
             .join(format!("{desc_file_name}.desc")))

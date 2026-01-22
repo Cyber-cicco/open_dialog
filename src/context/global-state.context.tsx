@@ -1,16 +1,18 @@
 import { createContext, useContext, useState, useCallback, PropsWithChildren } from "react"
 import { Project } from "../bindings/Project"
+import { useVariables, VariableContext } from "../hooks/useVariables"
 
 type GlobalStateContextType = {
   project: Project | undefined
   openProject: (project: Project) => void
   closeProject: () => void
-}
+} & VariableContext
 
 const GlobalStateContext = createContext<GlobalStateContextType | undefined>(undefined)
 
 export const GlobalStateProvider = ({ children }: PropsWithChildren) => {
   const [project, setProject] = useState<Project | undefined>(undefined)
+  const variables = useVariables(project?.id)
 
   const openProject = useCallback((project: Project) => {
     setProject(project)
@@ -21,7 +23,7 @@ export const GlobalStateProvider = ({ children }: PropsWithChildren) => {
   }, [])
 
   return (
-    <GlobalStateContext.Provider value={{ project, openProject, closeProject }}>
+    <GlobalStateContext.Provider value={{ project, openProject, closeProject,  ...variables}}>
       {children}
     </GlobalStateContext.Provider>
   )
