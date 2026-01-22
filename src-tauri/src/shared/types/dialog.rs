@@ -91,6 +91,28 @@ pub struct Conditions {
 
 #[derive(TS, Serialize, Deserialize, Debug)]
 #[ts(export, export_to = "../../src/bindings/")]
+pub struct TreeNecessity {
+    left: Box<NecessityExpression>,
+    operator: Operator,
+    right: Box<NecessityExpression>,
+}
+
+#[derive(TS, Serialize, Deserialize, Debug)]
+#[ts(export, export_to = "../../src/bindings/")]
+pub enum Operator {
+    And(),
+    Or(),
+}
+
+#[derive(TS, Serialize, Deserialize, Debug)]
+#[ts(export, export_to = "../../src/bindings/")]
+pub enum NecessityExpression {
+    Tree(TreeNecessity),
+    Var(VarNecessity),
+}
+
+#[derive(TS, Serialize, Deserialize, Debug)]
+#[ts(export, export_to = "../../src/bindings/")]
 pub struct VarNecessity {
     var_id: Uuid,
     necessary_state: String,
@@ -150,21 +172,22 @@ impl Dialog {
         Ok(())
     }
 
-
-    pub fn collect_content<'a>(&'a mut self, collector:&mut Vec<DialogContent<'a>>) {
+    pub fn collect_content<'a>(&'a mut self, collector: &mut Vec<DialogContent<'a>>) {
         for (_uuid, node) in &mut self.nodes {
             if let NodeData::Dialog(dialog) = &mut node.data {
-                let content  = match &dialog.content {
+                let content = match &dialog.content {
                     Some(str) => str.clone(),
                     None => continue,
                 };
                 dialog.content = None;
                 dialog.content_link = Some(node.id);
-                collector.push(DialogContent { content, node_id: &node.id });
+                collector.push(DialogContent {
+                    content,
+                    node_id: &node.id,
+                });
             }
         }
     }
-
 }
 
 impl Coherent for DialogNode {
@@ -221,6 +244,6 @@ impl Node {
     }
 
     pub fn get_id(&self) -> &Uuid {
-        return &self.id
+        return &self.id;
     }
 }

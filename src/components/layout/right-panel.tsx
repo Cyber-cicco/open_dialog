@@ -64,11 +64,11 @@ const LayoutRightPanel = () => {
 
   return (
     <div className="relative h-full">
-      {<FloatingPortrait />}
+      {content && <FloatingPortrait />}
 
       <button
         onClick={() => (isOpen ? closePanel() : openPanel(panelContent))}
-        className="absolute top-1/2 -translate-y-1/2 -left-5 z-10 h-24 w-5 -translate-x-1 bg-base-surface border border-base-600 border-r-0 rounded-l-md hover:bg-highlight-med transition-colors flex items-center justify-center text-text-subtle hover:text-text-primary"
+        className="absolute top-1/2 -translate-y-1/2 hover:cursor-pointer -left-5 z-10 h-24 w-5 -translate-x-1 bg-base-surface border border-base-600 border-r-0 rounded-l-md hover:bg-highlight-med transition-colors flex items-center justify-center text-text-subtle hover:text-text-primary"
         aria-label={isOpen ? "Close panel" : "Open panel"}
       >
         <span className="text-xs">{isOpen ? "›" : "‹"}</span>
