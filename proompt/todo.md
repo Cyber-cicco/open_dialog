@@ -11,10 +11,10 @@ Ce qui a été fait :
 [x] Créer un système qui autosave le dialogue à intervalles réguliers
 [x] Créer le edge manager, pour avoir un array de edges à partir des Noeuds du backend
 [x] Définir les structures des variables.
+[x] redéfinir les structures des expressions
 
 Ce qu'il reste à faire dans l'immédiat:
 
-[] redéfinir les structures des expressions
 [] Pouvoir ajouter une variable gobale (back)
 [] Pouvoir ajouter une variable à un personnage (back)
 [] Pouvoir ajouter une variable à un dialogue (back)

@@ -5,7 +5,7 @@ use uuid::Uuid;
 #[derive(TS)]
 #[ts(export, export_to = "../../src/bindings/")]
 #[derive(Debug, Serialize, Deserialize)]
-struct GlobalVariable {
+pub struct GlobalVariable {
     id: Uuid,
     name: String,
     current_state: String,
@@ -15,7 +15,7 @@ struct GlobalVariable {
 #[derive(TS)]
 #[ts(export, export_to = "../../src/bindings/")]
 #[derive(Debug, Serialize, Deserialize)]
-struct GlobalCharacterVariable {
+pub struct GlobalCharacterVariable {
     id: Uuid,
     name: String,
     potential_states: Vec<String>,
@@ -25,7 +25,7 @@ struct GlobalCharacterVariable {
 #[derive(TS)]
 #[ts(export, export_to = "../../src/bindings/")]
 #[derive(Debug, Serialize, Deserialize)]
-struct CharacterVariableState {
+pub struct CharacterVariableState {
     current_state: String,
     character_id: Uuid
 }
@@ -33,7 +33,7 @@ struct CharacterVariableState {
 #[derive(TS)]
 #[ts(export, export_to = "../../src/bindings/")]
 #[derive(Debug, Serialize, Deserialize)]
-struct CharacterVariable {
+pub struct CharacterVariable {
     id:Uuid,
     name:String,
     current_state: String,
@@ -44,7 +44,7 @@ struct CharacterVariable {
 #[derive(TS)]
 #[ts(export, export_to = "../../src/bindings/")]
 #[derive(Debug, Serialize, Deserialize)]
-struct DialogVariable {
+pub struct DialogVariable {
     id:Uuid,
     name:String,
     current_state: String,
@@ -55,7 +55,7 @@ struct DialogVariable {
 #[derive(TS)]
 #[ts(export, export_to = "../../src/bindings/")]
 #[derive(Debug, Serialize, Deserialize)]
-enum Variable {
+pub enum Variable {
     Global(GlobalVariable),
     GlobalChar(GlobalCharacterVariable),
     Char(CharacterVariable),
@@ -65,6 +65,6 @@ enum Variable {
 #[derive(TS)]
 #[ts(export, export_to = "../../src/bindings/")]
 #[derive(Debug, Serialize, Deserialize)]
-struct VariableStore {
+pub struct VariableStore {
     data: Vec<Variable>
 }

@@ -83,4 +83,5 @@ impl<C: ODConfig, D: CharacterDao<C>> CharacterServiceLocalImpl<C, D> {
     pub fn get_all_characters(&self, project_id: &str) -> Result<Vec<Character>> {
         self.dao.get_all_characters(project_id)
     }
+
 }

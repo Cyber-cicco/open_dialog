@@ -5,7 +5,7 @@ use std::{
     str::FromStr,
 };
 
-use anyhow::{Context, Result};
+use anyhow::{bail, Context, Result};
 use uuid::Uuid;
 
 use crate::shared::{
@@ -27,12 +27,7 @@ pub trait DialogDao<C: ODConfig> {
     fn create_metadata(&self, project_id: &str) -> Result<DialogMetadata>;
     fn get_dialog_by_id(&self, project_id: &str, dialog_id: &str) -> Result<Dialog>;
     fn get_dialog_metadata(&self, project_id: &str) -> Result<DialogMetadata>;
-    fn get_content(
-        &self,
-        project_id: &str,
-        character_id: &str,
-        node_id: &str,
-    ) -> Result<String>;
+    fn get_content(&self, project_id: &str, character_id: &str, node_id: &str) -> Result<String>;
     fn persist_dialog_content(
         &self,
         project_id: &str,
@@ -40,6 +35,7 @@ pub trait DialogDao<C: ODConfig> {
         node_id: &str,
         content: &str,
     ) -> Result<()>;
+    fn get_dialog_identifiers(&self, project_id: &str) -> Result<Vec<Uuid>>;
 }
 
 impl<C: ODConfig> FileDialogDao<C> {
@@ -103,14 +99,18 @@ impl<C: ODConfig> DialogDao<C> for FileDialogDao<C> {
         Ok(())
     }
 
-    fn get_content(
-        &self,
-        project_id: &str,
-        dialog_id: &str,
-        node_id: &str,
-    ) -> Result<String> {
+    fn get_content(&self, project_id: &str, dialog_id: &str, node_id: &str) -> Result<String> {
         let path = self.get_dialog_content_node_file(project_id, dialog_id, node_id)?;
         fs::read_to_string(path).context("could not read content file")
+    }
+
+    fn get_dialog_identifiers(&self, project_id: &str) -> Result<Vec<Uuid>> {
+        let path = self.get_dialog_dir(project_id)?;
+        fs::read_dir(path)?
+            .filter_map(|entry| entry.ok())
+            .filter_map(|e| e.path().file_name()?.to_str().map(String::from))
+            .map(|name| Uuid::from_str(&name).context("could not create uuid from string"))
+            .collect::<Result<Vec<Uuid>>>()
     }
 }
 
