@@ -1,8 +1,5 @@
 use std::{
-    fs::{self, File},
-    io::BufWriter,
-    path::PathBuf,
-    str::FromStr,
+    collections::HashSet, fs::{self, File}, io::BufWriter, path::PathBuf, str::FromStr
 };
 
 use anyhow::{bail, Context, Ok, Result};
@@ -22,7 +19,7 @@ pub trait CharacterDao<C: ODConfig> {
     fn get_character(&self, project_id: &str, char_id: &Uuid) -> Result<Character>;
     fn persist_description(&self, project_id: &str, desc_id: &Uuid, desc: &str) -> Result<()>;
     fn get_all_characters(&self, project_id: &str) -> Result<Vec<Character>>;
-    fn get_character_identifiers(&self, project_id: &str) -> Result<Vec<Uuid>>;
+    fn get_character_identifiers(&self, project_id: &str) -> Result<HashSet<Uuid>>;
     fn enforce_character_existence(&self, project_id: &str, char_id: &Uuid) -> Result<()>;
 }
 
@@ -92,7 +89,7 @@ impl<C: ODConfig> CharacterDao<C> for FileCharacterDao<C> {
         }
     }
 
-    fn get_character_identifiers(&self, project_id: &str) -> Result<Vec<Uuid>> {
+    fn get_character_identifiers(&self, project_id: &str) -> Result<HashSet<Uuid>> {
         let char_dir = self.get_char_dir(project_id)?;
         let dir_entries = fs::read_dir(char_dir)?;
         let res = dir_entries
@@ -100,7 +97,7 @@ impl<C: ODConfig> CharacterDao<C> for FileCharacterDao<C> {
             .filter(|path| path.path().extension().is_some_and(|e| e == "char"))
             .filter_map(|e| e.path().file_stem()?.to_str().map(String::from))
             .map(|name| Uuid::from_str(&name).context("could not create uuid from string"))
-            .collect::<Result<Vec<Uuid>>>()?;
+            .collect::<Result<HashSet<Uuid>>>()?;
         return Ok(res);
     }
 }

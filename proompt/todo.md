@@ -12,14 +12,14 @@ Ce qui a été fait :
 [x] Créer le edge manager, pour avoir un array de edges à partir des Noeuds du backend
 [x] Définir les structures des variables.
 [x] redéfinir les structures des expressions
+[x] Pouvoir ajouter une variable gobale (back)
+[x] Pouvoir ajouter une variable à un personnage (back)
+[x] Pouvoir ajouter une variable à un dialogue (back)
+[x] Pouvoir supprimer une variable (back)
+[x] Pouvoir modifier une variable (back)
 
 Ce qu'il reste à faire dans l'immédiat:
 
-[] Pouvoir ajouter une variable gobale (back)
-[] Pouvoir ajouter une variable à un personnage (back)
-[] Pouvoir ajouter une variable à un dialogue (back)
-[] Pouvoir supprimer une variable (back)
-[] Pouvoir modifier une variable (back)
 [] Pouvoir ajouter une variable gobale (front)
 [] Pouvoir ajouter une variable à un personnage (front)
 [] Pouvoir ajouter une variable à un dialogue (front)

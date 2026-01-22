@@ -28,6 +28,9 @@ pub fn run() {
             pkg::dialog::save_dialog,
             pkg::dialog::save_dialog_content,
 
+            pkg::variables::load_variables,
+            pkg::variables::persist_variables,
+
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

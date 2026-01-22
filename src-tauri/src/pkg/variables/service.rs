@@ -1,11 +1,10 @@
-use std::{str::FromStr, sync::Arc};
+use std::sync::Arc;
 
-use anyhow::{Context, Result};
-use uuid::Uuid;
+use anyhow::Result;
 
 use crate::{
     pkg::{
-        character::dao::CharacterDao, dialog::dao::DialogDao, project, variables::dao::VariableDao,
+        character::dao::CharacterDao, dialog::dao::DialogDao, variables::dao::VariableDao,
     },
     shared::{
         config::ODConfig,
@@ -43,8 +42,13 @@ impl<C: ODConfig, VD: VariableDao<C>, CD: CharacterDao<C>, DD: DialogDao<C>>
     }
 
     pub fn persist_variables(&self, project_id: &str, vars: VariableStore) -> Result<()> {
-        let char_uuids = self.char_dao.get_character_identifiers(project_id)?;
-        let dialog_uuids = self.dialog_dao.get_dialog_identifiers(project_id)?;
-        unimplemented!()
+        let char_ids = self.char_dao.get_character_identifiers(project_id)?;
+        let dialog_ids = self.dialog_dao.get_dialog_identifiers(project_id)?;
+        vars.enforce_coherence(dialog_ids, char_ids)?;
+        self.var_dao.persist_variables(project_id, vars)
+    }
+
+    pub fn load_variables(&self, project_id: &str) -> Result<VariableStore> {
+        self.var_dao.load_variables(project_id)
     }
 }
