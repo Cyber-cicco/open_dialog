@@ -53,3 +53,8 @@ impl<T> Clone for Shared<T> {
         Self(Arc::clone(&self.0))
     }
 }
+
+#[enum_dispatch::enum_dispatch]
+pub trait Identified {
+    fn get_id(&self) -> &Uuid;
+}

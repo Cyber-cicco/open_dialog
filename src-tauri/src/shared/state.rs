@@ -12,6 +12,17 @@ pub struct AppState {
     pub project_service: ProjectServiceLocaleImpl<ODConfigLocal>,
     pub character_service:
         CharacterServiceLocalImpl<ODConfigLocal, FileCharacterDao<ODConfigLocal>>,
-    pub dialog_service: DialogServiceLocalImpl<ODConfigLocal, FileDialogDao<ODConfigLocal>, FileCharacterDao<ODConfigLocal>, FileMetaDao<ODConfigLocal>>,
-    pub var_service: VariableServiceLocalImpl<ODConfigLocal, FileVariableDao<ODConfigLocal>, FileCharacterDao<ODConfigLocal>, FileDialogDao<ODConfigLocal>>
+    pub dialog_service: DialogServiceLocalImpl<
+        ODConfigLocal,
+        FileDialogDao<ODConfigLocal>,
+        FileCharacterDao<ODConfigLocal>,
+        FileMetaDao<ODConfigLocal>,
+    >,
+    pub var_service: VariableServiceLocalImpl<
+        ODConfigLocal,
+        FileVariableDao<ODConfigLocal>,
+        FileCharacterDao<ODConfigLocal>,
+        FileDialogDao<ODConfigLocal>,
+        FileMetaDao<ODConfigLocal>,
+    >,
 }

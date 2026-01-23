@@ -18,11 +18,11 @@ Ce qui a été fait :
 [x] Pouvoir supprimer une variable (back)
 [x] Pouvoir modifier une variable (back)
 [x] Pouvoir ajouter une variable gobale (front)
+[x] Maintenir un fichier des variables utilisées par les dialogues (back)
+[x] A la sauvegarde d'un dialogue, empêcher les phylums de faire référence à des variables non existantes. (back)
 
 Ce qu'il reste à faire dans l'immédiat:
 
-[] Maintenir un fichier des variables utilisées par les dialogues (back)
-[] A la sauvegarde d'un dialogue, empêcher les phylums de faire référence à des variables non existantes. (back)
 
 [] Pouvoir ajouter une variable à un personnage (front)
 [] Pouvoir ajouter une variable à un dialogue (front)
@@ -47,7 +47,7 @@ Quelques éléments qu'il ne faudra pas oublier:
 À développer plus en détails plus tard
 
 [] Mode histoire permettant de relier des dialogues entre eux avec gestion de l'impact des dialogues sur certaines variables
-[] Wiki et bilbiothèque de ressource utilisant le markdown
+[] wiki et bilbiothèque de ressource utilisant le markdown
 
 
 Ne le fait pas pour l'instant

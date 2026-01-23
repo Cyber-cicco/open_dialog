@@ -1,9 +1,11 @@
-use std::collections::HashSet;
+use std::{char, collections::HashSet};
 
 use anyhow::{Result, bail};
 use serde::{Deserialize, Serialize};
 use ts_rs::TS;
 use uuid::Uuid;
+
+use crate::shared::types::interfaces::Identified;
 
 #[derive(TS)]
 #[ts(export, export_to = "../../src/bindings/")]
@@ -58,7 +60,7 @@ pub struct DialogVariable {
 #[derive(TS)]
 #[ts(export, export_to = "../../src/bindings/")]
 #[derive(Debug, Serialize, Deserialize)]
-#[enum_dispatch::enum_dispatch(CoherentVar)]
+#[enum_dispatch::enum_dispatch(CoherentVar, Identified)]
 pub enum Variable {
     Global(GlobalVariable),
     GlobalChar(GlobalCharacterVariable),
@@ -110,6 +112,12 @@ impl CoherentVar for GlobalCharacterVariable {
     }
 }
 
+impl Identified for GlobalCharacterVariable {
+    fn get_id(&self) -> &Uuid {
+        return &self.id
+    }
+}
+
 impl CoherentVar for GlobalVariable {
     fn enforce_coherence(
         &self,
@@ -117,6 +125,12 @@ impl CoherentVar for GlobalVariable {
         _character_ids: &HashSet<Uuid>,
     ) -> Result<()> {
         Ok(())
+    }
+}
+
+impl Identified for GlobalVariable {
+    fn get_id(&self) -> &Uuid {
+        return &self.id
     }
 }
 
@@ -133,6 +147,12 @@ impl CoherentVar for CharacterVariable {
     }
 }
 
+impl Identified for CharacterVariable {
+    fn get_id(&self) -> &Uuid {
+        return &self.id
+    }
+}
+
 impl CoherentVar for DialogVariable {
     fn enforce_coherence(
         &self,
@@ -146,8 +166,19 @@ impl CoherentVar for DialogVariable {
     }
 }
 
+impl Identified for DialogVariable {
+    fn get_id(&self) -> &Uuid {
+        &self.id
+    }
+}
+
 impl VariableStore {
     pub fn new() -> Self {
         Self { data: vec![] }
     }
+
+    pub fn delete_var_with_id(&mut self, char_id: &Uuid) {
+        self.data.retain(|x| *x.get_id() != *char_id);
+    }
 }
+

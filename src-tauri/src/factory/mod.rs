@@ -44,6 +44,7 @@ pub fn init_local_app_state() -> Result<AppState> {
             var_dao.clone(),
             character_dao.clone(),
             dialog_dao.clone(),
+            meta_dao.clone(),
         ),
     })
 }
