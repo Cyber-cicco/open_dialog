@@ -24,3 +24,15 @@ export function usePersistVariables(projectId: string | undefined): UseMutationR
     },
   });
 }
+
+export function useDeleteVariables(projectId: string| undefined): UseMutationResult<void, Error, string, unknown> {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationKey: ['variables', 'persist', projectId],
+    mutationFn: (varId: string) => invoke<void>("delete_variable", { projectId, varId }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['variables'] });
+      queryClient.refetchQueries({ queryKey: ['variables'] });
+    },
+  });
+}

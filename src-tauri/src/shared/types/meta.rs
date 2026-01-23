@@ -4,7 +4,7 @@ use anyhow::{anyhow, bail, Result};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use crate::shared::types::dialog::PhylumDiff;
+use crate::shared::types::{dialog::PhylumDiff, interfaces::Identified, variables::VariableStore};
 
 type VarIdentifier = Uuid;
 type DialogNodeIdentifier = Uuid;
@@ -51,4 +51,14 @@ impl VarToPhylum {
 
         Ok(())
     }
+
+    pub fn fill_non_existing_keys(&mut self, vars: VariableStore) {
+        for var in vars.data {
+            let id = var.get_id().clone();
+            if !self.data.contains_key(&id) {
+                self.data.insert(id, vec![]);
+            }
+        }
+    }
+
 }

@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { useLoadVariables, usePersistVariables } from "./queries/variables"
+import { useDeleteVariables, useLoadVariables, usePersistVariables } from "./queries/variables"
 import { GlobalCharacterVariable } from "../bindings/GlobalCharacterVariable";
 import { Variable } from "../bindings/Variable";
 import { VariableStore } from "../bindings/VariableStore";
@@ -22,7 +22,7 @@ export type VariableContext = {
 export const useVariables = (projectId: string | undefined) => {
   const { data: variables, isPending, error } = useLoadVariables(projectId);
   const saveVariablesMutation = usePersistVariables(projectId);
-
+  const deleteVariableMutation = useDeleteVariables(projectId);
   const { charToVars, dialogToVars, globalVars } = useMemo(() => {
     if (!variables) {
       return { charToVars: undefined, dialogToVars: undefined, globalVars: undefined }
@@ -63,48 +63,7 @@ export const useVariables = (projectId: string | undefined) => {
   }, [variables?.data]);
 
   const removeVariable = async (varId: string) => {
-    if (!variables) {
-      return
-    }
-    let removeAt = -1
-    for (let i = 0; i < variables.data.length; i++) {
-      const data = variables.data[i];
-      if ("Global" in data) {
-        if (data.Global.id === varId) {
-          removeAt = i;
-          continue
-        }
-      } else if ("GlobalChar" in data) {
-        if (data.GlobalChar.id === varId) {
-          removeAt = i;
-          continue
-        }
-
-      } else if ("Char" in data) {
-        if (data.Char.id === varId) {
-          removeAt = i;
-          continue
-        }
-
-      } else if ("Dialog" in data) {
-        if (data.Dialog.id === varId) {
-          removeAt = i;
-          continue
-        }
-      }
-    }
-
-    if (removeAt === -1) {
-      return
-    }
-    const newData = variables.data;
-    newData.splice(removeAt)
-    const newVars = {
-      ...variables,
-      data: newData
-    }
-    await saveVariablesMutation.mutateAsync(newVars);
-
+    await deleteVariableMutation.mutateAsync(varId);
   }
 
   const addGlobalVariable = async (newVar: LocalVariable) => {

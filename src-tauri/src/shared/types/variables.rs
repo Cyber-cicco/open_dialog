@@ -72,7 +72,7 @@ pub enum Variable {
 #[ts(export, export_to = "../../src/bindings/")]
 #[derive(Debug, Serialize, Deserialize)]
 pub struct VariableStore {
-    data: Vec<Variable>,
+    pub data: Vec<Variable>,
 }
 
 #[enum_dispatch::enum_dispatch]

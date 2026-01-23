@@ -92,14 +92,13 @@ impl<C: ODConfig, DD: DialogDao<C>, CD: CharacterDao<C>, MD: MetaDao<C>>
 
     pub fn save_dialog(&self, project_id: &str, mut dialog: Dialog) -> Result<()> {
 
+
         let mut fks = self.meta_srv.get_var_to_phylum(project_id)?;
         let vars = self.meta_srv.get_all_variable_hashet(&fks)?;
         dialog.enforce_links_coherence(vars)?;
-
         let prev_dialog = self.dialog_dao.get_dialog_by_id(project_id, &dialog.get_id().to_string())?;
         let diffs = dialog.get_diffs(&prev_dialog);
         fks.mutate_to_match_diffs(diffs)?;
-        self.meta_srv.save_var_to_phylum_fk(project_id, fks)?;
 
         let mut metadata = self.dialog_dao.get_metadata(project_id)?;
         let simple_dialog = SimpleDialog::from_dialog(&dialog);
@@ -115,7 +114,9 @@ impl<C: ODConfig, DD: DialogDao<C>, CD: CharacterDao<C>, MD: MetaDao<C>>
                 &content.content,
             )?;
         }
+
         self.dialog_dao.persist_dialog(project_id, dialog)?;
+        self.meta_srv.save_var_to_phylum_fk(project_id, fks)?;
         self.dialog_dao.persist_metadata(project_id, &metadata)
     }
 

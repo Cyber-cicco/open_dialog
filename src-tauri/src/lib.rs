@@ -30,7 +30,7 @@ pub fn run() {
 
             pkg::variables::load_variables,
             pkg::variables::persist_variables,
-            pkg::variables::delete_variables,
+            pkg::variables::delete_variable,
 
         ])
         .run(tauri::generate_context!())

@@ -7,6 +7,7 @@ import { useState } from "react";
 import { Button } from "../common/buttons/base.buttons";
 import { VariableModal } from "../variables/modal.variables";
 import { useAppForm } from "../../hooks/form";
+import { CrossSvg } from "../common/svg/delete.svg";
 
 export const VariablesMenu = () => {
   const { project, globalVars, globalCharVars, dialogToVars, charToVars, isPending } = useGlobalState();
@@ -120,6 +121,7 @@ const CharacterVariableGroup = ({
 };
 
 const VariableItem = ({ variable }: { variable: LocalVariable }) => {
+  const { removeVariable } = useGlobalState();
 
   const form = useAppForm({
     defaultValues: {
@@ -134,6 +136,13 @@ const VariableItem = ({ variable }: { variable: LocalVariable }) => {
 
   return (
     <div className="flex items-center justify-between gap-2 p-1.5 rounded hover:bg-highlight-200 transition-colors">
+      <button
+        onClick={() => removeVariable(variable.id)}
+        className="text-text-muted hover:text-red-500 transition-colors flex-shrink-0"
+        title="Delete variable"
+      >
+        <CrossSvg className="w-3.5 h-3.5" />
+      </button>
       <span className="text-text-primary text-sm truncate flex-shrink-0">{variable.name}</span>
       <form.AppField
         name="current_state"
@@ -150,8 +159,19 @@ const VariableItem = ({ variable }: { variable: LocalVariable }) => {
   );
 };
 
-const GlobalCharVariableItem = ({ variable }: { variable: GlobalCharacterVariable }) => (
-  <div className="flex items-center gap-2 p-1.5 rounded hover:bg-highlight-200 cursor-pointer transition-colors">
-    <span className="text-text-primary text-sm truncate">{variable.name}</span>
-  </div>
-);
+const GlobalCharVariableItem = ({ variable }: { variable: GlobalCharacterVariable }) => {
+  const { removeVariable } = useGlobalState();
+
+  return (
+    <div className="flex items-center gap-2 p-1.5 rounded hover:bg-highlight-200 cursor-pointer transition-colors">
+      <button
+        onClick={() => removeVariable(variable.id)}
+        className="text-text-muted hover:text-red-500 transition-colors flex-shrink-0"
+        title="Delete variable"
+      >
+        <CrossSvg className="w-3.5 h-3.5" />
+      </button>
+      <span className="text-text-primary text-sm truncate">{variable.name}</span>
+    </div>
+  );
+};
