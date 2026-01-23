@@ -1,4 +1,4 @@
-use std::{fs, io::BufWriter, path::PathBuf, str::FromStr};
+use std::{fs::{self, File}, io::BufWriter, path::PathBuf, str::FromStr};
 
 use anyhow::{Context, Result};
 use uuid::Uuid;
@@ -14,6 +14,7 @@ pub struct FileMetaDao<C: ODConfig> {
 
 pub trait MetaDao<C: ODConfig> {
     fn get_var_to_phylum_map(&self, project_id: &str) -> Result<VarToPhylum>;
+    fn save_var_to_phylum(&self,project_id: &str, vars: VarToPhylum) -> Result<()>;
 }
 
 impl<C: ODConfig> MetaDao<C> for FileMetaDao<C> {
@@ -23,7 +24,17 @@ impl<C: ODConfig> MetaDao<C> for FileMetaDao<C> {
             .map(|path| fs::read(&path))
             .context("could not read character file")?
             .map(|b| serde_json::from_slice(&b))
-            .context("could not deserialize file into character.")??)
+            .context("could not deserialize file into meta struct.")??)
+    }
+
+    fn save_var_to_phylum(&self,project_id: &str, vars: VarToPhylum) -> Result<()> {
+        Ok(self
+            .get_meta_fk_var_dialogs_path(project_id)
+            .map(|cp| File::create(cp))
+            .context("error creating the character file")?
+            .map(|file| BufWriter::new(file))
+            .map(|writer| serde_json::to_writer(writer, &vars))
+            .context("could not serialize character to write into file")??)
     }
 }
 
