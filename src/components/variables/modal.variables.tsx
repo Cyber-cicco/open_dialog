@@ -29,6 +29,7 @@ export const VariableModal: React.FC<VariableModalProps> = ({ onClose, variable 
           current_state: value.potential_states[0],
           potential_states: value.potential_states,
         })
+        onClose();
 
       } catch (e) {
         console.error(e);

@@ -6,6 +6,7 @@ import { GlobalCharacterVariable } from "../../bindings/GlobalCharacterVariable"
 import { useState } from "react";
 import { Button } from "../common/buttons/base.buttons";
 import { VariableModal } from "../variables/modal.variables";
+import { useAppForm } from "../../hooks/form";
 
 export const VariablesMenu = () => {
   const { project, globalVars, globalCharVars, dialogToVars, charToVars, isPending } = useGlobalState();
@@ -118,11 +119,36 @@ const CharacterVariableGroup = ({
   );
 };
 
-const VariableItem = ({ variable }: { variable: LocalVariable }) => (
-  <div className="flex items-center gap-2 p-1.5 rounded hover:bg-highlight-200 cursor-pointer transition-colors">
-    <span className="text-text-primary text-sm truncate">{variable.name}</span>
-  </div>
-);
+const VariableItem = ({ variable }: { variable: LocalVariable }) => {
+
+  const form = useAppForm({
+    defaultValues: {
+      current_state: variable.current_state,
+    },
+  });
+
+  const options = variable.potential_states.map(state => ({
+    value: state,
+    label: state,
+  }));
+
+  return (
+    <div className="flex items-center justify-between gap-2 p-1.5 rounded hover:bg-highlight-200 transition-colors">
+      <span className="text-text-primary text-sm truncate flex-shrink-0">{variable.name}</span>
+      <form.AppField
+        name="current_state"
+        listeners={{
+          onChange: ({ value }) => {
+            console.log(value);
+          },
+        }}
+        children={(field) => (
+          <field.SelectField options={options} mode="small" />
+        )}
+      />
+    </div>
+  );
+};
 
 const GlobalCharVariableItem = ({ variable }: { variable: GlobalCharacterVariable }) => (
   <div className="flex items-center gap-2 p-1.5 rounded hover:bg-highlight-200 cursor-pointer transition-colors">

@@ -17,10 +17,10 @@ Ce qui a été fait :
 [x] Pouvoir ajouter une variable à un dialogue (back)
 [x] Pouvoir supprimer une variable (back)
 [x] Pouvoir modifier une variable (back)
+[x] Pouvoir ajouter une variable gobale (front)
 
 Ce qu'il reste à faire dans l'immédiat:
 
-[] Pouvoir ajouter une variable gobale (front)
 [] Pouvoir ajouter une variable à un personnage (front)
 [] Pouvoir ajouter une variable à un dialogue (front)
 [] Pouvoir supprimer une variable (front)

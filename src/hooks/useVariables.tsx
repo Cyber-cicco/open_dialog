@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { useLoadVariables, usePersistVariables } from "./queries/variables"
 import { GlobalCharacterVariable } from "../bindings/GlobalCharacterVariable";
 import { Variable } from "../bindings/Variable";
+import { VariableStore } from "../bindings/VariableStore";
 
 export type LocalVariable = { id: string, name: string, current_state: string, potential_states: Array<string> }
 
@@ -15,6 +16,7 @@ export type VariableContext = {
   error: Error | null;
 
   addGlobalVariable: (newVar: LocalVariable) => Promise<void>
+  removeVariable: (varId: string) => Promise<void>
 }
 
 export const useVariables = (projectId: string | undefined) => {
@@ -58,15 +60,62 @@ export const useVariables = (projectId: string | undefined) => {
     }
 
     return { charToVars, dialogToVars, globalVars };
-  }, [variables]);
+  }, [variables?.data]);
+
+  const removeVariable = async (varId: string) => {
+    if (!variables) {
+      return
+    }
+    let removeAt = -1
+    for (let i = 0; i < variables.data.length; i++) {
+      const data = variables.data[i];
+      if ("Global" in data) {
+        if (data.Global.id === varId) {
+          removeAt = i;
+          continue
+        }
+      } else if ("GlobalChar" in data) {
+        if (data.GlobalChar.id === varId) {
+          removeAt = i;
+          continue
+        }
+
+      } else if ("Char" in data) {
+        if (data.Char.id === varId) {
+          removeAt = i;
+          continue
+        }
+
+      } else if ("Dialog" in data) {
+        if (data.Dialog.id === varId) {
+          removeAt = i;
+          continue
+        }
+      }
+    }
+
+    if (removeAt === -1) {
+      return
+    }
+    const newData = variables.data;
+    newData.splice(removeAt)
+    const newVars = {
+      ...variables,
+      data: newData
+    }
+    await saveVariablesMutation.mutateAsync(newVars);
+
+  }
 
   const addGlobalVariable = async (newVar: LocalVariable) => {
     if (!variables) {
       return
     }
-    variables.data.push({ "Global": newVar })
-    console.log(variables)
-    await saveVariablesMutation.mutateAsync(variables)
+    const updatedVariables: VariableStore = {
+      ...variables,
+      data: [...variables.data, { "Global": newVar }]
+    }
+    await saveVariablesMutation.mutateAsync(updatedVariables)
   }
 
   return {
@@ -79,6 +128,7 @@ export const useVariables = (projectId: string | undefined) => {
     isPending,
     addGlobalVariable,
     variables: variables?.data || [],
+    removeVariable,
     error,
   }
 }
