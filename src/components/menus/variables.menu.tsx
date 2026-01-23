@@ -121,7 +121,7 @@ const CharacterVariableGroup = ({
 };
 
 const VariableItem = ({ variable }: { variable: LocalVariable }) => {
-  const { removeVariable } = useGlobalState();
+  const { removeVariable, changeVariableState } = useGlobalState();
 
   const form = useAppForm({
     defaultValues: {
@@ -148,7 +148,7 @@ const VariableItem = ({ variable }: { variable: LocalVariable }) => {
         name="current_state"
         listeners={{
           onChange: ({ value }) => {
-            console.log(value);
+            changeVariableState(variable.id, value);
           },
         }}
         children={(field) => (

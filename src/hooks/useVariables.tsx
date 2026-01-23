@@ -15,6 +15,7 @@ export type VariableContext = {
   variables: Variable[],
   error: Error | null;
 
+  changeVariableState: (varId: string, state: string) => Promise<void>,
   addGlobalVariable: (newVar: LocalVariable) => Promise<void>
   removeVariable: (varId: string) => Promise<void>
 }
@@ -77,6 +78,30 @@ export const useVariables = (projectId: string | undefined) => {
     await saveVariablesMutation.mutateAsync(updatedVariables)
   }
 
+  const changeVariableState = async (varId: string, state: string) => {
+    if (!variables) return;
+
+    const updatedData = variables.data.map(variable => {
+      if ("Global" in variable && variable.Global.id === varId) {
+        return { Global: { ...variable.Global, current_state: state } };
+      }
+      if ("Char" in variable && variable.Char.id === varId) {
+        return { Char: { ...variable.Char, current_state: state } };
+      }
+      if ("Dialog" in variable && variable.Dialog.id === varId) {
+        return { Dialog: { ...variable.Dialog, current_state: state } };
+      }
+      return variable;
+    });
+
+    const updatedStore: VariableStore = {
+      ...variables,
+      data: updatedData
+    };
+
+    await saveVariablesMutation.mutateAsync(updatedStore);
+  }
+
   return {
     charToVars,
     dialogToVars,
@@ -88,6 +113,8 @@ export const useVariables = (projectId: string | undefined) => {
     addGlobalVariable,
     variables: variables?.data || [],
     removeVariable,
+    changeVariableState,
     error,
   }
 }
+

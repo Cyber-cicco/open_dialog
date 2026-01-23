@@ -2,3 +2,4 @@
 import type { CharacterVariableState } from "./CharacterVariableState";
 
 export type GlobalCharacterVariable = { id: string, name: string, potential_states: Array<string>, characters: Array<CharacterVariableState>, };
+

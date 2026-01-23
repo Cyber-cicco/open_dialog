@@ -1,1 +1,1 @@
-Make it so at the left of the variable name, there is a cross icon to delete the variable.
+Implement the variable state changes by changing it and saving the whole variables object with the mutation. Change the console.log in the form.Select.
