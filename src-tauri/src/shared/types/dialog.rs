@@ -1,4 +1,4 @@
-use std::{collections::HashMap, str::FromStr};
+use std::{collections::{HashMap, HashSet}, str::FromStr};
 
 use anyhow::{bail, Result};
 use chrono::{DateTime, Utc};
@@ -85,7 +85,7 @@ pub struct Phylum {
 #[ts(export, export_to = "../../src/bindings/")]
 pub struct Conditions {
     priority: i32,
-    necessities: Vec<VarNecessity>,
+    necessities: Vec<NecessityExpression>,
     next_node: Option<Uuid>,
 }
 
@@ -106,6 +106,7 @@ pub enum Operator {
 
 #[derive(TS, Serialize, Deserialize, Debug)]
 #[ts(export, export_to = "../../src/bindings/")]
+#[enum_dispatch::enum_dispatch(VariableCoherent)]
 pub enum NecessityExpression {
     Tree(TreeNecessity),
     Var(VarNecessity),
@@ -135,6 +136,11 @@ trait Coherent {
     fn enforce_coherence(&self, dialog: &Dialog) -> Result<()>;
 }
 
+#[enum_dispatch::enum_dispatch]
+trait VariableCoherent {
+    fn enforce_variable_coherence(&self, vars: &HashSet<Uuid>) -> Result<()>;
+}
+
 impl DialogMetadata {
     pub fn new() -> Self {
         DialogMetadata {
@@ -142,6 +148,28 @@ impl DialogMetadata {
         }
     }
 }
+
+impl SimpleDialog {
+    pub fn from_dialog(dialog: &Dialog) -> Self {
+        SimpleDialog {
+            id: dialog.id,
+            name: dialog.name.clone(),
+            main_character: dialog.main_character,
+            characters: dialog.characters_ids.clone(),
+        }
+    }
+}
+
+impl Node {
+    pub fn get_data(&mut self) -> &mut NodeData {
+        &mut self.data
+    }
+
+    pub fn get_id(&self) -> &Uuid {
+        return &self.id;
+    }
+}
+
 impl Dialog {
     pub fn from_dialog_creation_form(form: DialogCreationForm) -> Result<Self> {
         let id = Uuid::new_v4();
@@ -227,23 +255,38 @@ impl Coherent for Phylum {
     }
 }
 
-impl SimpleDialog {
-    pub fn from_dialog(dialog: &Dialog) -> Self {
-        SimpleDialog {
-            id: dialog.id,
-            name: dialog.name.clone(),
-            main_character: dialog.main_character,
-            characters: dialog.characters_ids.clone(),
+impl Phylum {
+    fn enforce_variable_coherence(&self,vars: &HashSet<Uuid>) -> Result<()> {
+        for branch in &self.branches {
+            branch.enforce_variable_coherence(vars)?;
         }
+        Ok(())
     }
 }
 
-impl Node {
-    pub fn get_data(&mut self) -> &mut NodeData {
-        &mut self.data
+impl VariableCoherent for Conditions {
+    fn enforce_variable_coherence(&self,vars: &HashSet<Uuid>) -> Result<()> {
+        for condition in &self.necessities {
+            condition.enforce_variable_coherence(vars)?;
+        }
+        Ok(())
     }
+}
 
-    pub fn get_id(&self) -> &Uuid {
-        return &self.id;
+impl VariableCoherent for TreeNecessity {
+    fn enforce_variable_coherence(&self,vars: &HashSet<Uuid>) -> Result<()> {
+        self.left.enforce_variable_coherence(vars)?;
+        self.right.enforce_variable_coherence(vars)
+    }
+}
+
+
+impl VariableCoherent for VarNecessity {
+    fn enforce_variable_coherence(&self,vars: &HashSet<Uuid>) -> Result<()> {
+        let id = &self.var_id;
+        if !vars.contains(id) {
+            bail!("necessity was linked to undefined variable {id}")
+        }
+        Ok(())
     }
 }
