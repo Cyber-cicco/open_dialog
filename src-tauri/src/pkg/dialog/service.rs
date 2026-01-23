@@ -4,7 +4,11 @@ use anyhow::Result;
 use uuid::Uuid;
 
 use crate::{
-    pkg::{character::dao::CharacterDao, dialog::dao::DialogDao},
+    pkg::{
+        character::dao::CharacterDao,
+        dialog::dao::DialogDao,
+        meta::{dao::MetaDao, service::MetaServiceLocalImpl},
+    },
     shared::{
         config::ODConfig,
         types::{
@@ -16,18 +20,32 @@ use crate::{
     },
 };
 
-pub struct DialogServiceLocalImpl<C: ODConfig, DD: DialogDao<C>, CD: CharacterDao<C>> {
+pub struct DialogServiceLocalImpl<
+    C: ODConfig,
+    DD: DialogDao<C>,
+    CD: CharacterDao<C>,
+    MD: MetaDao<C>,
+> {
     config: Shared<C>,
     dialog_dao: Arc<DD>,
     char_dao: Arc<CD>,
+    meta_srv: MetaServiceLocalImpl<C, MD>,
 }
 
-impl<C: ODConfig, DD: DialogDao<C>, CD: CharacterDao<C>> DialogServiceLocalImpl<C, DD, CD> {
-    pub fn new(config: Shared<C>, dialog_dao: Arc<DD>, char_dao: Arc<CD>) -> Self {
+impl<C: ODConfig, DD: DialogDao<C>, CD: CharacterDao<C>, MD: MetaDao<C>>
+    DialogServiceLocalImpl<C, DD, CD, MD>
+{
+    pub fn new(
+        config: Shared<C>,
+        dialog_dao: Arc<DD>,
+        char_dao: Arc<CD>,
+        meta_srv: MetaServiceLocalImpl<C, MD>,
+    ) -> Self {
         DialogServiceLocalImpl {
             config,
             dialog_dao,
             char_dao,
+            meta_srv,
         }
     }
 
@@ -73,12 +91,15 @@ impl<C: ODConfig, DD: DialogDao<C>, CD: CharacterDao<C>> DialogServiceLocalImpl<
     }
 
     pub fn save_dialog(&self, project_id: &str, mut dialog: Dialog) -> Result<()> {
-        dialog.enforce_links_coherence()?;
+
+        let vars = self.meta_srv.get_all_variable_hashet(project_id)?;
+        dialog.enforce_links_coherence(vars)?;
+
         let mut metadata = self.dialog_dao.get_metadata(project_id)?;
         let simple_dialog = SimpleDialog::from_dialog(&dialog);
         metadata.data.insert(dialog.get_id(), simple_dialog);
         let mut collector: Vec<DialogContent> = vec![];
-        let dialog_id =  &dialog.get_id().to_string();
+        let dialog_id = &dialog.get_id().to_string();
         dialog.collect_content(&mut collector);
         for content in collector {
             self.dialog_dao.persist_dialog_content(

@@ -193,9 +193,12 @@ impl Dialog {
         &mut self.nodes
     }
 
-    pub fn enforce_links_coherence(&self) -> Result<()> {
+    pub fn enforce_links_coherence(&self, vars: HashSet<Uuid>) -> Result<()> {
         for (_, v) in &self.nodes {
             v.data.enforce_coherence(&self)?;
+            if let NodeData::Phylum(p) = &v.data {
+                p.enforce_variable_coherence(&vars)?;
+            }
         }
         Ok(())
     }
