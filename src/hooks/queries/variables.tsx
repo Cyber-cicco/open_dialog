@@ -19,8 +19,7 @@ export function usePersistVariables(projectId: string | undefined): UseMutationR
     mutationKey: ['variables', 'persist', projectId],
     mutationFn: (vars: VariableStore) => invoke<void>("persist_variables", { projectId, vars }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['variables'] });
-      queryClient.refetchQueries({ queryKey: ['variables'] });
+      queryClient.invalidateQueries({ queryKey: ['variables', projectId] });
     },
   });
 }
@@ -28,11 +27,10 @@ export function usePersistVariables(projectId: string | undefined): UseMutationR
 export function useDeleteVariables(projectId: string| undefined): UseMutationResult<void, Error, string, unknown> {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationKey: ['variables', 'persist', projectId],
+    mutationKey: ['variables', 'delete', projectId],  // also fixed duplicate key
     mutationFn: (varId: string) => invoke<void>("delete_variable", { projectId, varId }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['variables'] });
-      queryClient.refetchQueries({ queryKey: ['variables'] });
+      queryClient.invalidateQueries({ queryKey: ['variables', projectId] });
     },
   });
 }

@@ -1,1 +1,1 @@
-Implement the variable state changes by changing it and saving the whole variables object with the mutation. Change the console.log in the form.Select.
+Adding or deleting a variable does not trigger the loading of the variables anymore. I do not get any error messages in the console.

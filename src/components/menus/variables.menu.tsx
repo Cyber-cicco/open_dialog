@@ -138,7 +138,7 @@ const VariableItem = ({ variable }: { variable: LocalVariable }) => {
     <div className="flex items-center justify-between gap-2 p-1.5 rounded hover:bg-highlight-200 transition-colors">
       <button
         onClick={() => removeVariable(variable.id)}
-        className="text-text-muted hover:text-red-500 transition-colors flex-shrink-0"
+        className="text-text-muted hover:cursor-pointer hover:text-red-500 transition-colors flex-shrink-0"
         title="Delete variable"
       >
         <CrossSvg className="w-3.5 h-3.5" />
@@ -166,7 +166,7 @@ const GlobalCharVariableItem = ({ variable }: { variable: GlobalCharacterVariabl
     <div className="flex items-center gap-2 p-1.5 rounded hover:bg-highlight-200 cursor-pointer transition-colors">
       <button
         onClick={() => removeVariable(variable.id)}
-        className="text-text-muted hover:text-red-500 transition-colors flex-shrink-0"
+        className="text-text-muted hover:cursor-pointer hover:text-red-500 transition-colors flex-shrink-0"
         title="Delete variable"
       >
         <CrossSvg className="w-3.5 h-3.5" />
