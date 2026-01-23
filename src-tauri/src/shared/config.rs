@@ -17,6 +17,7 @@ pub const CONFIG_FILE_PATH: &str = "open_dialog_config.json";
 pub const CHAR_DIRNAME: &str = "character";
 pub const DIALOG_DIRNAME: &str = "dialog";
 pub const STATS_DIRNAME: &str = "stats";
+pub const META_DIRNAME: &str = "meta";
 pub const ASSETS_DIRNAME: &str = "assets";
 
 #[async_trait::async_trait]

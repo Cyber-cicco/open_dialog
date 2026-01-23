@@ -3,3 +3,4 @@ pub mod project;
 pub mod serializer;
 pub mod dialog;
 pub mod variables;
+pub mod meta;

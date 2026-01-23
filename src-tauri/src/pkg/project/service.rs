@@ -4,7 +4,7 @@ use anyhow::{Ok, Result};
 use git2::Repository;
 
 use crate::shared::{
-    config::{ODConfig, ASSETS_DIRNAME, CHAR_DIRNAME, DIALOG_DIRNAME, STATS_DIRNAME},
+    config::{ASSETS_DIRNAME, CHAR_DIRNAME, DIALOG_DIRNAME, META_DIRNAME, ODConfig, STATS_DIRNAME},
     types::{
         interfaces::Shared,
         project::{AtomicProject, AtomicProjects, Project},
@@ -23,7 +23,7 @@ impl<C: ODConfig> ProjectServiceLocaleImpl<C> {
 
     pub fn create_project(&self, name: &str) -> Result<AtomicProject> {
         let project = Project::new(name, &self.config.lock()?.get_root_dir());
-        for dir in [CHAR_DIRNAME, DIALOG_DIRNAME, STATS_DIRNAME, ASSETS_DIRNAME] {
+        for dir in [CHAR_DIRNAME, DIALOG_DIRNAME, STATS_DIRNAME, META_DIRNAME, ASSETS_DIRNAME] {
             fs::create_dir_all(project.get_path().join(dir))?;
         }
         Repository::init(project.get_path())?;

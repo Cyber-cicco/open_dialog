@@ -21,6 +21,9 @@ Ce qui a été fait :
 
 Ce qu'il reste à faire dans l'immédiat:
 
+[] Maintenir un fichier des variables utilisées par les dialogues (back)
+[] A la sauvegarde d'un dialogue, empêcher les phylums de faire référence à des variables non existantes. (back)
+
 [] Pouvoir ajouter une variable à un personnage (front)
 [] Pouvoir ajouter une variable à un dialogue (front)
 [] Pouvoir supprimer une variable (front)
@@ -34,6 +37,9 @@ Ce qu'il reste à faire dans l'immédiat:
 
 Quelques éléments qu'il ne faudra pas oublier:
 
+[] Créer un système de notifiaction
+[] Faire remonter les messages d'erreur dans le système de notification
+[] Créer un système de log digne de ce nom
 [] Donner la possibilité de supprimer un dialogue / personnage
 [] Pouvoir ordonnancer les dialogues / personnages
 [] Pouvoir créer des groupes de personnage / dialogues
