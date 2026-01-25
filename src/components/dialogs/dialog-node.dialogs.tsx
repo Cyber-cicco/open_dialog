@@ -2,7 +2,7 @@ import { Handle, Position, type NodeProps, type Node } from '@xyflow/react';
 import { DialogNode } from '../../bindings/DialogNode';
 import { useAppForm } from '../../hooks/form';
 import { useRef } from 'react';
-import { useDialogContext } from '../../context/dialog.context';
+import { useDialogContext } from '../../hooks/useDialog';
 
 type DialogNodeData = DialogNode & {};
 

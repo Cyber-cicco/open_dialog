@@ -1,8 +1,8 @@
-import { useDialogContext } from "../../context/dialog.context";
 import { useGlobalState } from "../../context/global-state.context";
 import { useGetCharacterById } from "../../hooks/queries/character";
 import { DialogFlowNode } from "../../context/dialog.context";
 import { Project } from "../../bindings/Project";
+import { useDialogContext } from "../../hooks/useDialog";
 
 type DialogNodeItemProps = {
   node: DialogFlowNode

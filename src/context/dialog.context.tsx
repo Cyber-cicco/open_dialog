@@ -1,196 +1,147 @@
-import { createContext, PropsWithChildren, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react"
+import { createContext, PropsWithChildren, useCallback, useState } from "react"
 import { Dialog } from "../bindings/Dialog"
-import { useSaveDialog } from "../hooks/queries/dialogs";
-import { NodeType } from "../pages/dialog-page";
-import { addEdge, applyEdgeChanges, applyNodeChanges, Connection, EdgeChange, Node, NodeChange, type Edge } from "@xyflow/react";
-import { DialogNode } from "../bindings/DialogNode";
-import { Choices } from "../bindings/Choices";
-import { Phylum } from "../bindings/Phylum";
-import { useGlobalState } from "./global-state.context";
-import { buildBackDialogFromNodesAndEdges, getLongestPathFromRoot, getOptimalHandles, traverseDialogAndGetNodesAndEdges } from "./helpers/dialog.helpers";
+import { addEdge, applyEdgeChanges, applyNodeChanges, Connection, EdgeChange, Node, NodeChange, type Edge } from "@xyflow/react"
+import { DialogNode } from "../bindings/DialogNode"
+import { Choices } from "../bindings/Choices"
+import { Phylum } from "../bindings/Phylum"
+import { useGlobalState } from "./global-state.context"
+import { getOptimalHandles, traverseDialogAndGetNodesAndEdges } from "./helpers/dialog.helpers"
+import { useGraphMaps } from "../hooks/useGraphMaps"
+import { useDialogFeed } from "../hooks/useDialogFeed"
+import { useDialogPersistence } from "../hooks/useDialogPersistence"
 
-// Node data types matching your Rust NodeData enum
-type DialogNodeData = DialogNode & { isRootNode?: boolean };
-type ChoicesNodeData = Choices & { isRootNode?: boolean };
-type PhylumNodeData = Phylum & { isRootNode?: boolean };
+type DialogNodeData = DialogNode & { isRootNode?: boolean }
+type ChoicesNodeData = Choices & { isRootNode?: boolean }
+type PhylumNodeData = Phylum & { isRootNode?: boolean }
 
-// Typed React Flow nodes
-export type DialogFlowNode = Node<DialogNodeData, 'dialogNode'>;
-export type ChoicesFlowNode = Node<ChoicesNodeData, 'choiceNode'>;
-export type PhylumFlowNode = Node<PhylumNodeData, 'phylumNode'>;
+export type DialogFlowNode = Node<DialogNodeData, 'dialogNode'>
+export type ChoicesFlowNode = Node<ChoicesNodeData, 'choiceNode'>
+export type PhylumFlowNode = Node<PhylumNodeData, 'phylumNode'>
+export type AppNode = DialogFlowNode | ChoicesFlowNode | PhylumFlowNode
+export type Pos = { x: number, y: number }
 
-export type AppNode = DialogFlowNode | ChoicesFlowNode | PhylumFlowNode;
+export type DialogContextType = {
+  nodes: AppNode[]
+  edges: Edge[]
+  rootNodeId: string | null
+  dialog: Dialog | undefined
+  dialogFeed: AppNode[]
 
-export type Pos = { x: number, y: number };
-
-export type DisplayedNode = Node & {
-  isRootNode: boolean,
-  visited: boolean
-}
-
-
-type DialogContextType = {
-  createDialogNode: (pos: Pos) => void
   loadDialog: (dialog: Dialog) => void
+  createDialogNode: (pos: Pos) => void
+  setRootNode: (nodeId: string) => void
+  updateNodeData: (nodeId: string, data: Partial<DialogNodeData | ChoicesNodeData | PhylumNodeData>) => void
   saveDialog: () => Promise<void>
+
   onNodesChange: (changes: NodeChange<AppNode>[]) => void
   onEdgesChange: (changes: EdgeChange<Edge>[]) => void
   onConnect: (connection: Connection) => void
-  updateNodeData: (nodeId: string, data: Partial<DialogNodeData> | Partial<ChoicesNodeData> | Partial<PhylumNodeData>) => void
-
-  dialogFeed: AppNode[],
-  nodes: AppNode[],
-  edges: Edge[],
-  rootNodeId: string | null
-  dialog:Dialog | undefined,
-  setRootNode: (nodeId: string) => void
-
 }
 
-const DialogContext = createContext<DialogContextType | undefined>(undefined);
+export const DialogContext = createContext<DialogContextType | undefined>(undefined)
 
 export const DialogProvider = ({ children }: PropsWithChildren) => {
-  const { project } = useGlobalState();
-  const dialogRef = useRef<Dialog | undefined>(undefined);
-  const [nodes, setNodes] = useState<AppNode[]>([]);
-  const [edges, setEdges] = useState<Edge[]>([]);
+  const { project } = useGlobalState()
+  
+  // Core state
+  const [dialog, setDialogState] = useState<Dialog | undefined>(undefined)
+  const [nodes, setNodes] = useState<AppNode[]>([])
+  const [edges, setEdges] = useState<Edge[]>([])
+  const [rootNodeId, setRootNodeIdState] = useState<string | null>(null)
+  const [lastCreatedNodeId, setLastCreatedNodeId] = useState<string | undefined>(undefined)
 
-  // Ref to avoid stale closure in onConnect
-  const nodesRef = useRef<AppNode[]>([]);
+  // Derived state via hooks
+  const { forwardMap, reverseMap } = useGraphMaps(edges)
+  const dialogFeed = useDialogFeed(rootNodeId, nodes, forwardMap)
 
-  // Keep ref in sync with state
-  useEffect(() => {
-    nodesRef.current = nodes;
-  }, [nodes]);
-
-  // Pour créer automatiquement un edge avec l'ancien node
-  const lastNodeRef = useRef<Node | undefined>(undefined);
-  const rootNodeRef = useRef<string | null>(null);
-  const isInitialLoadRef = useRef(true);
-  const saveDialogMutation = useSaveDialog();
-  const [rootNodeId, setRootNodeId] = useState<string | null>(null);
+  // Persistence
+  const persistence = useDialogPersistence(project?.id, {
+    onStructuralChange: true,
+    onContentChange: true,
+    onPositionChange: false,
+    debounceMs: 1500,
+  })
 
   const loadDialog = useCallback((dialog: Dialog) => {
-    isInitialLoadRef.current = true;
-    dialogRef.current = dialog;
+    setDialogState(dialog);
+    setRootNodeIdState(dialog.root_node);
+    persistence.setDialog(dialog);
 
-    //TODO: smells like shit, should have thought this through
-    setRootNodeId(dialog.root_node);
-    rootNodeRef.current = dialog.root_node;
-
-    const res = traverseDialogAndGetNodesAndEdges(dialogRef.current);
+    const res = traverseDialogAndGetNodesAndEdges(dialog);
     setNodes(res.nodes);
     setEdges(res.edges);
-  }, []);
+  }, [persistence])
 
   const setRootNode = useCallback((nodeId: string) => {
-    rootNodeRef.current = nodeId;
-    setRootNodeId(nodeId);
-  }, []);
+    setRootNodeIdState(nodeId)
+    persistence.setRootNode(nodeId)
+    persistence.onStructuralChange(nodes, edges)
+  }, [nodes, edges, persistence])
 
+  // ReactFlow handlers - distinguish between structural and positional changes
   const onNodesChange = useCallback((changes: NodeChange<AppNode>[]) => {
-    setNodes((prev) => applyNodeChanges(changes, prev));
-  }, []);
+    setNodes(prev => {
+      const next = applyNodeChanges(changes, prev)
+      
+      // Check if this is a structural change (add/remove) or just position
+      const isStructural = changes.some(c => c.type === 'add' || c.type === 'remove')
+      const isPosition = changes.some(c => c.type === 'position' && !c.dragging)
+      
+      if (isStructural) {
+        persistence.onStructuralChange(next, edges)
+      } else if (isPosition) {
+        persistence.onPositionChange(next, edges)
+      }
+      
+      return next
+    })
+  }, [edges, persistence])
 
   const onEdgesChange = useCallback((changes: EdgeChange<Edge>[]) => {
-    setEdges((prev) => applyEdgeChanges(changes, prev));
-  }, []);
+    setEdges(prev => {
+      const next = applyEdgeChanges(changes, prev)
+      const isStructural = changes.some(c => c.type === 'add' || c.type === 'remove')
+      if (isStructural) {
+        persistence.onStructuralChange(nodes, next)
+      }
+      return next
+    })
+  }, [nodes, persistence])
 
   const onConnect = useCallback((connection: Connection) => {
-    setEdges((prev) => {
-      const sourceNode = nodesRef.current.find(n => n.id === connection.source);
+    setEdges(prev => {
+      const sourceNode = nodes.find(n => n.id === connection.source)
+      let next: Edge[]
 
-      // DialogNodes can only have one outgoing edge - replace existing if present
       if (sourceNode?.type === 'dialogNode') {
-        const filtered = prev.filter(e => e.source !== connection.source);
-        return addEdge(connection, filtered);
-      }
-
-      // For ChoiceNode/PhylumNode, edges are tied to specific handles
-      // Replace only if same sourceHandle
-      if (sourceNode?.type === 'choiceNode' || sourceNode?.type === 'phylumNode') {
+        const filtered = prev.filter(e => e.source !== connection.source)
+        next = addEdge(connection, filtered)
+      } else if (sourceNode?.type === 'choiceNode' || sourceNode?.type === 'phylumNode') {
         if (connection.sourceHandle) {
           const filtered = prev.filter(
             e => !(e.source === connection.source && e.sourceHandle === connection.sourceHandle)
-          );
-          return addEdge(connection, filtered);
+          )
+          next = addEdge(connection, filtered)
+        } else {
+          next = addEdge(connection, prev)
         }
+      } else {
+        next = addEdge(connection, prev)
       }
 
-      return addEdge(connection, prev);
-    });
-  }, []);
-
-  const { forwardMap, reverseMap } = useMemo(() => {
-    const fwd = new Map<string, string[]>();
-    const rev = new Map<string, string[]>();
-
-    for (const edge of edges) {
-      fwd.set(edge.source, [...(fwd.get(edge.source) ?? []), edge.target]);
-      rev.set(edge.target, [...(rev.get(edge.target) ?? []), edge.source]);
-    }
-
-    return { forwardMap: fwd, reverseMap: rev };
-  }, [edges]);
-
-  const nodeMap = useMemo(() => {
-    const res = new Map<string, AppNode>();
-    for (const node of nodes) {
-      res.set(node.id, node);
-    }
-    return res
-  }, [nodes])
-
-  const dialogFeed = useMemo(() => {
-    if (dialogRef.current?.root_node) {
-
-      const path = getLongestPathFromRoot(dialogRef.current.root_node, forwardMap);
-      return path.map((p) => nodeMap.get(p)!);
-    }
-    return []
-  }, [forwardMap, nodeMap]);
-
-
-  const saveDialog = useCallback(async () => {
-    if (!project || !dialogRef.current) {
-      throw new Error("saving dialog outside of coherent scope");
-    };
-    const res = buildBackDialogFromNodesAndEdges(nodes, edges);
-    const dialog = dialogRef.current
-    dialog.root_node = rootNodeRef.current;
-    dialog.nodes = res;
-    await saveDialogMutation.mutateAsync({
-      projectId: project.id,
-      dialog: dialog
+      persistence.onStructuralChange(nodes, next)
+      return next
     })
-  }, [project, nodes, edges, saveDialogMutation])
-
-  useEffect(() => {
-    if (isInitialLoadRef.current) {
-      isInitialLoadRef.current = false;
-      return;
-    }
-
-    saveDialog().then(() => {
-    }).catch((e) => console.error(e))
-  }, [nodes, edges])
-
+  }, [nodes, persistence])
 
   const createDialogNode = useCallback((pos: Pos) => {
-    const isRootNode = nodesRef.current.length === 0;
-    const id = crypto.randomUUID();
-
-    if (isRootNode) {
-      rootNodeRef.current = id;
-      setRootNode(id);
-    }
-
-    const previousNode = lastNodeRef.current;
+    const isRootNode = nodes.length === 0
+    const id = crypto.randomUUID()
 
     const newNode: DialogFlowNode = {
       id,
       type: 'dialogNode',
-      position: { x: pos.x, y: pos.y },
+      position: pos,
       data: {
         next_node: null,
         content: '',
@@ -198,96 +149,77 @@ export const DialogProvider = ({ children }: PropsWithChildren) => {
         content_link: null,
         isRootNode,
       },
-    };
-
-    setNodes((prev) => [...prev, newNode]);
-    lastNodeRef.current = newNode;
-
-    if (previousNode) {
-      const handles = getOptimalHandles(previousNode.position, pos);
-      setEdges((prev) => {
-        const filtered = prev.filter(e => e.source !== previousNode.id);
-        return [...filtered, {
-          id: `${previousNode.id}-${id}`,
-          source: previousNode.id,
-          target: id,
-          ...handles
-        }];
-      });
     }
-  }, []);
+
+    setNodes(prev => {
+      const next = [...prev, newNode]
+      
+      // Auto-connect to last created node
+      if (lastCreatedNodeId) {
+        const prevNode = prev.find(n => n.id === lastCreatedNodeId)
+        if (prevNode) {
+          const handles = getOptimalHandles(prevNode.position, pos)
+          setEdges(prevEdges => {
+            const filtered = prevEdges.filter(e => e.source !== lastCreatedNodeId)
+            const nextEdges = [...filtered, {
+              id: `${lastCreatedNodeId}-${id}`,
+              source: lastCreatedNodeId,
+              target: id,
+              ...handles
+            }]
+            persistence.onStructuralChange(next, nextEdges)
+            return nextEdges
+          })
+        }
+      } else {
+        persistence.onStructuralChange(next, edges)
+      }
+
+      return next
+    })
+
+    if (isRootNode) {
+      setRootNode(id)
+    }
+    setLastCreatedNodeId(id)
+  }, [nodes.length, lastCreatedNodeId, edges, persistence, setRootNode])
 
   const updateNodeData = useCallback((
     nodeId: string,
-    newData: Partial<DialogNodeData> | Partial<ChoicesNodeData> | Partial<PhylumNodeData>
+    newData: Partial<DialogNodeData | ChoicesNodeData | PhylumNodeData>
   ) => {
-    setNodes((prev) =>
-      prev.map((node) =>
+    setNodes(prev => {
+      const next = prev.map(node =>
         node.id === nodeId
           ? { ...node, data: { ...node.data, ...newData } } as AppNode
           : node
       )
-    );
-  }, []);
+      persistence.onContentChange(next, edges)
+      return next
+    })
+  }, [edges, persistence])
+
+  const saveDialog = useCallback(async () => {
+    await persistence.save(nodes, edges)
+  }, [persistence, nodes, edges])
 
   return (
     <DialogContext.Provider value={{
-      updateNodeData,
-      createDialogNode,
-      loadDialog,
       nodes,
       edges,
+      rootNodeId,
+      dialog,
+      dialogFeed,
+      loadDialog,
+      createDialogNode,
+      setRootNode,
+      updateNodeData,
       saveDialog,
       onNodesChange,
-      onConnect,
       onEdgesChange,
-      dialogFeed,
-      rootNodeId,
-      setRootNode,
-      dialog:dialogRef.current,
+      onConnect,
     }}>
       {children}
     </DialogContext.Provider>
   )
-}
-
-
-export const useDialog = (dialog: Dialog | undefined) => {
-  const ctx = useContext(DialogContext);
-  if (!ctx) {
-    throw new Error("Cannot use dialog context outside of dialog provider")
-  }
-
-  useEffect(() => {
-    if (dialog) {
-      ctx.loadDialog(dialog);
-    }
-  }, [dialog?.id]);
-
-
-  function createNode(nodeType: NodeType, middlePos: Pos) {
-    switch (nodeType) {
-      case NodeType.DIALOG: ctx?.createDialogNode(middlePos)
-        break;
-      case NodeType.CHOICE:
-      case NodeType.PHYLUM:
-    }
-  }
-
-  return {
-    createNode,
-    nodes: ctx.nodes,
-    edges: ctx.edges,
-    onNodesChange: ctx.onNodesChange,
-    onConnect: ctx.onConnect,
-    onEdgesChange: ctx.onEdgesChange,
-  }
-}
-
-export const useDialogContext = () => {
-  const ctx = useContext(DialogContext);
-  if (!ctx) {
-    throw new Error("Cannot use dialog context outside of dialog provider")
-  }
-  return ctx
 }

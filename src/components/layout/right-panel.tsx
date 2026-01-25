@@ -1,10 +1,9 @@
-// right-panel.tsx
 import { useRightPanel } from "../../context/right-panel.context";
-import { useDialogContext } from "../../context/dialog.context";
 import { useGlobalState } from "../../context/global-state.context";
 import { useGetCharacterById } from "../../hooks/queries/character";
 import DialogFeed from "../dialogs/feed.dialogs";
 import { getImageSrc } from "../common/img";
+import { useDialogContext } from "../../hooks/useDialog";
 
 const FloatingPortrait = () => {
   const { isOpen } = useRightPanel();
