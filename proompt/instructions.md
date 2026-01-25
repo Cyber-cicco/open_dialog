@@ -1,11 +1,11 @@
-Ok I *might* have vibed a little too much. If I continue to iterate on the shitty state machine of oblivion that is the dialog.context.tsx, it will only get worse. I do not know enough of React to be able to design alone and with confidence a system that stinks less. So I need you to guide me.
+We need to create the choice node component, and add the function in the context to create it.
 
-Here is what I think:
+A choice node is composed of choices. On creation, it has to have a default choice.
 
- * wtf is going on with refs everywhere. why in the fuckedy fuck is there a ref to state variable. 
- * isInitialLoadRef should not exist. It's a thing that was made to prevent the dialog from saving when it loaded. This is completely stupid.
- * I need to have an API that allows me to define a configuration for the saving of the dialog. For now, it saves even if I drag the node. It's shit. I should have a hook with a simple API and a useEffect
- * forwardMap and reverseMap should be their own hook.
- * dialogFeed should be it's own hook.
- * Even if the dialog state depends on the graph state, having them mixed together is not a good idea. The dialog should know about the graph changes, but the graph should do it's own thing. 
+Every choice, on it's right edge, has a source handle. 
+
+Every choice has a content, which can be long so only show the beginning and truncate the text. You can also create another condition on the phylum.
+
+We won't implement the modal or the condition editor yet, we'll only implement the choice node with the architecture necessary to add and edit the choices later.
+
 

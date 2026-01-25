@@ -1,5 +1,9 @@
 use std::{
-    collections::HashSet, fs::{self, File}, io::BufWriter, path::PathBuf, str::FromStr
+    collections::HashSet,
+    fs::{self, File},
+    io::BufWriter,
+    path::PathBuf,
+    str::FromStr,
 };
 
 use anyhow::{bail, Context, Ok, Result};

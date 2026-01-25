@@ -6,7 +6,6 @@ export function useLoadVariables(projectId: string | undefined): UseQueryResult<
   return useQuery({
     queryKey: ['variables', projectId],
     queryFn: () => {
-      console.log("loading variables")
       return invoke<VariableStore>("load_variables", { projectId })
     },
     enabled: !!projectId,

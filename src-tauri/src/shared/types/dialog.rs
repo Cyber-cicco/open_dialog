@@ -60,6 +60,7 @@ pub struct Choices {
 #[derive(TS, Serialize, Deserialize, Debug)]
 #[ts(export, export_to = "../../src/bindings/")]
 pub struct Choice {
+    id: Uuid,
     content: String,
     next_node: Option<Uuid>,
 }

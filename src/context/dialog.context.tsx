@@ -9,6 +9,8 @@ import { getOptimalHandles, traverseDialogAndGetNodesAndEdges } from "./helpers/
 import { useGraphMaps } from "../hooks/useGraphMaps"
 import { useDialogFeed } from "../hooks/useDialogFeed"
 import { useDialogPersistence } from "../hooks/useDialogPersistence"
+import { Conditions } from "../bindings/Conditions"
+import { Choice } from "../bindings/Choice"
 
 type DialogNodeData = DialogNode & { isRootNode?: boolean }
 type ChoicesNodeData = Choices & { isRootNode?: boolean }
@@ -28,10 +30,13 @@ export type DialogContextType = {
   dialogFeed: AppNode[]
 
   loadDialog: (dialog: Dialog) => void
-  createDialogNode: (pos: Pos) => void
+  saveDialog: () => Promise<void>
   setRootNode: (nodeId: string) => void
   updateNodeData: (nodeId: string, data: Partial<DialogNodeData | ChoicesNodeData | PhylumNodeData>) => void
-  saveDialog: () => Promise<void>
+
+  createDialogNode: (pos: Pos) => void
+  createChoiceNode: (pos: Pos) => void
+  createPhylumNode: (pos: Pos) => void
 
   onNodesChange: (changes: NodeChange<AppNode>[]) => void
   onEdgesChange: (changes: EdgeChange<Edge>[]) => void
@@ -41,8 +46,8 @@ export type DialogContextType = {
 export const DialogContext = createContext<DialogContextType | undefined>(undefined)
 
 export const DialogProvider = ({ children }: PropsWithChildren) => {
-  const { project } = useGlobalState()
-  
+  const { project, globalVars } = useGlobalState()
+
   // Core state
   const [dialog, setDialogState] = useState<Dialog | undefined>(undefined)
   const [nodes, setNodes] = useState<AppNode[]>([])
@@ -82,17 +87,17 @@ export const DialogProvider = ({ children }: PropsWithChildren) => {
   const onNodesChange = useCallback((changes: NodeChange<AppNode>[]) => {
     setNodes(prev => {
       const next = applyNodeChanges(changes, prev)
-      
+
       // Check if this is a structural change (add/remove) or just position
       const isStructural = changes.some(c => c.type === 'add' || c.type === 'remove')
       const isPosition = changes.some(c => c.type === 'position' && !c.dragging)
-      
+
       if (isStructural) {
         persistence.onStructuralChange(next, edges)
       } else if (isPosition) {
         persistence.onPositionChange(next, edges)
       }
-      
+
       return next
     })
   }, [edges, persistence])
@@ -153,7 +158,7 @@ export const DialogProvider = ({ children }: PropsWithChildren) => {
 
     setNodes(prev => {
       const next = [...prev, newNode]
-      
+
       // Auto-connect to last created node
       if (lastCreatedNodeId) {
         const prevNode = prev.find(n => n.id === lastCreatedNodeId)
@@ -184,6 +189,73 @@ export const DialogProvider = ({ children }: PropsWithChildren) => {
     setLastCreatedNodeId(id)
   }, [nodes.length, lastCreatedNodeId, edges, persistence, setRootNode])
 
+  const createChoiceNode = useCallback((pos: Pos) => {
+    const isRootNode = nodes.length === 0
+    const id = crypto.randomUUID()
+
+    const defaultChoice: Choice = {
+      id: crypto.randomUUID(),
+      content: '',
+      next_node: null,
+    }
+
+    const newNode: ChoicesFlowNode = {
+      id,
+      type: 'choiceNode',
+      position: pos,
+      data: {
+        choices: [defaultChoice],
+        isRootNode,
+      },
+    }
+
+    setNodes(prev => {
+      const next = [...prev, newNode]
+      persistence.onStructuralChange(next, edges)
+      return next
+    })
+
+    if (isRootNode) {
+      setRootNode(id)
+    }
+    setLastCreatedNodeId(id)
+  }, [nodes.length, edges, persistence, setRootNode])
+
+  const createPhylumNode = useCallback((pos: Pos) => {
+    console.log("creating phylum node")
+    const isRootNode = nodes.length === 0
+    const id = crypto.randomUUID()
+
+    const defaultCondition: Conditions = {
+      priority: 10,
+      necessities: [],
+      next_node: null,
+    }
+
+    const newNode: PhylumFlowNode = {
+      id,
+      type: 'phylumNode',
+      position: pos,
+      data: {
+        id,
+        name: null,
+        branches: [defaultCondition],
+        isRootNode,
+      },
+    }
+
+    setNodes(prev => {
+      const next = [...prev, newNode]
+      persistence.onStructuralChange(next, edges)
+      return next
+    })
+
+    if (isRootNode) {
+      setRootNode(id)
+    }
+    setLastCreatedNodeId(id)
+  }, [nodes.length, edges, persistence, setRootNode])
+
   const updateNodeData = useCallback((
     nodeId: string,
     newData: Partial<DialogNodeData | ChoicesNodeData | PhylumNodeData>
@@ -212,6 +284,8 @@ export const DialogProvider = ({ children }: PropsWithChildren) => {
       dialogFeed,
       loadDialog,
       createDialogNode,
+      createPhylumNode,
+      createChoiceNode,
       setRootNode,
       updateNodeData,
       saveDialog,

@@ -1,5 +1,111 @@
-export const PhylumNode = () => {
+import { Handle, Position, type NodeProps, type Node } from '@xyflow/react';
+import { Phylum } from '../../bindings/Phylum';
+import { Conditions } from '../../bindings/Conditions';
+import { useDialogContext } from '../../hooks/useDialog';
+
+type PhylumNodeData = Phylum & { isRootNode?: boolean };
+export type PhylumNodeType = Node<PhylumNodeData, 'phylumNode'>;
+
+const DEFAULT_CONDITION: Conditions = {
+  priority: 10,
+  necessities: [],
+  next_node: null,
+};
+
+export const PhylumNode = ({ data, selected, id }: NodeProps<PhylumNodeType>) => {
+  const { rootNodeId, setRootNode, updateNodeData } = useDialogContext();
+  const { name, branches } = data;
+
+  // Ensure default condition exists and is last
+  const sortedBranches = [...branches].sort((a, b) => a.priority - b.priority);
+  const hasDefault = sortedBranches.some(b => b.necessities.length === 0);
+  const displayBranches = hasDefault ? sortedBranches : [...sortedBranches, DEFAULT_CONDITION];
+
+  const addCondition = () => {
+    const newCondition: Conditions = {
+      priority: branches.length,
+      necessities: [],
+      next_node: null,
+    };
+    // Insert before default (which is always last)
+    const withoutDefault = branches.filter(b => b.necessities.length > 0);
+    const defaultBranch = branches.find(b => b.necessities.length === 0) ?? DEFAULT_CONDITION;
+    updateNodeData(id, {
+      branches: [...withoutDefault, newCondition, defaultBranch],
+    });
+  };
+
   return (
-  <></>
-  )
-}
+    <div
+      className={`p-4 bg-base-surface rounded border min-w-80
+        ${selected ? 'border-blue-primary' : 'border-base-600'}
+        ${rootNodeId === id ? 'ring-2 ring-blue-500/50 shadow-[0_0_15px_rgba(59,130,246,0.3)]' : ''}`}
+    >
+      {rootNodeId !== id && (
+        <button
+          type="button"
+          onClick={() => setRootNode(id)}
+          className="absolute top-2 right-2 p-1 rounded text-xs bg-base-600 hover:bg-blue-deep text-text-subtle hover:text-text-primary transition-colors"
+          title="Set as root node"
+        >
+          ⚑
+        </button>
+      )}
+
+      {/* Target handles */}
+      <Handle type="target" position={Position.Left} id="left-target" />
+      <Handle type="target" position={Position.Top} id="top-target" />
+      <Handle type="target" position={Position.Bottom} id="bottom-target" />
+      <Handle type="target" position={Position.Right} id="right-target" style={{ top: 20 }} />
+
+      {/* Header */}
+      <div className="flex items-center justify-between mb-3 border-b border-base-600 pb-2">
+        <span className="text-sm font-medium text-text-primary">
+          {name || 'Phylum'}
+        </span>
+        <button
+          type="button"
+          onClick={addCondition}
+          className="text-xs px-2 py-1 rounded bg-base-600 hover:bg-blue-deep text-text-subtle hover:text-text-primary transition-colors"
+        >
+          + Condition
+        </button>
+      </div>
+
+      {/* Conditions */}
+      <div className="space-y-2">
+        {displayBranches.map((condition, index) => {
+          const isDefault = condition.necessities.length === 0;
+          const handleId = `condition-${index}`;
+          
+          return (
+            <div
+              key={index}
+              className={`relative flex items-center justify-between p-2 rounded text-sm
+                ${isDefault ? 'bg-base-700/50 text-text-muted' : 'bg-base-700 text-text-primary'}`}
+            >
+              <span>
+                {isDefault ? 'Default' : `Condition ${index + 1}`}
+              </span>
+              {!isDefault && (
+                <button
+                  type="button"
+                  className="text-xs text-text-subtle hover:text-text-primary"
+                  title="Edit condition"
+                >
+                  ✎
+                </button>
+              )}
+              <Handle
+                type="source"
+                position={Position.Right}
+                id={handleId}
+                style={{ top: '50%', transform: 'translateY(-50%)' }}
+              />
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+};

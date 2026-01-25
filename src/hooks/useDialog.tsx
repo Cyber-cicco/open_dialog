@@ -17,13 +17,18 @@ export const useDialog = (dialog: Dialog | undefined) => {
 
 
   function createNode(nodeType: NodeType, middlePos: Pos) {
-    switch (nodeType) {
-      case NodeType.DIALOG: ctx?.createDialogNode(middlePos)
-        break;
-      case NodeType.CHOICE:
-      case NodeType.PHYLUM:
-    }
+  switch (nodeType) {
+    case NodeType.DIALOG:
+      ctx?.createDialogNode(middlePos)
+      break;
+    case NodeType.CHOICE:
+      ctx?.createChoiceNode(middlePos)
+      break;
+    case NodeType.PHYLUM:
+      ctx?.createPhylumNode(middlePos)
+      break;
   }
+}
 
   return {
     createNode,
