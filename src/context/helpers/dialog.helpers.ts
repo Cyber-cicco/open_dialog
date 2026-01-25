@@ -39,8 +39,8 @@ export function buildBackDialogFromNodesAndEdges(
             };
         }
         else if (node.type === 'choiceNode') {
-            const choices = node.data.choices.map((choice, idx) => {
-                const edge = nodeEdges.find(e => e.sourceHandle === `choice-${idx}`);
+            const choices = node.data.choices.map((choice) => {
+                const edge = nodeEdges.find(e => e.sourceHandle === `choice-${choice.id}`);
                 return { ...choice, next_node: edge?.target ?? null };
             });
             result[node.id] = {
@@ -147,17 +147,17 @@ export function traverseDialogAndGetNodesAndEdges(dialog: Dialog): { nodes: AppN
         }
         else if ('Choices' in node.data) {
             const data = node.data.Choices;
-            data.choices.forEach((choice, idx) => {
+            data.choices.forEach((choice) => {
                 if (choice.next_node) {
                     const targetNode = dialog.nodes[choice.next_node];
                     if (targetNode) {
                         const targetPos = { x: targetNode.pos_x, y: targetNode.pos_y };
                         const handles = getOptimalHandles(sourcePos, targetPos);
                         edges.push({
-                            id: `${id}-choice-${idx}-${choice.next_node}`,
+                            id: `${id}-choice-${choice.id}-${choice.next_node}`,
                             source: id,
                             target: choice.next_node,
-                            sourceHandle: `choice-${idx}`,
+                            sourceHandle: `choice-${choice.id}`,
                             targetHandle: handles.targetHandle,
                         });
                     }
@@ -205,7 +205,7 @@ export function findFirstTerminatingPath(visited: Set<string>, fwm: Map<string, 
     return res;
 }
 
-export function getLongestPathFromRoot(rootNode:string, fwm: Map<string, string[]>): string[] {
+export function getLongestPathFromRoot(rootNode: string, fwm: Map<string, string[]>): string[] {
     return findLongestNonRedondantPath(new Set(), [], fwm, rootNode);
 }
 

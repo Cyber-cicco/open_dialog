@@ -1,202 +1,218 @@
 @import url('https://fonts.googleapis.com/css2?family=Lobster&family=Poppins:wght@300;400;500;600;700&display=swap');
 @import "tailwindcss";
+
 body {
-  font-family: 'Poppins', sans-serif;
+    font-family: 'Poppins', sans-serif;
 }
+
 .font-lobster {
-  font-family: 'Lobster', cursive;
+    font-family: 'Lobster', cursive;
 }
+
 @theme {
-  --font-display: "Poppins", "Lobster";
-  
-  /* Base - Purple-tinted blacks (Rosé Pine backgrounds) */
-  --color-base-primary: #191724;
-  --color-base-surface: #1f1d2e;
-  --color-base-overlay: #26233a;
-  
-  --color-base-100: #0f0d17;
-  --color-base-200: #191724;
-  --color-base-300: #1f1d2e;
-  --color-base-400: #26233a;
-  --color-base-500: #2d2a3e;
-  --color-base-600: #353147;
-  --color-base-700: #403d52;
-  --color-base-800: #524f67;
-  --color-base-900: #6e6a86;
-  
-  /* Text - Lavender-white hierarchy */
-  --color-text-primary: #e0def4;
-  --color-text-subtle: #908caa;
-  --color-text-muted: #6e6a86;
-  
-  --color-text-100: #f4f3fa;
-  --color-text-200: #e0def4;
-  --color-text-300: #c5c3db;
-  --color-text-400: #a8a5c2;
-  --color-text-500: #908caa;
-  --color-text-600: #7a7693;
-  --color-text-700: #6e6a86;
-  --color-text-800: #575370;
-  --color-text-900: #403d52;
-  
-  /* Blue Accent - Foam/Pine from Rosé Pine */
-  --color-blue-primary: #9ccfd8;
-  --color-blue-deep: #31748f;
-  --color-blue-deepest: #1a4a5c;
-  --color-blue-light: #c4e6eb;
-  
-  --color-blue-100: #e8f6f8;
-  --color-blue-200: #c4e6eb;
-  --color-blue-300: #9ccfd8;
-  --color-blue-400: #7ac0cb;
-  --color-blue-500: #56a8b6;
-  --color-blue-600: #3e8fb0;
-  --color-blue-700: #31748f;
-  --color-blue-800: #265a6e;
-  --color-blue-900: #1a4a5c;
-  
-  /* Highlight - Selection/focus states */
-  --color-highlight-low: #21202e;
-  --color-highlight-med: #403d52;
-  --color-highlight-high: #524f67;
-  
-  --color-highlight-100: #21202e;
-  --color-highlight-200: #2a283e;
-  --color-highlight-300: #353147;
-  --color-highlight-400: #403d52;
-  --color-highlight-500: #4a475c;
-  --color-highlight-600: #524f67;
-  --color-highlight-700: #5f5c73;
-  --color-highlight-800: #6e6a86;
-  --color-highlight-900: #7d7994;
-  
-  /* Muted accent - For subtle interactive states */
-  --color-muted-100: rgba(49, 116, 143, 0.08);
-  --color-muted-200: rgba(49, 116, 143, 0.12);
-  --color-muted-300: rgba(49, 116, 143, 0.16);
-  --color-muted-400: rgba(49, 116, 143, 0.24);
-  --color-muted-500: rgba(49, 116, 143, 0.32);
-  --color-muted-600: rgba(49, 116, 143, 0.48);
-  --color-muted-700: rgba(49, 116, 143, 0.64);
-  --color-muted-800: rgba(49, 116, 143, 0.80);
-  --color-muted-900: rgba(49, 116, 143, 0.92);
+    --font-display: "Poppins", "Lobster";
+
+    /* Base - Purple-tinted blacks (Rosé Pine backgrounds) */
+    --color-base-primary: #191724;
+    --color-base-surface: #1f1d2e;
+    --color-base-overlay: #26233a;
+
+    --color-base-100: #0f0d17;
+    --color-base-200: #191724;
+    --color-base-300: #1f1d2e;
+    --color-base-400: #26233a;
+    --color-base-500: #2d2a3e;
+    --color-base-600: #353147;
+    --color-base-700: #403d52;
+    --color-base-800: #524f67;
+    --color-base-900: #6e6a86;
+
+    /* Text - Lavender-white hierarchy */
+    --color-text-primary: #e0def4;
+    --color-text-subtle: #908caa;
+    --color-text-muted: #6e6a86;
+
+    --color-text-100: #f4f3fa;
+    --color-text-200: #e0def4;
+    --color-text-300: #c5c3db;
+    --color-text-400: #a8a5c2;
+    --color-text-500: #908caa;
+    --color-text-600: #7a7693;
+    --color-text-700: #6e6a86;
+    --color-text-800: #575370;
+    --color-text-900: #403d52;
+
+    /* Blue Accent - Foam/Pine from Rosé Pine */
+    --color-blue-primary: #9ccfd8;
+    --color-blue-deep: #31748f;
+    --color-blue-deepest: #1a4a5c;
+    --color-blue-light: #c4e6eb;
+
+    --color-blue-100: #e8f6f8;
+    --color-blue-200: #c4e6eb;
+    --color-blue-300: #9ccfd8;
+    --color-blue-400: #7ac0cb;
+    --color-blue-500: #56a8b6;
+    --color-blue-600: #3e8fb0;
+    --color-blue-700: #31748f;
+    --color-blue-800: #265a6e;
+    --color-blue-900: #1a4a5c;
+
+    /* Highlight - Selection/focus states */
+    --color-highlight-low: #21202e;
+    --color-highlight-med: #403d52;
+    --color-highlight-high: #524f67;
+
+    /* Gold Accent - Rosé Pine Gold for highlights/emphasis */
+    --color-gold-primary: #f6c177;
+    --color-gold-deep: #d4a054;
+    --color-gold-deepest: #a67a3a;
+    --color-gold-light: #fad9a8;
+
+    --color-gold-100: #fef3e2;
+    --color-gold-200: #fde6c4;
+    --color-gold-300: #fad9a8;
+    --color-gold-400: #f6c177;
+    --color-gold-500: #e5a85e;
+    --color-gold-600: #d4a054;
+    --color-gold-700: #b8863f;
+    --color-gold-800: #a67a3a;
+    --color-gold-900: #8a6230;
+
+    --color-highlight-100: #21202e;
+    --color-highlight-200: #2a283e;
+    --color-highlight-300: #353147;
+    --color-highlight-400: #403d52;
+    --color-highlight-500: #4a475c;
+    --color-highlight-600: #524f67;
+    --color-highlight-700: #5f5c73;
+    --color-highlight-800: #6e6a86;
+    --color-highlight-900: #7d7994;
+
+    /* Muted accent - For subtle interactive states */
+    --color-muted-100: rgba(49, 116, 143, 0.08);
+    --color-muted-200: rgba(49, 116, 143, 0.12);
+    --color-muted-300: rgba(49, 116, 143, 0.16);
+    --color-muted-400: rgba(49, 116, 143, 0.24);
+    --color-muted-500: rgba(49, 116, 143, 0.32);
+    --color-muted-600: rgba(49, 116, 143, 0.48);
+    --color-muted-700: rgba(49, 116, 143, 0.64);
+    --color-muted-800: rgba(49, 116, 143, 0.80);
+    --color-muted-900: rgba(49, 116, 143, 0.92);
 }
 
 /* Left Panel Animation */
 .left-panel-content {
-  overflow: hidden;
-  transition: width 200ms ease-out;
+    overflow: hidden;
+    transition: width 200ms ease-out;
 }
 
 .left-panel-content.closed {
-  width: 0;
-  padding-left: 0;
-  padding-right: 0;
+    width: 0;
+    padding-left: 0;
+    padding-right: 0;
 }
 
 .left-panel-content.open {
-  width: 250px; /* adjust to your desired width */
+    width: 250px;
+    /* adjust to your desired width */
 }
 
 .react-flow__controls-button {
-  background-color: #191724 !important;
-  fill: #e0def4 !important;
+    background-color: #191724 !important;
+    fill: #e0def4 !important;
 }
 
 .react-flow__controls-button:hover {
-  background-color: #26233a !important;
+    background-color: #26233a !important;
 }
 
 /* Right Panel Animation */
 .right-panel-content {
-  overflow: hidden;
-  transition: width 200ms ease-out;
+    overflow: hidden;
+    transition: width 200ms ease-out;
 }
 
 .right-panel-content.closed {
-  width: 0;
-  padding-left: 0;
-  padding-right: 0;
+    width: 0;
+    padding-left: 0;
+    padding-right: 0;
 }
 
 .right-panel-content.open {
-  width: 520px;
+    width: 520px;
 }
 
 /* Dialog Feed - Disco Elysium style */
 .dialog-feed-container {
-  position: relative;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  overflow: hidden;
+    position: relative;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    overflow: hidden;
 }
 
 .dialog-feed-gradient {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 20%;
-  background: linear-gradient(
-    to bottom,
-    #1f1d2e 0%,
-    #1f1d2e 20%,
-    rgba(31, 29, 46, 0.8) 50%,
-    rgba(31, 29, 46, 0) 100%
-  );
-  pointer-events: none;
-  z-index: 10;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 20%;
+    background: linear-gradient(to bottom,
+            #1f1d2e 0%,
+            #1f1d2e 20%,
+            rgba(31, 29, 46, 0.8) 50%,
+            rgba(31, 29, 46, 0) 100%);
+    pointer-events: none;
+    z-index: 10;
 }
 
 .dialog-feed-content {
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  gap: 0.75rem;
-  padding: 1rem;
-  max-height: 100%;
-  overflow-y: auto;
-  padding-bottom: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    padding: 1rem;
+    max-height: 100%;
+    overflow-y: auto;
+    padding-bottom: 100%;
 }
 
 .dialog-feed-content::-webkit-scrollbar {
-  width: 8px;
+    width: 8px;
 }
 
 .dialog-feed-content::-webkit-scrollbar-track {
-  background: #26233a;
-  border-radius: 4px;
+    background: #26233a;
+    border-radius: 4px;
 }
 
 .dialog-feed-content::-webkit-scrollbar-thumb {
-  background: #403d52;
-  border-radius: 4px;
+    background: #403d52;
+    border-radius: 4px;
 }
 
 .dialog-feed-content::-webkit-scrollbar-thumb:hover {
-  background: #524f67;
+    background: #524f67;
 }
 
 .dialog-feed-gradient-bottom {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 20%;
-  background: linear-gradient(
-    to top,
-    #1f1d2e 0%,
-    #1f1d2e 20%,
-    rgba(31, 29, 46, 0.8) 50%,
-    rgba(31, 29, 46, 0) 100%
-  );
-  pointer-events: none;
-  z-index: 10;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 20%;
+    background: linear-gradient(to top,
+            #1f1d2e 0%,
+            #1f1d2e 20%,
+            rgba(31, 29, 46, 0.8) 50%,
+            rgba(31, 29, 46, 0) 100%);
+    pointer-events: none;
+    z-index: 10;
 }
 
 .dialog-feed-spacer {
-  flex-shrink: 0;
-  min-height: 50vh;
+    flex-shrink: 0;
+    min-height: 50vh;
 }

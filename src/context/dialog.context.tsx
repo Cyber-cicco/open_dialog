@@ -222,7 +222,6 @@ export const DialogProvider = ({ children }: PropsWithChildren) => {
   }, [nodes.length, edges, persistence, setRootNode])
 
   const createPhylumNode = useCallback((pos: Pos) => {
-    console.log("creating phylum node")
     const isRootNode = nodes.length === 0
     const id = crypto.randomUUID()
 
