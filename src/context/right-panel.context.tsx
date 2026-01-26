@@ -3,10 +3,12 @@ import { createContext, useContext, useState, useCallback, ReactNode } from "rea
 type RightPanelContextType = {
   isOpen: boolean;
   content: ReactNode | null;
+  currentSpeakerId: string | null;
   openPanel: (content?: ReactNode) => void;
   closePanel: () => void;
   togglePanel: () => void;
   setContent: (content: ReactNode) => void;
+  setCurrentSpeaker: (characterId: string | null) => void;
 };
 
 const RightPanelContext = createContext<RightPanelContextType | null>(null);
@@ -14,6 +16,7 @@ const RightPanelContext = createContext<RightPanelContextType | null>(null);
 export const RightPanelProvider = ({ children }: { children: ReactNode }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [content, setContentState] = useState<ReactNode | null>(null);
+  const [currentSpeakerId, setCurrentSpeakerId] = useState<string | null>(null);
 
   const openPanel = useCallback((newContent?: ReactNode) => {
     if (newContent !== undefined) {
@@ -34,8 +37,21 @@ export const RightPanelProvider = ({ children }: { children: ReactNode }) => {
     setContentState(content);
   }, []);
 
+  const setCurrentSpeaker = useCallback((characterId: string | null) => {
+    setCurrentSpeakerId(characterId);
+  }, []);
+
   return (
-    <RightPanelContext.Provider value={{ isOpen, content, openPanel, closePanel, togglePanel, setContent }}>
+    <RightPanelContext.Provider value={{ 
+      isOpen, 
+      content, 
+      currentSpeakerId,
+      openPanel, 
+      closePanel, 
+      togglePanel, 
+      setContent,
+      setCurrentSpeaker 
+    }}>
       {children}
     </RightPanelContext.Provider>
   );

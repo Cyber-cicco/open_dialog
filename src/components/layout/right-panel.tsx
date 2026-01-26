@@ -1,39 +1,30 @@
+// src/components/layout/right-panel.tsx
+import { useState } from "react";
 import { useRightPanel } from "../../context/right-panel.context";
 import { useGlobalState } from "../../context/global-state.context";
 import { useGetCharacterById } from "../../hooks/queries/character";
 import DialogFeed from "../dialogs/feed.dialogs";
+import { PlayMode } from "../dialogs/play-mode.dialogs";
 import { getImageSrc } from "../common/img";
-import { useDialogContext } from "../../hooks/useDialog";
+
+type PanelMode = "feed" | "play";
 
 const FloatingPortrait = () => {
-  const { isOpen } = useRightPanel();
-  const { dialogFeed, dialog } = useDialogContext();
+  const { isOpen, currentSpeakerId } = useRightPanel();
   const { project } = useGlobalState();
 
-  // Get the last speaking character (same logic as feed)
-  const dialogNodes = dialogFeed.filter((node) => node.type === "dialogNode");
-  const lastCharacterId = (() => {
-    for (let i = dialogNodes.length - 1; i >= 0; i--) {
-      const charId = dialogNodes[i]?.data.character_id;
-      if (charId) return charId;
-    }
-    return dialog?.main_character ?? "";
-  })();
+  const { data: character } = useGetCharacterById(project?.id ?? "", currentSpeakerId ?? "");
 
-  const { data: character } = useGetCharacterById(project?.id ?? "", lastCharacterId);
+  if (!character || !project || !currentSpeakerId) return null;
 
-
-  if (!character || !project) return null;
-
-  const portraitSrc = getImageSrc(project, character.portrait_link)
+  const portraitSrc = getImageSrc(project, character.portrait_link);
 
   return (
     <div
       className={`absolute border-5 border-blue-deep z-50 top-4 p-2 py-8 rounded-md bg-base-primary transition-all duration-300 ease-out ${isOpen
-        ? "-left-39 opacity-100 scale-100"
-        : "-left-20 opacity-0 scale-90 pointer-events-none"
-        }`}
-    >
+          ? "-left-39 opacity-100 scale-100"
+          : "-left-20 opacity-0 scale-90 pointer-events-none"
+        }`}>
       <div className="w-32 h-32 rounded-lg bg-base-surface shadow-lg shadow-blue-deep/30 overflow-hidden">
         {character.portrait_link && project ? (
           <img
@@ -52,12 +43,36 @@ const FloatingPortrait = () => {
           </div>
         )}
       </div>
-    </div>
+    </div >
   );
 };
 
+const ModeToggle = ({ mode, setMode }: { mode: PanelMode; setMode: (m: PanelMode) => void }) => (
+  <div className="flex gap-1 p-1 bg-base-400 rounded">
+    <button
+      onClick={() => setMode("feed")}
+      className={`px-3 py-1 text-xs rounded transition-colors ${mode === "feed"
+        ? "bg-blue-deep text-text-primary"
+        : "text-text-subtle hover:text-text-primary"
+        }`}
+    >
+      Feed
+    </button>
+    <button
+      onClick={() => setMode("play")}
+      className={`px-3 py-1 text-xs rounded transition-colors ${mode === "play"
+        ? "bg-blue-deep text-text-primary"
+        : "text-text-subtle hover:text-text-primary"
+        }`}
+    >
+      Play
+    </button>
+  </div>
+);
+
 const LayoutRightPanel = () => {
   const { isOpen, content, closePanel, openPanel } = useRightPanel();
+  const [mode, setMode] = useState<PanelMode>("feed");
 
   const panelContent = content ?? <DialogFeed />;
 
@@ -74,10 +89,17 @@ const LayoutRightPanel = () => {
       </button>
 
       <div
-        className={`right-panel-content rounded-l-sm h-full bg-base-surface text-white ${isOpen ? "open" : "closed"}`}
+        className={`right-panel-content rounded-l-sm h-full bg-base-surface text-white flex flex-col ${isOpen ? "open" : "closed"
+          }`}
       >
-        <div className="h-full overflow-hidden">
-          <DialogFeed />
+        {/* Header with mode toggle */}
+        <div className="flex justify-end p-2 border-b border-base-600">
+          <ModeToggle mode={mode} setMode={setMode} />
+        </div>
+
+        {/* Content */}
+        <div className="flex-1 overflow-hidden">
+          {mode === "feed" ? <DialogFeed /> : <PlayMode key={mode} />}
         </div>
       </div>
     </div>
