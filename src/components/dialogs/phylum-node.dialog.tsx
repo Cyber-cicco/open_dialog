@@ -80,6 +80,10 @@ export const PhylumNode = ({ data, selected, id }: NodeProps<PhylumNodeType>) =>
           
           return (
             <div
+              role='button'
+              onClick={() => {
+
+              }}
               key={index}
               className={`relative flex items-center justify-between p-2 rounded text-sm
                 ${isDefault ? 'bg-base-700/50 text-text-muted' : 'bg-base-700 text-text-primary'}`}

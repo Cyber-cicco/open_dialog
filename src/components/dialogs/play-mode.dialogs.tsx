@@ -136,45 +136,33 @@ export const PlayMode = () => {
   const { nodes, edges, rootNodeId, dialog, saveDialog } = useDialogContext();
   const { setCurrentSpeaker } = useRightPanel();
   const { project } = useGlobalState();
+
   const [playState, setPlayState] = useState<PlayState>({
     currentNodeId: null,
     history: [],
     choicesMade: {},
   });
   const [isLoading, setIsLoading] = useState(true);
+
   const feedRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    const getLastSpeaker = (): string | null => {
-      for (let i = playState.history.length - 1; i >= 0; i--) {
-        const node = nodes.find((n) => n.id === playState.history[i]);
-        if (node?.type === "dialogNode") {
-          const charId = (node as DialogFlowNode).data.character_id;
-          if (charId) return charId;
-        }
+  const init = async () => {
+    setIsLoading(true);
+    await saveDialog();
+    setPlayState({ currentNodeId: rootNodeId, history: rootNodeId ? [rootNodeId] : [], choicesMade: {} });
+    setIsLoading(false);
+  };
+
+  const getLastSpeaker = (): string | null => {
+    for (let i = playState.history.length - 1; i >= 0; i--) {
+      const node = nodes.find((n) => n.id === playState.history[i]);
+      if (node?.type === "dialogNode") {
+        const charId = (node as DialogFlowNode).data.character_id;
+        if (charId) return charId;
       }
-      return dialog?.main_character ?? null;
-    };
-    setCurrentSpeaker(getLastSpeaker());
-  }, [playState.history, nodes, dialog?.main_character, setCurrentSpeaker]);
-
-  // Save and start on mount
-  useEffect(() => {
-    const init = async () => {
-      setIsLoading(true);
-      await saveDialog();
-      setPlayState({ currentNodeId: rootNodeId, history: rootNodeId ? [rootNodeId] : [], choicesMade: {} });
-      setIsLoading(false);
-    };
-    init();
-  }, [dialog?.id, rootNodeId]);
-
-  // Auto-scroll to bottom when history changes
-  useEffect(() => {
-    if (feedRef.current) {
-      feedRef.current.scrollTop = feedRef.current.scrollHeight;
     }
-  }, [playState.history]);
+    return dialog?.main_character ?? null;
+  };
 
   const getNextNodeId = useCallback(
     (fromNodeId: string, sourceHandle?: string): string | null => {
@@ -256,6 +244,23 @@ export const PlayMode = () => {
       handleContinue();
     }
   }, [playState.currentNodeId, nodes, handleContinue]);
+
+  // Puts the portrait
+  useEffect(() => {
+    setCurrentSpeaker(getLastSpeaker());
+  }, [playState.history, nodes, dialog?.main_character, setCurrentSpeaker]);
+
+  // Save and start on mount
+  useEffect(() => {
+    init();
+  }, [dialog?.id, rootNodeId]);
+
+  // Auto-scroll to bottom when history changes
+  useEffect(() => {
+    if (feedRef.current) {
+      feedRef.current.scrollTop = feedRef.current.scrollHeight;
+    }
+  }, [playState.history]);
 
   if (isLoading) {
     return <div className="flex h-full items-center justify-center text-text-subtle">Saving...</div>;
