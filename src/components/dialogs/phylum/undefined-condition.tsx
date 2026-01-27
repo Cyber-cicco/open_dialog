@@ -1,23 +1,20 @@
 import { useState } from "react"
 import { Button } from "../../common/buttons/base.buttons"
-import { LeafCondition } from "./leaf-condition"
+import { LeafCondition } from "./leaf-condition.phylum"
 import { TreeCondition } from "./tree-condition.phylum"
+import { ConditionProps } from "./types"
 
 type ConditionType = "leaf" | "tree" | "undefined"
-function getCondition(
-  conditionType: ConditionType,
-  setCondition: (conditionType: ConditionType) => void
-) {
-  switch (conditionType) {
-    case "leaf": return <LeafCondition />
-    case "tree": return <TreeCondition />
-    case "undefined": return <UndefinedConditionInternal setCondition={setCondition} />
-  }
-}
 
-export const UndefinedCondition = () => {
+export const UndefinedCondition: React.FC<ConditionProps> = ({ harvester }) => {
   const [conditionType, setConditionType] = useState<ConditionType>("undefined");
-  return getCondition(conditionType, setConditionType)
+  return (
+    <>
+      {conditionType == 'leaf' && <LeafCondition harvester={harvester} />}
+      {conditionType == 'tree' && <TreeCondition harvester={harvester} />}
+      {conditionType == 'tree' && <UndefinedConditionInternal setCondition={setConditionType} />}
+    </>
+  )
 }
 
 type UndefinedConditionInternalProps = {

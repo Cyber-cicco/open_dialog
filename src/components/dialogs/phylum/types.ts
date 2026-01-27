@@ -1,5 +1,10 @@
 import { NecessityExpression } from "../../../bindings/NecessityExpression"
 
 export type ConditionProps = {
-    harvest: (expressions:NecessityExpression[]) => NecessityExpression
+    harvester:Harvester
+}
+
+export type Harvester = {
+    takes: Harvester
+    gives: () => NecessityExpression | undefined
 }
