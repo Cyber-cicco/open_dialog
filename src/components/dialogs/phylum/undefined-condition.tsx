@@ -12,7 +12,7 @@ export const UndefinedCondition: React.FC<ConditionProps> = ({ harvester }) => {
     <>
       {conditionType == 'leaf' && <LeafCondition harvester={harvester} />}
       {conditionType == 'tree' && <TreeCondition harvester={harvester} />}
-      {conditionType == 'tree' && <UndefinedConditionInternal setCondition={setConditionType} />}
+      {conditionType == 'undefined' && <UndefinedConditionInternal setCondition={setConditionType} />}
     </>
   )
 }

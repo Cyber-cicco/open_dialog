@@ -1,4 +1,6 @@
 import { NecessityExpression } from "../../../bindings/NecessityExpression"
+import { Result} from 'neverthrow';
+
 
 export type ConditionProps = {
     harvester:Harvester
@@ -6,5 +8,5 @@ export type ConditionProps = {
 
 export type Harvester = {
     takes: Harvester
-    gives: () => NecessityExpression | undefined
+    gives: () => Result<NecessityExpression, string[]>
 }

@@ -1,28 +1,50 @@
-import { NecessityExpression } from "../../../bindings/NecessityExpression"
+import { useEffect, useMemo, useState } from "react"
 import { ConditionProps, Harvester } from "./types"
 import { UndefinedCondition } from "./undefined-condition"
+import { err } from "neverthrow"
+import { Operator } from "../../../bindings/Operator"
 
 export const TreeCondition: React.FC<ConditionProps> = ({ harvester }) => {
 
-  const leftHarvester: Harvester = {
-    takes: harvester,
-    gives: () => undefined
-  }
+  const [operator, setOperator] = useState<Operator | undefined>(undefined)
 
-  const rightHarvester: Harvester = {
-    takes: harvester,
-    gives: () => undefined
-  }
-
-  harvester.gives = () => {
+  const leftHarvester: Harvester = useMemo(() => {
     return {
-      "Tree": {
-        left: leftHarvester.gives(),
-        operator: { "And": [] },
-        right: rightHarvester.gives(),
-      }
-    } as NecessityExpression
-  }
+      takes: harvester,
+      gives: () => err(["undefined tree branch"])
+    }
+  }, [harvester])
+
+  const rightHarvester: Harvester = useMemo(() => {
+    return {
+      takes: harvester,
+      gives: () => err(["undefined tree branch"])
+    }
+  }, [harvester])
+
+  useEffect(() => {
+    harvester.gives = () => {
+      return leftHarvester
+        .gives()
+        .andThen((left) => {
+          if (operator === undefined) {
+            return err(["operator was not defined on tree"])
+          }
+          return rightHarvester
+            .gives()
+            .map((right) => {
+              return {
+                "Tree": {
+                  left: left,
+                  operator: operator,
+                  right: right,
+                }
+              }
+            })
+        })
+    }
+
+  }, [harvester, leftHarvester, rightHarvester, operator])
 
   return (
     <div className="space-y-1">
