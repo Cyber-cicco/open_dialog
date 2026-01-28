@@ -5,14 +5,8 @@ import { useCreateDialog } from "../../hooks/queries/dialogs"
 import { useAppForm } from "../../hooks/form"
 import { useGlobalState } from "../../context/global-state.context"
 import { Button } from "../common/buttons/base.buttons"
-import { KEYMAP_PRIO, useKeyBinding } from "../../context/keymap.context"
 
 export const DialogCreationModale: React.FC<ModalProps> = ({ onClose, isOpen }) => {
-
-  useKeyBinding('Escape', () => {
-    onClose();
-    return true;
-  }, {enabled:true, priority:KEYMAP_PRIO.MODAL})
 
   const { project } = useGlobalState();
   const ref = useAutoFocusRef(isOpen);
@@ -58,7 +52,6 @@ export const DialogCreationModale: React.FC<ModalProps> = ({ onClose, isOpen }) 
           )}
         />
 
-        {/* TODO: CharacterSearchAutocomplete - will set mainCharacterId */}
         <form.AppField
           name="mainCharacterId"
           children={(field) => (

@@ -1,7 +1,13 @@
 import { PropsWithChildren } from "react"
 import { createPortal } from "react-dom"
+import { KEYMAP_PRIO, useKeyBinding } from "../../../context/keymap.context";
 
 export const TinyModaleWrapper: React.FC<PropsWithChildren<{title:string, onClose: () => void}>> = ({title, onClose, children }) => {
+  useKeyBinding('Escape', () => {
+    onClose();
+    return true;
+  }, {enabled:true, priority:KEYMAP_PRIO.MODAL})
+
   return createPortal(
     <div 
       className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center"

@@ -1,4 +1,3 @@
-// phylum-condition-modal.dialogs.tsx
 import { useMemo, useState, useCallback } from "react";
 import { useGlobalState } from "../../context/global-state.context";
 import { LocalVariable } from "../../hooks/useVariables";
@@ -62,7 +61,7 @@ export const PhylumConditionModale = ({ necessity, onClose }: Props) => {
 
   return (
     <TinyModaleWrapper title="Condition" onClose={handleClear}>
-      <div className="space-y-4 p-6 min-w-80">
+      <div className="space-y-4 max-h-92 overflow-y-auto p-6 min-w-80">
         <UndefinedCondition harvester={rootHarvester} vars={vars} />
 
         {errors.length > 0 && (

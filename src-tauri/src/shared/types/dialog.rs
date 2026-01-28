@@ -1,4 +1,7 @@
-use std::{collections::{HashMap, HashSet}, str::FromStr};
+use std::{
+    collections::{HashMap, HashSet},
+    str::FromStr,
+};
 
 use anyhow::{bail, Result};
 use chrono::{DateTime, Utc};
@@ -86,7 +89,8 @@ pub struct Phylum {
 #[ts(export, export_to = "../../src/bindings/")]
 pub struct Conditions {
     priority: i32,
-    necessities: Vec<NecessityExpression>,
+    name: String,
+    necessities: NecessityExpression,
     next_node: Option<Uuid>,
 }
 
@@ -149,7 +153,7 @@ trait VariableCoherent {
 
 #[enum_dispatch::enum_dispatch]
 trait VariableContainer {
-    fn add_var_to_list(&self, list:&mut Vec<Uuid>);
+    fn add_var_to_list(&self, list: &mut Vec<Uuid>);
 }
 
 impl DialogMetadata {
@@ -214,11 +218,11 @@ impl Dialog {
         res
     }
 
-    pub fn get_diffs<'a>(&'a self, prev:&'a Dialog) -> PhylumDiff<'a> {
+    pub fn get_diffs<'a>(&'a self, prev: &'a Dialog) -> PhylumDiff<'a> {
         let currents = self.get_phylums_map();
         let previous = prev.get_phylums_map();
-        let mut deleted:Vec<&Phylum> = vec![];
-        let mut added:Vec<&Phylum> = vec![];
+        let mut deleted: Vec<&Phylum> = vec![];
+        let mut added: Vec<&Phylum> = vec![];
 
         for (k, v) in &currents {
             if !&previous.contains_key(&k) {
@@ -301,8 +305,7 @@ impl Coherent for Phylum {
 }
 
 impl Phylum {
-
-    fn enforce_variable_coherence(&self,vars: &HashSet<&Uuid>) -> Result<()> {
+    fn enforce_variable_coherence(&self, vars: &HashSet<&Uuid>) -> Result<()> {
         for branch in &self.branches {
             branch.enforce_variable_coherence(vars)?;
         }
@@ -323,38 +326,32 @@ impl Phylum {
 }
 
 impl VariableCoherent for Conditions {
-    fn enforce_variable_coherence(&self,vars: &HashSet<&Uuid>) -> Result<()> {
-        for condition in &self.necessities {
-            condition.enforce_variable_coherence(vars)?;
-        }
-        Ok(())
+    fn enforce_variable_coherence(&self, vars: &HashSet<&Uuid>) -> Result<()> {
+        self.necessities.enforce_variable_coherence(vars)
     }
 }
 
 impl VariableContainer for Conditions {
-    fn add_var_to_list(&self,list:&mut Vec<Uuid>) {
-        for necessity in &self.necessities {
-            necessity.add_var_to_list(list);
-        }
+    fn add_var_to_list(&self, list: &mut Vec<Uuid>) {
+        self.necessities.add_var_to_list(list);
     }
 }
 
 impl VariableCoherent for TreeNecessity {
-    fn enforce_variable_coherence(&self,vars: &HashSet<&Uuid>) -> Result<()> {
+    fn enforce_variable_coherence(&self, vars: &HashSet<&Uuid>) -> Result<()> {
         self.left.enforce_variable_coherence(vars)?;
         self.right.enforce_variable_coherence(vars)
     }
 }
 impl VariableContainer for TreeNecessity {
-    fn add_var_to_list(&self,list:&mut Vec<Uuid>) {
+    fn add_var_to_list(&self, list: &mut Vec<Uuid>) {
         self.right.add_var_to_list(list);
         self.left.add_var_to_list(list);
     }
 }
 
-
 impl VariableCoherent for VarNecessity {
-    fn enforce_variable_coherence(&self,vars: &HashSet<&Uuid>) -> Result<()> {
+    fn enforce_variable_coherence(&self, vars: &HashSet<&Uuid>) -> Result<()> {
         let id = &self.var_id;
         if !vars.contains(id) {
             bail!("necessity was linked to undefined variable {id}")
@@ -364,7 +361,7 @@ impl VariableCoherent for VarNecessity {
 }
 
 impl VariableContainer for VarNecessity {
-    fn add_var_to_list(&self,list:&mut Vec<Uuid>) {
+    fn add_var_to_list(&self, list: &mut Vec<Uuid>) {
         list.push(self.var_id);
     }
 }
