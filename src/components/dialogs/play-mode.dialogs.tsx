@@ -1,16 +1,61 @@
+// play-mode.dialogs.tsx
+
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useDialogContext } from "../../hooks/useDialog";
 import { useGlobalState } from "../../context/global-state.context";
 import { useGetCharacterById } from "../../hooks/queries/character";
-import { DialogFlowNode, ChoicesFlowNode, AppNode } from "../../context/dialog.context";
+import { DialogFlowNode, ChoicesFlowNode, PhylumFlowNode, AppNode } from "../../context/dialog.context";
 import { Project } from "../../bindings/Project";
 import { ChoiceSvg } from "../common/svg/choice.svg";
 import { useRightPanel } from "../../context/right-panel.context";
+import { NecessityExpression } from "../../bindings/NecessityExpression";
+import { Variable } from "../../bindings/Variable";
 
 type PlayState = {
   currentNodeId: string | null;
-  history: string[]; // node IDs visited
-  choicesMade: Record<number, string>; // historyIndex -> selected choice id
+  history: string[];
+  choicesMade: Record<number, string>;
+};
+
+// Evaluate a necessity expression against current variable states
+const evaluateNecessity = (
+  expression: NecessityExpression | null,
+  allVars: Variable[]
+): boolean => {
+  if (!expression) return true; // null = default/fallback branch
+
+  if ("Var" in expression) {
+    const { var_id, necessary_state } = expression.Var;
+    for (const v of allVars) {
+      if ("Global" in v && v.Global.id === var_id) {
+        return v.Global.current_state === necessary_state;
+      }
+      if ("Char" in v && v.Char.id === var_id) {
+        return v.Char.current_state === necessary_state;
+      }
+      if ("Dialog" in v && v.Dialog.id === var_id) {
+        return v.Dialog.current_state === necessary_state;
+      }
+      if ("GlobalChar" in v && v.GlobalChar.id === var_id) {
+        // GlobalChar vars have per-character states - check if any match
+        return v.GlobalChar.characters.some(c => c.current_state === necessary_state);
+      }
+    }
+    return false; // Variable not found
+  }
+
+  if ("Tree" in expression) {
+    const { left, operator, right } = expression.Tree;
+    const leftResult = evaluateNecessity(left, allVars);
+    const rightResult = evaluateNecessity(right, allVars);
+
+    const op = operator.toLowerCase();
+    if (op === "and" || op === "&&") return leftResult && rightResult;
+    if (op === "or" || op === "||") return leftResult || rightResult;
+    return false;
+  }
+
+  return false;
 };
 
 const PlayDialogNode = ({
@@ -60,7 +105,6 @@ const PlayDialogNode = ({
     </div>
   );
 };
-
 
 const PlayChoiceNode = ({
   node,
@@ -135,7 +179,8 @@ const EndMessage = ({ onRestart }: { onRestart: () => void }) => (
 export const PlayMode = () => {
   const { nodes, edges, rootNodeId, dialog, saveDialog } = useDialogContext();
   const { setCurrentSpeaker } = useRightPanel();
-  const { project } = useGlobalState();
+  const { project, variables, isPending: variablesLoading } = useGlobalState();
+
 
   const [playState, setPlayState] = useState<PlayState>({
     currentNodeId: null,
@@ -174,7 +219,6 @@ export const PlayMode = () => {
 
   const getCharacterIdForNode = (node: DialogFlowNode, historyIndex: number): string => {
     if (node.data.character_id) return node.data.character_id;
-    // Walk back through history to find last character
     for (let i = historyIndex - 1; i >= 0; i--) {
       const prevNode = nodes.find((n) => n.id === playState.history[i]);
       if (prevNode?.type === "dialogNode") {
@@ -196,7 +240,22 @@ export const PlayMode = () => {
     if (current.type === "dialogNode") {
       nextId = getNextNodeId(current.id);
     } else if (current.type === "phylumNode") {
-      nextId = getNextNodeId(current.id, `branch-0`) || getNextNodeId(current.id);
+      const phylumNode = current as PhylumFlowNode;
+      // Sort by priority descending (higher priority evaluated first)
+      const sortedBranches = [...phylumNode.data.branches].sort((a, b) => b.priority - a.priority);
+
+      for (const branch of sortedBranches) {
+        if (evaluateNecessity(branch.necessities, variables)) {
+          const branchIndex = phylumNode.data.branches.indexOf(branch);
+          nextId = getNextNodeId(current.id, `branch-${branchIndex}`) ?? branch.next_node;
+          break;
+        }
+      }
+
+      // Fallback if no branch matched
+      if (!nextId) {
+        nextId = getNextNodeId(current.id, `branch-0`) || getNextNodeId(current.id);
+      }
     }
 
     if (nextId) {
@@ -208,7 +267,7 @@ export const PlayMode = () => {
     } else {
       setPlayState((prev) => ({ ...prev, currentNodeId: null }));
     }
-  }, [playState.currentNodeId, nodes, getNextNodeId]);
+  }, [playState.currentNodeId, nodes, getNextNodeId, variables]);
 
   const handleChoiceSelect = useCallback((nextNodeId: string | null, choiceId: string) => {
     setPlayState((prev) => {
@@ -239,34 +298,32 @@ export const PlayMode = () => {
 
   // Auto-advance through phylum nodes
   useEffect(() => {
+    if (variablesLoading) return;  // Wait for variables to load
+
     const current = nodes.find((n) => n.id === playState.currentNodeId);
     if (current?.type === "phylumNode") {
       handleContinue();
     }
-  }, [playState.currentNodeId, nodes, handleContinue]);
+  }, [playState.currentNodeId, nodes, handleContinue, variablesLoading]);
 
-  // Puts the portrait
   useEffect(() => {
     setCurrentSpeaker(getLastSpeaker());
   }, [playState.history, nodes, dialog?.main_character, setCurrentSpeaker]);
 
-  // Save and start on mount
   useEffect(() => {
     init();
   }, [dialog?.id, rootNodeId]);
 
-  // Auto-scroll to bottom when history changes
   useEffect(() => {
     if (feedRef.current) {
       feedRef.current.scrollTop = feedRef.current.scrollHeight;
     }
   }, [playState.history]);
 
-  if (isLoading) {
-    return <div className="flex h-full items-center justify-center text-text-subtle">Saving...</div>;
+  if (isLoading || variablesLoading) {
+    return <div className="flex h-full items-center justify-center text-text-subtle">Loading...</div>;
   }
 
-  // Build visible nodes with their original history indices (for proper choice tracking)
   const visibleNodesWithIndex = playState.history
     .map((id, historyIndex) => ({ node: nodes.find((n) => n.id === id), historyIndex }))
     .filter((item): item is { node: AppNode; historyIndex: number } =>
@@ -274,6 +331,7 @@ export const PlayMode = () => {
     );
 
   const isEnded = playState.currentNodeId === null;
+
 
   return (
     <div className="dialog-feed-container">

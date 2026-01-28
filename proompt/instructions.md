@@ -1,1 +1,1 @@
-If condition is not undefined in the modal, than it must construct the arborescence corresponding to the condition.
+Checking of variables does not work for phylum nodes in play mode.

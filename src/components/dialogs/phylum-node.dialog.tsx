@@ -88,7 +88,7 @@ export const PhylumNode = ({ data, selected, id }: NodeProps<PhylumNodeType>) =>
       <div className="space-y-2">
         {displayBranches.map((condition, index) => {
           const isDefault = condition.name === 'default';
-          const handleId = `condition-${index}`;
+          const handleId = `branch-${index}`;
 
           return (
             <div
