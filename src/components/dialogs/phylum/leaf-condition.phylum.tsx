@@ -2,10 +2,15 @@ import { useEffect, useState } from "react"
 import { ConditionProps } from "./types"
 import { err, ok } from "neverthrow"
 import { StyledSelect } from "../../common/form/styled-select-nontanstack"
+import { VarNecessity } from "../../../bindings/VarNecessity"
 
-export const LeafCondition: React.FC<ConditionProps> = ({ harvester, vars }) => {
-  const [varId, setVarId] = useState<string | undefined>(undefined)
-  const [necessaryState, setNecessaryState] = useState<string | undefined>(undefined)
+type LeafConditionProps = ConditionProps & {
+  initial?: VarNecessity
+}
+
+export const LeafCondition: React.FC<LeafConditionProps> = ({ harvester, vars, initial }) => {
+  const [varId, setVarId] = useState<string | undefined>(initial?.var_id)
+  const [necessaryState, setNecessaryState] = useState<string | undefined>(initial?.necessary_state)
 
   const selectedVar = vars.find(v => v.id === varId)
 

@@ -1,11 +1,11 @@
 import { NecessityExpression } from "../../../bindings/NecessityExpression"
-import { Result} from 'neverthrow';
+import { Result } from 'neverthrow';
 import { LocalVariable } from "../../../hooks/useVariables";
 
-
 export type ConditionProps = {
-    harvester:Harvester
+    harvester: Harvester
     vars: LocalVariable[]
+    initial?: NecessityExpression | null  // Add this
 }
 
 export type Harvester = {

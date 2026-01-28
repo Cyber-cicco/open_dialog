@@ -47,11 +47,7 @@ export const PhylumConditionModale = ({ condition, nodeId, branchIndex, onClose 
     const result = rootHarvester.gives();
 
     const necessities: NecessityExpression | null = result.isOk() ? result.value : null;
-    console.log("necessities : ");
-    console.log(necessities);
-
     if (result.isErr() && result.error[0] !== "Condition not defined") {
-      console.log(result.error)
       setErrors(result.error);
       return;
     }
@@ -59,14 +55,12 @@ export const PhylumConditionModale = ({ condition, nodeId, branchIndex, onClose 
     const node = nodes.find(n => n.id === nodeId);
     if (!node || node.type !== 'phylumNode') return;
 
-    console.log("here")
     const updatedBranches = [...node.data.branches];
     updatedBranches[branchIndex] = {
       ...updatedBranches[branchIndex],
       name,
       necessities,
     };
-    console.log("here 2")
 
     updateNodeData(nodeId, { branches: updatedBranches });
     setErrors([]);
@@ -98,7 +92,7 @@ export const PhylumConditionModale = ({ condition, nodeId, branchIndex, onClose 
 
         <div className="max-h-92 overflow-y-auto overflow-x-hidden w-full">
           <label className="block text-text-subtle text-sm mb-1">Expression</label>
-          <UndefinedCondition harvester={rootHarvester} vars={vars} />
+          <UndefinedCondition harvester={rootHarvester} vars={vars} initial={condition?.necessities} />
         </div>
 
         {errors.length > 0 && (

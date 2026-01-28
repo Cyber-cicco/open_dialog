@@ -3,9 +3,14 @@ import { ConditionProps, Harvester } from "./types"
 import { UndefinedCondition } from "./undefined-condition"
 import { err, ok } from "neverthrow"
 import { StyledSelect } from "../../common/form/styled-select-nontanstack"
+import { TreeNecessity } from "../../../bindings/TreeNecessity"
 
-export const TreeCondition: React.FC<ConditionProps> = ({ harvester, vars }) => {
-  const [operator, setOperator] = useState<string | undefined>(undefined)
+type TreeConditionProps = ConditionProps & {
+  initial?: TreeNecessity
+}
+
+export const TreeCondition: React.FC<TreeConditionProps> = ({ harvester, vars, initial }) => {
+  const [operator, setOperator] = useState<string | undefined>(initial?.operator)
 
   const leftHarvester: Harvester = useMemo(() => ({
     takes: harvester,
@@ -30,17 +35,15 @@ export const TreeCondition: React.FC<ConditionProps> = ({ harvester, vars }) => 
 
   return (
     <div className="border-l-2 border-blue-primary/30 pl-3 space-y-2">
-      <UndefinedCondition harvester={leftHarvester} vars={vars} />
+      <UndefinedCondition harvester={leftHarvester} vars={vars} initial={initial?.left} />
       <StyledSelect
         value={operator}
-        onChange={(v) => {
-          setOperator(v);
-        }}
+        onChange={setOperator}
         options={[{ value: "and", label: "AND" }, { value: "or", label: "OR" }]}
         placeholder="Select operator..."
         className="w-full"
       />
-      <UndefinedCondition harvester={rightHarvester} vars={vars} />
+      <UndefinedCondition harvester={rightHarvester} vars={vars} initial={initial?.right} />
     </div>
   )
 }

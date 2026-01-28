@@ -3,13 +3,14 @@ import { Phylum } from '../../bindings/Phylum';
 import { Conditions } from '../../bindings/Conditions';
 import { useDialogContext } from '../../hooks/useDialog';
 import { usePhylumCreationModal } from '../../context/condition-creation-modale.context';
+import { CrossSvg } from '../common/svg/delete.svg';
 
 type PhylumNodeData = Phylum & { isRootNode?: boolean };
 export type PhylumNodeType = Node<PhylumNodeData, 'phylumNode'>;
 
 const DEFAULT_CONDITION: Conditions = {
   priority: 0,
-  name:'default',
+  name: 'default',
   necessities: null,
   next_node: null,
 };
@@ -27,7 +28,7 @@ export const PhylumNode = ({ data, selected, id }: NodeProps<PhylumNodeType>) =>
   const addCondition = () => {
     const newCondition: Conditions = {
       priority: branches.length,
-      name:'new',
+      name: 'new',
       necessities: null,
       next_node: null,
     };
@@ -38,6 +39,13 @@ export const PhylumNode = ({ data, selected, id }: NodeProps<PhylumNodeType>) =>
       branches: [...withoutDefault, newCondition, defaultBranch],
     });
   };
+
+  const removeCondition = (idx: number) => {
+    let newBranches = branches.filter((_, i) => i !== idx);
+    updateNodeData(id, {
+      branches: newBranches
+    });
+  }
 
   return (
     <div
@@ -86,11 +94,13 @@ export const PhylumNode = ({ data, selected, id }: NodeProps<PhylumNodeType>) =>
             <div
               role='button'
               onClick={() => {
-                open(
-                  condition,
-                  id,
-                  index,
-                );
+                if (!isDefault) {
+                  open(
+                    condition,
+                    id,
+                    index,
+                  );
+                }
               }}
               key={index}
               className={`relative flex items-center justify-between p-2 rounded text-sm
@@ -99,15 +109,15 @@ export const PhylumNode = ({ data, selected, id }: NodeProps<PhylumNodeType>) =>
               <span>
                 {condition.name}
               </span>
-              {!isDefault && (
+              {!isDefault &&
                 <button
-                  type="button"
-                  className="text-xs text-text-subtle hover:text-text-primary"
-                  title="Edit condition"
-                >
-                  ✎
-                </button>
-              )}
+                  className='hover:cursor-pointer hover:bg-red-500/20'
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    removeCondition(index);
+                  }}><CrossSvg /></button>
+              }
               <Handle
                 type="source"
                 position={Position.Right}
