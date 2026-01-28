@@ -8,8 +8,9 @@ type PhylumNodeData = Phylum & { isRootNode?: boolean };
 export type PhylumNodeType = Node<PhylumNodeData, 'phylumNode'>;
 
 const DEFAULT_CONDITION: Conditions = {
-  priority: 10,
-  necessities: [],
+  priority: 0,
+  name:'default',
+  necessities: null,
   next_node: null,
 };
 
@@ -19,19 +20,20 @@ export const PhylumNode = ({ data, selected, id }: NodeProps<PhylumNodeType>) =>
   const { open } = usePhylumCreationModal();
 
   // Ensure default condition exists and is last
-  const sortedBranches = [...branches].sort((a, b) => a.priority - b.priority);
-  const hasDefault = sortedBranches.some(b => b.necessities.length === 0);
+  const sortedBranches = [...branches].sort((a, b) => a.priority + b.priority);
+  const hasDefault = sortedBranches.some(b => b.name === 'default');
   const displayBranches = hasDefault ? sortedBranches : [...sortedBranches, DEFAULT_CONDITION];
 
   const addCondition = () => {
     const newCondition: Conditions = {
       priority: branches.length,
-      necessities: [],
+      name:'new',
+      necessities: null,
       next_node: null,
     };
     // Insert before default (which is always last)
-    const withoutDefault = branches.filter(b => b.necessities.length > 0);
-    const defaultBranch = branches.find(b => b.necessities.length === 0) ?? DEFAULT_CONDITION;
+    const withoutDefault = branches.filter(b => b.name !== 'default');
+    const defaultBranch = branches.find(b => b.name === 'default') ?? DEFAULT_CONDITION;
     updateNodeData(id, {
       branches: [...withoutDefault, newCondition, defaultBranch],
     });
@@ -77,21 +79,25 @@ export const PhylumNode = ({ data, selected, id }: NodeProps<PhylumNodeType>) =>
       {/* Conditions */}
       <div className="space-y-2">
         {displayBranches.map((condition, index) => {
-          const isDefault = condition.necessities.length === 0;
+          const isDefault = condition.name === 'default';
           const handleId = `condition-${index}`;
 
           return (
             <div
               role='button'
               onClick={() => {
-                open(undefined);
+                open(
+                  condition,
+                  id,
+                  index,
+                );
               }}
               key={index}
               className={`relative flex items-center justify-between p-2 rounded text-sm
                 ${isDefault ? 'bg-base-700/50 text-text-muted' : 'bg-base-700 text-text-primary'}`}
             >
               <span>
-                {isDefault ? 'Default' : `Condition ${index + 1}`}
+                {condition.name}
               </span>
               {!isDefault && (
                 <button

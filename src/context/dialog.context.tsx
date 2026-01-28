@@ -226,8 +226,9 @@ export const DialogProvider = ({ children }: PropsWithChildren) => {
     const id = crypto.randomUUID()
 
     const defaultCondition: Conditions = {
-      priority: 10,
-      necessities: [],
+      name: 'default',
+      necessities: null,
+      priority: 0,
       next_node: null,
     }
 

@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 
 type Option = {
   value: string
@@ -23,20 +24,65 @@ export function StyledSelect({
   className = ""
 }: StyledSelectProps) {
   const [isOpen, setIsOpen] = useState(false)
+  const [dropdownStyle, setDropdownStyle] = useState<React.CSSProperties>({})
   const containerRef = useRef<HTMLDivElement>(null)
+  const dropdownRef = useRef<HTMLUListElement>(null)
 
   const selectedOption = options.find(opt => opt.value === value)
   const displayValue = selectedOption?.label ?? placeholder
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+      const target = e.target as Node
+      if (
+        containerRef.current && 
+        !containerRef.current.contains(target) &&
+        dropdownRef.current &&
+        !dropdownRef.current.contains(target)
+      ) {
         setIsOpen(false)
       }
     }
     document.addEventListener('mousedown', handleClickOutside)
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
+
+  useEffect(() => {
+    if (isOpen && containerRef.current) {
+      const rect = containerRef.current.getBoundingClientRect()
+      setDropdownStyle({
+        position: 'fixed',
+        top: rect.bottom + 4,
+        left: rect.left,
+        width: rect.width,
+        zIndex: 9999,
+      })
+    }
+  }, [isOpen])
+
+  const dropdown = isOpen && (
+    <ul 
+      ref={dropdownRef}
+      style={dropdownStyle}
+      className="bg-base-surface border border-highlight-med rounded shadow-lg max-h-40 overflow-auto"
+    >
+      <li
+        className="px-2 py-1 text-sm text-text-muted cursor-pointer hover:bg-highlight-med"
+        onClick={() => { onChange(undefined); setIsOpen(false) }}
+      >
+        {placeholder}
+      </li>
+      {options.map((option) => (
+        <li
+          key={option.value}
+          onClick={() => { onChange(option.value); setIsOpen(false) }}
+          className={`px-2 text-white py-1 text-sm cursor-pointer hover:bg-highlight-med ${option.value === value ? 'bg-highlight-low' : ''}`}
+        >
+          {option.label}
+        </li>
+      ))}
+    </ul>
+  )
 
   return (
     <div className={`relative min-w-32 ${className}`} ref={containerRef}>
@@ -75,25 +121,7 @@ export function StyledSelect({
         </span>
       </div>
       
-      {isOpen && (
-        <ul className="absolute text-white z-50 w-full mt-1 bg-base-surface border border-highlight-med rounded shadow-lg max-h-40 overflow-auto">
-          <li
-            className="px-2 py-1 text-sm text-text-muted cursor-pointer hover:bg-highlight-med"
-            onClick={() => { onChange(undefined); setIsOpen(false) }}
-          >
-            {placeholder}
-          </li>
-          {options.map((option) => (
-            <li
-              key={option.value}
-              onClick={() => { onChange(option.value); setIsOpen(false) }}
-              className={`px-2 py-1 text-sm cursor-pointer hover:bg-highlight-med ${option.value === value ? 'bg-highlight-low' : ''}`}
-            >
-              {option.label}
-            </li>
-          ))}
-        </ul>
-      )}
+      {createPortal(dropdown, document.body)}
     </div>
   )
 }

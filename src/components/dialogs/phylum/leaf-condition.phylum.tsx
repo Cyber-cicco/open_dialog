@@ -22,7 +22,7 @@ export const LeafCondition: React.FC<ConditionProps> = ({ harvester, vars }) => 
     ?? [{ value: "true", label: "true" }, { value: "false", label: "false" }]
 
   return (
-    <div className="flex items-center gap-2 p-2 bg-base-overlay rounded">
+    <div className="flex flex-wrap items-center gap-2 p-2 bg-base-overlay rounded min-w-0">
       <StyledSelect
         value={varId}
         onChange={(v) => { setVarId(v); setNecessaryState(undefined) }}

@@ -2,11 +2,10 @@ import { useEffect, useMemo, useState } from "react"
 import { ConditionProps, Harvester } from "./types"
 import { UndefinedCondition } from "./undefined-condition"
 import { err, ok } from "neverthrow"
-import { Operator } from "../../../bindings/Operator"
 import { StyledSelect } from "../../common/form/styled-select-nontanstack"
 
 export const TreeCondition: React.FC<ConditionProps> = ({ harvester, vars }) => {
-  const [operator, setOperator] = useState<Operator | undefined>(undefined)
+  const [operator, setOperator] = useState<string | undefined>(undefined)
 
   const leftHarvester: Harvester = useMemo(() => ({
     takes: harvester,
@@ -29,17 +28,13 @@ export const TreeCondition: React.FC<ConditionProps> = ({ harvester, vars }) => 
     }
   }, [harvester, leftHarvester, rightHarvester, operator])
 
-  const operatorValue = operator ? ("And" in operator ? "and" : "or") : undefined
-
   return (
     <div className="border-l-2 border-blue-primary/30 pl-3 space-y-2">
       <UndefinedCondition harvester={leftHarvester} vars={vars} />
       <StyledSelect
-        value={operatorValue}
+        value={operator}
         onChange={(v) => {
-          if (v === "and") setOperator({ "And": [] })
-          else if (v === "or") setOperator({ "Or": [] })
-          else setOperator(undefined)
+          setOperator(v);
         }}
         options={[{ value: "and", label: "AND" }, { value: "or", label: "OR" }]}
         placeholder="Select operator..."

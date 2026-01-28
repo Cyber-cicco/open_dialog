@@ -7,16 +7,20 @@ import { NecessityExpression } from "../../bindings/NecessityExpression";
 import { UndefinedCondition } from "./phylum/undefined-condition";
 import { Harvester } from "./phylum/types";
 import { err } from "neverthrow";
+import { Conditions } from "../../bindings/Conditions";
 
 type Props = {
-  necessity: NecessityExpression | undefined;
+  condition: Conditions | undefined;
+  nodeId: string;
+  branchIndex: number;
   onClose: () => void;
 };
 
-export const PhylumConditionModale = ({ necessity, onClose }: Props) => {
+export const PhylumConditionModale = ({ condition, nodeId, branchIndex, onClose }: Props) => {
   const { dialogToVars, globalVars } = useGlobalState();
-  const { dialog } = useDialogContext();
+  const { dialog, updateNodeData, nodes } = useDialogContext();
   const [errors, setErrors] = useState<string[]>([]);
+  const [name, setName] = useState(condition?.name ?? "default");
 
   const vars = useMemo(() => {
     let res: LocalVariable[] = [];
@@ -39,20 +43,35 @@ export const PhylumConditionModale = ({ necessity, onClose }: Props) => {
     []
   );
 
-  const onSave = (exp:NecessityExpression) => {
-    console.log(exp);
-  }
-
   const handleSave = useCallback(() => {
     const result = rootHarvester.gives();
-    if (result.isErr()) {
+
+    const necessities: NecessityExpression | null = result.isOk() ? result.value : null;
+    console.log("necessities : ");
+    console.log(necessities);
+
+    if (result.isErr() && result.error[0] !== "Condition not defined") {
+      console.log(result.error)
       setErrors(result.error);
       return;
     }
+
+    const node = nodes.find(n => n.id === nodeId);
+    if (!node || node.type !== 'phylumNode') return;
+
+    console.log("here")
+    const updatedBranches = [...node.data.branches];
+    updatedBranches[branchIndex] = {
+      ...updatedBranches[branchIndex],
+      name,
+      necessities,
+    };
+    console.log("here 2")
+
+    updateNodeData(nodeId, { branches: updatedBranches });
     setErrors([]);
-    onSave(result.value);
     onClose();
-  }, [rootHarvester, onSave, onClose]);
+  }, [rootHarvester, name, nodeId, branchIndex, nodes, updateNodeData, onClose]);
 
   const handleClear = useCallback(() => {
     setErrors([]);
@@ -61,8 +80,26 @@ export const PhylumConditionModale = ({ necessity, onClose }: Props) => {
 
   return (
     <TinyModaleWrapper title="Condition" onClose={handleClear}>
-      <div className="space-y-4 max-h-92 overflow-y-auto p-6 min-w-80">
-        <UndefinedCondition harvester={rootHarvester} vars={vars} />
+      <form onSubmit={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        handleSave();
+      }} className="space-y-4 p-6 min-w-80">
+        <div>
+          <label className="block text-text-subtle text-sm mb-1">Name</label>
+          <input
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="w-full bg-base-overlay/60 text-text-primary placeholder:text-text-muted px-3 py-2 rounded focus:outline-none focus:bg-highlight-low transition-colors"
+            placeholder="Condition name..."
+          />
+        </div>
+
+        <div className="max-h-92 overflow-y-auto overflow-x-hidden w-full">
+          <label className="block text-text-subtle text-sm mb-1">Expression</label>
+          <UndefinedCondition harvester={rootHarvester} vars={vars} />
+        </div>
 
         {errors.length > 0 && (
           <div className="bg-red-900/20 border border-red-400/30 rounded p-2 text-sm text-red-400">
@@ -74,19 +111,20 @@ export const PhylumConditionModale = ({ necessity, onClose }: Props) => {
 
         <div className="flex justify-end gap-2 pt-2 border-t border-base-overlay">
           <button
+            type="button"
             onClick={handleClear}
             className="px-4 py-2 text-sm text-text-subtle hover:text-text-primary transition-colors"
           >
             Cancel
           </button>
           <button
-            onClick={handleSave}
+            type="submit"
             className="px-4 py-2 text-sm bg-blue-deep hover:bg-blue-primary text-text-primary rounded transition-colors"
           >
             Save
           </button>
         </div>
-      </div>
+      </form>
     </TinyModaleWrapper>
   );
 };

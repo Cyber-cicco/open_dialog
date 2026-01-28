@@ -90,7 +90,7 @@ pub struct Phylum {
 pub struct Conditions {
     priority: i32,
     name: String,
-    necessities: NecessityExpression,
+    necessities: Option<NecessityExpression>,
     next_node: Option<Uuid>,
 }
 
@@ -102,12 +102,7 @@ pub struct TreeNecessity {
     right: Box<NecessityExpression>,
 }
 
-#[derive(TS, Serialize, Deserialize, Debug)]
-#[ts(export, export_to = "../../src/bindings/")]
-pub enum Operator {
-    And(),
-    Or(),
-}
+type Operator = String;
 
 #[derive(TS, Serialize, Deserialize, Debug)]
 #[ts(export, export_to = "../../src/bindings/")]
@@ -327,13 +322,19 @@ impl Phylum {
 
 impl VariableCoherent for Conditions {
     fn enforce_variable_coherence(&self, vars: &HashSet<&Uuid>) -> Result<()> {
-        self.necessities.enforce_variable_coherence(vars)
+        match &self.necessities {
+            Some(n) => n.enforce_variable_coherence(vars),
+            None => Ok(()),
+        }
     }
 }
 
 impl VariableContainer for Conditions {
     fn add_var_to_list(&self, list: &mut Vec<Uuid>) {
-        self.necessities.add_var_to_list(list);
+        match &self.necessities {
+            Some(n) => n.add_var_to_list(list),
+            None => (),
+        }
     }
 }
 

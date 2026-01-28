@@ -30,7 +30,7 @@ const ToolbarButton: React.FC<ToolbarButtonProps> = ({ icon, label, onClick }) =
 
 export const NodeToolbar: React.FC<NodeToolbarProps> = ({ dialogName, onNodeCreate }) => {
   return (
-    <div className="absolute bg-base-primary/50 top-4 pr-2 py-2 rounded-md left-4 z-10 flex flex-col gap-2">
+    <div className="absolute bg-base-primary/50 top-4 p-2 rounded-md left-4 z-10 flex flex-col gap-2">
       <h2 className="text-text-primary text-lg font-medium mb-1">{dialogName}</h2>
       <ToolbarButton
         icon={<DialogSvg width={18} height={18} />}

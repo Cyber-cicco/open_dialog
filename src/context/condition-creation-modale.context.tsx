@@ -1,9 +1,13 @@
 import { createContext, PropsWithChildren, useContext, useState, useCallback } from "react"
 import { PhylumConditionModale } from "../components/dialogs/phylum-condition-modal.dialogs"
-import { NecessityExpression } from "../bindings/NecessityExpression"
+import { Conditions } from "../bindings/Conditions"
 
 type ContextProps = {
-  open: (necessity:NecessityExpression|undefined) => void
+  open: (
+    necessity: Conditions | undefined,
+    nodeId: string,
+    branchIndex: number,
+  ) => void
   close: () => void
 }
 
@@ -11,9 +15,17 @@ const PhylumCreationModalContext = createContext<ContextProps | undefined>(undef
 
 export const PhylumCreationModalProvider = ({ children }: PropsWithChildren) => {
   const [isVisible, setIsVisible] = useState(false)
-  const [necessity, setNecessity] = useState<NecessityExpression | undefined>(undefined);
+  const [necessity, setNecessity] = useState<Conditions | undefined>(undefined);
+  const [nodeId, setNodeId] = useState<string>("");
+  const [branchIndex, setBranchIndex] = useState<number>(-1);
 
-  const open = useCallback((necessity:NecessityExpression|undefined) => {
+  const open = useCallback((
+    necessity: Conditions | undefined,
+    nodeId: string,
+    branchIndex: number,
+  ) => {
+    setBranchIndex(branchIndex);
+    setNodeId(nodeId);
     setNecessity(necessity);
     setIsVisible(true);
   }, [])
@@ -32,7 +44,9 @@ export const PhylumCreationModalProvider = ({ children }: PropsWithChildren) => 
     <PhylumCreationModalContext.Provider value={value}>
       {isVisible && (
         <PhylumConditionModale
-          necessity={necessity}
+          branchIndex={branchIndex}
+          nodeId={nodeId}
+          condition={necessity}
           onClose={close}
         />
       )}
