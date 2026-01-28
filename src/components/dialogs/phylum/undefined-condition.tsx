@@ -1,35 +1,51 @@
 import { useState } from "react"
-import { Button } from "../../common/buttons/base.buttons"
 import { LeafCondition } from "./leaf-condition.phylum"
 import { TreeCondition } from "./tree-condition.phylum"
 import { ConditionProps } from "./types"
 
 type ConditionType = "leaf" | "tree" | "undefined"
 
-export const UndefinedCondition: React.FC<ConditionProps> = ({ harvester }) => {
+export const UndefinedCondition: React.FC<ConditionProps> = ({ harvester, vars }) => {
   const [conditionType, setConditionType] = useState<ConditionType>("undefined");
-  return (
-    <>
-      {conditionType == 'leaf' && <LeafCondition harvester={harvester} />}
-      {conditionType == 'tree' && <TreeCondition harvester={harvester} />}
-      {conditionType == 'undefined' && <UndefinedConditionInternal setCondition={setConditionType} />}
-    </>
-  )
-}
 
-type UndefinedConditionInternalProps = {
-  setCondition: (conditionType: ConditionType) => void
-}
+  if (conditionType === "leaf") {
+    return (
+      <div className="relative">
+        <button
+          onClick={() => setConditionType("undefined")}
+          className="absolute -right-2 -top-2 w-5 h-5 flex items-center justify-center rounded-full bg-base-overlay hover:bg-red-500/20 text-text-subtle hover:text-red-400 font-medium transition-colors hover:cursor-pointer"
+        >×</button>
+        <LeafCondition harvester={harvester} vars={vars} />
+      </div>
+    );
+  }
 
-const UndefinedConditionInternal: React.FC<UndefinedConditionInternalProps> = ({ setCondition }) => {
+  if (conditionType === "tree") {
+    return (
+      <div className="relative">
+        <button
+          onClick={() => setConditionType("undefined")}
+          className="absolute -right-2 -top-2 w-5 h-5 flex items-center justify-center rounded-full bg-base-overlay hover:bg-red-500/20 text-text-subtle hover:text-red-400 font-medium transition-colors hover:cursor-pointer"
+        >×</button>
+        <TreeCondition harvester={harvester} vars={vars} />
+      </div>
+    );
+  }
+
   return (
-    <div className="space-y-1">
-      <Button onClick={() => {
-        setCondition("leaf");
-      }}>Leaf</Button>
-      <Button onClick={() => {
-        setCondition("tree");
-      }}>Tree</Button>
+    <div className="flex gap-2">
+      <button
+        className="px-3 py-1 bg-base-overlay hover:bg-highlight-low text-text-subtle text-sm rounded transition-colors"
+        onClick={() => setConditionType("leaf")}
+      >
+        + Variable
+      </button>
+      <button
+        className="px-3 py-1 bg-base-overlay hover:bg-highlight-low text-text-subtle text-sm rounded transition-colors"
+        onClick={() => setConditionType("tree")}
+      >
+        + Group
+      </button>
     </div>
-  )
+  );
 }

@@ -1,56 +1,93 @@
-import { useMemo, useRef, useState } from "react";
-import { Conditions } from "../../bindings/Conditions";
+// phylum-condition-modal.dialogs.tsx
+import { useMemo, useState, useCallback } from "react";
 import { useGlobalState } from "../../context/global-state.context";
 import { LocalVariable } from "../../hooks/useVariables";
 import { useDialogContext } from "../../hooks/useDialog";
-import { useAppForm } from "../../hooks/form";
+import { TinyModaleWrapper } from "../common/modal/modal-wrapper";
+import { NecessityExpression } from "../../bindings/NecessityExpression";
+import { UndefinedCondition } from "./phylum/undefined-condition";
+import { Harvester } from "./phylum/types";
+import { err } from "neverthrow";
 
-export const PhylumConditionModale = ({ conditions }: { conditions: Conditions }) => {
+type Props = {
+  necessity: NecessityExpression | undefined;
+  onClose: () => void;
+};
+
+export const PhylumConditionModale = ({ necessity, onClose }: Props) => {
   const { dialogToVars, globalVars } = useGlobalState();
   const { dialog } = useDialogContext();
-  const [potentialStates, setPotentialStates] = useState<string[]>([]);
-  const [selectedVar, setSelectedVar] = useState<LocalVariable | undefined>(undefined);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const form = useAppForm({
-    defaultValues: {
-      variable:'',
-      
-    }
-  })
+  const [errors, setErrors] = useState<string[]>([]);
 
   const vars = useMemo(() => {
     let res: LocalVariable[] = [];
     if (dialogToVars === undefined || globalVars === undefined || !dialog) {
       return res;
     }
-    let currDialogVars = dialogToVars.get(dialog.id);
+    const currDialogVars = dialogToVars.get(dialog.id);
     if (currDialogVars !== undefined) {
       res.push(...currDialogVars);
     }
-    res.push(...globalVars)
-    return res
-  }, [dialogToVars, globalVars])
+    res.push(...globalVars);
+    return res;
+  }, [dialogToVars, globalVars, dialog]);
+
+  const rootHarvester: Harvester = useMemo(
+    () => ({
+      takes: null as unknown as Harvester,
+      gives: () => err(["Condition not defined"]),
+    }),
+    []
+  );
+
+  const onSave = (exp:NecessityExpression) => {
+    console.log(exp);
+  }
+
+  const handleSave = useCallback(() => {
+    const result = rootHarvester.gives();
+    if (result.isErr()) {
+      setErrors(result.error);
+      return;
+    }
+    setErrors([]);
+    onSave(result.value);
+    onClose();
+  }, [rootHarvester, onSave, onClose]);
+
+  const handleClear = useCallback(() => {
+    setErrors([]);
+    onClose();
+  }, [onClose]);
 
   return (
-    <div className="space-y-1">
-      <label className="block text-sm text-text-subtle mb-1">
-        Variable
-      </label>
-      {selectedVar &&
-        <div className="flex items-center gap-3 bg-base-overlay px-3 py-2 rounded">
-          <span className="text-text-primary flex-1">{selectedVar.name}</span>
+    <TinyModaleWrapper title="Condition" onClose={handleClear}>
+      <div className="space-y-4 p-6 min-w-80">
+        <UndefinedCondition harvester={rootHarvester} vars={vars} />
+
+        {errors.length > 0 && (
+          <div className="bg-red-900/20 border border-red-400/30 rounded p-2 text-sm text-red-400">
+            {errors.map((e, i) => (
+              <div key={i}>• {e}</div>
+            ))}
+          </div>
+        )}
+
+        <div className="flex justify-end gap-2 pt-2 border-t border-base-overlay">
           <button
-            type="button"
             onClick={handleClear}
-            className="text-text-muted hover:text-text-primary text-sm"
+            className="px-4 py-2 text-sm text-text-subtle hover:text-text-primary transition-colors"
           >
-            ✕
+            Cancel
+          </button>
+          <button
+            onClick={handleSave}
+            className="px-4 py-2 text-sm bg-blue-deep hover:bg-blue-primary text-text-primary rounded transition-colors"
+          >
+            Save
           </button>
         </div>
-
-      }
-
-    </div>
-  )
-
-}
+      </div>
+    </TinyModaleWrapper>
+  );
+};

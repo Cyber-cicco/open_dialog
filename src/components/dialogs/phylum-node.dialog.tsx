@@ -2,6 +2,7 @@ import { Handle, Position, type NodeProps, type Node } from '@xyflow/react';
 import { Phylum } from '../../bindings/Phylum';
 import { Conditions } from '../../bindings/Conditions';
 import { useDialogContext } from '../../hooks/useDialog';
+import { usePhylumCreationModal } from '../../context/condition-creation-modale.context';
 
 type PhylumNodeData = Phylum & { isRootNode?: boolean };
 export type PhylumNodeType = Node<PhylumNodeData, 'phylumNode'>;
@@ -15,6 +16,7 @@ const DEFAULT_CONDITION: Conditions = {
 export const PhylumNode = ({ data, selected, id }: NodeProps<PhylumNodeType>) => {
   const { rootNodeId, setRootNode, updateNodeData } = useDialogContext();
   const { name, branches } = data;
+  const { open } = usePhylumCreationModal();
 
   // Ensure default condition exists and is last
   const sortedBranches = [...branches].sort((a, b) => a.priority - b.priority);
@@ -77,12 +79,12 @@ export const PhylumNode = ({ data, selected, id }: NodeProps<PhylumNodeType>) =>
         {displayBranches.map((condition, index) => {
           const isDefault = condition.necessities.length === 0;
           const handleId = `condition-${index}`;
-          
+
           return (
             <div
               role='button'
               onClick={() => {
-
+                open(undefined);
               }}
               key={index}
               className={`relative flex items-center justify-between p-2 rounded text-sm
