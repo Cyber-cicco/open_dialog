@@ -1,4 +1,3 @@
-// src/components/menus/dialog.menus.tsx
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "../common/buttons/base.buttons";
