@@ -55,6 +55,7 @@ export const DialogProvider = ({ children }: PropsWithChildren) => {
   const [rootNodeId, setRootNodeIdState] = useState<string | null>(null)
   const [lastCreatedNodeId, setLastCreatedNodeId] = useState<string | undefined>(undefined)
 
+
   // Derived state via hooks
   const { forwardMap, reverseMap } = useGraphMaps(edges)
   const dialogFeed = useDialogFeed(rootNodeId, nodes, forwardMap)
@@ -226,6 +227,7 @@ export const DialogProvider = ({ children }: PropsWithChildren) => {
     const id = crypto.randomUUID()
 
     const defaultCondition: Conditions = {
+      id: crypto.randomUUID(),
       name: 'default',
       necessities: null,
       priority: 0,

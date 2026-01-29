@@ -88,6 +88,7 @@ pub struct Phylum {
 #[derive(TS, Serialize, Deserialize, Debug)]
 #[ts(export, export_to = "../../src/bindings/")]
 pub struct Conditions {
+    id: Uuid,
     priority: i32,
     name: String,
     necessities: Option<NecessityExpression>,

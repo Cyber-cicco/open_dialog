@@ -12,11 +12,11 @@ import { Conditions } from "../../bindings/Conditions";
 type Props = {
   condition: Conditions | undefined;
   nodeId: string;
-  branchIndex: number;
+  conditionId: string;
   onClose: () => void;
 };
 
-export const PhylumConditionModale = ({ condition, nodeId, branchIndex, onClose }: Props) => {
+export const PhylumConditionModale = ({ condition, nodeId, conditionId, onClose }: Props) => {
   const { dialogToVars, globalVars } = useGlobalState();
   const { dialog, updateNodeData, nodes } = useDialogContext();
   const [errors, setErrors] = useState<string[]>([]);
@@ -45,8 +45,8 @@ export const PhylumConditionModale = ({ condition, nodeId, branchIndex, onClose 
 
   const handleSave = useCallback(() => {
     const result = rootHarvester.gives();
-
     const necessities: NecessityExpression | null = result.isOk() ? result.value : null;
+
     if (result.isErr() && result.error[0] !== "Condition not defined") {
       setErrors(result.error);
       return;
@@ -55,17 +55,16 @@ export const PhylumConditionModale = ({ condition, nodeId, branchIndex, onClose 
     const node = nodes.find(n => n.id === nodeId);
     if (!node || node.type !== 'phylumNode') return;
 
-    const updatedBranches = [...node.data.branches];
-    updatedBranches[branchIndex] = {
-      ...updatedBranches[branchIndex],
-      name,
-      necessities,
-    };
+    const updatedBranches = node.data.branches.map(branch =>
+      branch.id === conditionId
+        ? { ...branch, name, necessities }
+        : branch
+    );
 
     updateNodeData(nodeId, { branches: updatedBranches });
     setErrors([]);
     onClose();
-  }, [rootHarvester, name, nodeId, branchIndex, nodes, updateNodeData, onClose]);
+  }, [rootHarvester, name, nodeId, conditionId, nodes, updateNodeData, onClose]);
 
   const handleClear = useCallback(() => {
     setErrors([]);

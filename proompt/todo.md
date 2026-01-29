@@ -20,6 +20,12 @@ Ce qui a été fait :
 [x] Pouvoir ajouter une variable gobale (front)
 [x] Maintenir un fichier des variables utilisées par les dialogues (back)
 [x] A la sauvegarde d'un dialogue, empêcher les phylums de faire référence à des variables non existantes. (back)
+[x] Pour les choix, avoir des handles qui sont liées au choix.
+[x] Pour les phylums, avoir des handles liés aux conditions.
+[x] Pouvoir modifier une variable (front)
+[x] Créer les Nodes ReactFlow pour les Phylum.
+[x] Créer les Nodes ReactFlow pour les Choix.
+[x] Créer l'élement customisé pour le choix.
 
 Ce qu'il reste à faire dans l'immédiat:
 
@@ -27,21 +33,16 @@ Ce qu'il reste à faire dans l'immédiat:
 [] Pouvoir ajouter une variable à un personnage (front)
 [] Pouvoir ajouter une variable à un dialogue (front)
 [] Pouvoir supprimer une variable (front)
-[] Pouvoir modifier une variable (front)
-[] Créer les Nodes ReactFlow pour les Phylum.
-[] Créer les Nodes ReactFlow pour les Choix.
-[] Créer l'élement customisé pour le choix.
-[] Pouvoir récupérer les variables d'un  (back)
-[] Pour les choix, avoir des handles qui sont liées au choix.
-[] Pour les phylums, avoir des handles liés aux conditions.
+[] Pouvoir récupérer les variables d'un personnage (back)
+[] Pouvoir modifier le nom d'un dialogue.
+[] Donner la possibilité de supprimer un dialogue / personnage
+[] Pouvoir ordonnancer les dialogues / personnages
 
 Quelques éléments qu'il ne faudra pas oublier:
 
 [] Créer un système de notifiaction
 [] Faire remonter les messages d'erreur dans le système de notification
 [] Créer un système de log digne de ce nom
-[] Donner la possibilité de supprimer un dialogue / personnage
-[] Pouvoir ordonnancer les dialogues / personnages
 [] Pouvoir créer des groupes de personnage / dialogues
 
 À développer plus en détails plus tard

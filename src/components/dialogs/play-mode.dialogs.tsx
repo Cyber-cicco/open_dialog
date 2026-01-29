@@ -238,13 +238,11 @@ export const PlayMode = () => {
       nextId = getNextNodeId(current.id);
     } else if (current.type === "phylumNode") {
       const phylumNode = current as PhylumFlowNode;
-      // Sort by priority descending (higher priority evaluated first)
       const sortedBranches = [...phylumNode.data.branches].sort((a, b) => b.priority - a.priority);
 
       for (const branch of sortedBranches) {
         if (evaluateNecessity(branch.necessities, variables)) {
-          const branchIndex = phylumNode.data.branches.indexOf(branch);
-          nextId = getNextNodeId(current.id, `branch-${branchIndex}`) ?? branch.next_node;
+          nextId = getNextNodeId(current.id, `branch-${branch.id}`) ?? branch.next_node;
           break;
         }
       }

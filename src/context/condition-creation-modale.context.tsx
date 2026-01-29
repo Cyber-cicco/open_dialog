@@ -4,9 +4,9 @@ import { Conditions } from "../bindings/Conditions"
 
 type ContextProps = {
   open: (
-    necessity: Conditions | undefined,
+    condition: Conditions,
     nodeId: string,
-    branchIndex: number,
+    conditionId: string,
   ) => void
   close: () => void
 }
@@ -15,38 +15,34 @@ const PhylumCreationModalContext = createContext<ContextProps | undefined>(undef
 
 export const PhylumCreationModalProvider = ({ children }: PropsWithChildren) => {
   const [isVisible, setIsVisible] = useState(false)
-  const [necessity, setNecessity] = useState<Conditions | undefined>(undefined);
-  const [nodeId, setNodeId] = useState<string>("");
-  const [branchIndex, setBranchIndex] = useState<number>(-1);
+  const [condition, setCondition] = useState<Conditions | undefined>(undefined)
+  const [nodeId, setNodeId] = useState<string>("")
+  const [conditionId, setConditionId] = useState<string>("")
 
   const open = useCallback((
-    necessity: Conditions | undefined,
+    condition: Conditions,
     nodeId: string,
-    branchIndex: number,
+    conditionId: string,
   ) => {
-    setBranchIndex(branchIndex);
-    setNodeId(nodeId);
-    setNecessity(necessity);
-    setIsVisible(true);
+    setConditionId(conditionId)
+    setNodeId(nodeId)
+    setCondition(condition)
+    setIsVisible(true)
   }, [])
 
   const close = useCallback(() => {
-    setNecessity(undefined);
-    setIsVisible(false);
+    setCondition(undefined)
+    setConditionId("")
+    setIsVisible(false)
   }, [])
 
-  const value = {
-    open,
-    close,
-  }
-
   return (
-    <PhylumCreationModalContext.Provider value={value}>
-      {isVisible && (
+    <PhylumCreationModalContext.Provider value={{ open, close }}>
+      {isVisible && condition && (
         <PhylumConditionModale
-          branchIndex={branchIndex}
+          conditionId={conditionId}
           nodeId={nodeId}
-          condition={necessity}
+          condition={condition}
           onClose={close}
         />
       )}
@@ -58,8 +54,7 @@ export const PhylumCreationModalProvider = ({ children }: PropsWithChildren) => 
 export const usePhylumCreationModal = () => {
   const context = useContext(PhylumCreationModalContext)
   if (context === undefined) {
-    throw new Error("useEventDetailsModal must be used within a EventDetailsModalProvider")
+    throw new Error("usePhylumCreationModal must be used within a PhylumCreationModalProvider")
   }
   return context
 }
-

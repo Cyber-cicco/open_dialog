@@ -51,8 +51,8 @@ export function buildBackDialogFromNodesAndEdges(
             };
         }
         else if (node.type === 'phylumNode') {
-            const branches = node.data.branches.map((branch, idx) => {
-                const edge = nodeEdges.find(e => e.sourceHandle === `branch-${idx}`);
+            const branches = node.data.branches.map((branch) => {
+                const edge = nodeEdges.find(e => e.sourceHandle === `branch-${branch.id}`);
                 return { ...branch, next_node: edge?.target ?? null };
             });
             result[node.id] = {
@@ -166,17 +166,17 @@ export function traverseDialogAndGetNodesAndEdges(dialog: Dialog): { nodes: AppN
         }
         else if ('Phylum' in node.data) {
             const data = node.data.Phylum;
-            data.branches.forEach((branch, idx) => {
+            data.branches.forEach((branch) => {
                 if (branch.next_node) {
                     const targetNode = dialog.nodes[branch.next_node];
                     if (targetNode) {
                         const targetPos = { x: targetNode.pos_x, y: targetNode.pos_y };
                         const handles = getOptimalHandles(sourcePos, targetPos);
                         edges.push({
-                            id: `${id}-branch-${idx}-${branch.next_node}`,
+                            id: `${id}-branch-${branch.id}-${branch.next_node}`,
                             source: id,
                             target: branch.next_node,
-                            sourceHandle: `branch-${idx}`,
+                            sourceHandle: `branch-${branch.id}`,
                             targetHandle: handles.targetHandle,
                         });
                     }
