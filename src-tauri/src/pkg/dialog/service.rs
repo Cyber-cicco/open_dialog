@@ -1,6 +1,6 @@
 use std::{str::FromStr, sync::Arc};
 
-use anyhow::Result;
+use anyhow::{Result, anyhow};
 use uuid::Uuid;
 
 use crate::{
@@ -57,10 +57,11 @@ impl<C: ODConfig, DD: DialogDao<C>, CD: CharacterDao<C>, MD: MetaDao<C>>
             .dialog_dao
             .get_metadata(project_id)
             .or_else(|_| self.dialog_dao.create_metadata(project_id))?;
+        let order = form.order;
         let new_dialog = Dialog::from_dialog_creation_form(form)?;
         metadata
             .data
-            .insert(new_dialog.get_id(), SimpleDialog::from_dialog(&new_dialog));
+            .insert(new_dialog.get_id(), SimpleDialog::from_dialog(&new_dialog, order));
         self.dialog_dao.persist_dialog(project_id, new_dialog)?;
 
         //TODO: should retry and delete the dialog if it fails.
@@ -101,7 +102,8 @@ impl<C: ODConfig, DD: DialogDao<C>, CD: CharacterDao<C>, MD: MetaDao<C>>
         fks.mutate_to_match_diffs(diffs)?;
 
         let mut metadata = self.dialog_dao.get_metadata(project_id)?;
-        let simple_dialog = SimpleDialog::from_dialog(&dialog);
+        let prev = metadata.data.get(&dialog.get_id()).ok_or(anyhow!("dialog did not exist"))?;
+        let simple_dialog = SimpleDialog::from_dialog(&dialog, prev.get_order());
         metadata.data.insert(dialog.get_id(), simple_dialog);
         let mut collector: Vec<DialogContent> = vec![];
         let dialog_id = &dialog.get_id().to_string();

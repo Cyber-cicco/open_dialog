@@ -16,6 +16,7 @@ pub struct SimpleDialog {
     name: String,
     main_character: Uuid,
     characters: Vec<Uuid>,
+    order:usize,
 }
 
 #[derive(TS, Serialize, Deserialize, Debug)]
@@ -30,6 +31,7 @@ pub struct DialogMetadata {
 pub struct DialogGroup {
     id:Uuid,
     name:String,
+    order:usize,
 }
 
 #[derive(TS, Serialize, Deserialize, Debug)]
@@ -133,6 +135,7 @@ pub struct VarNecessity {
 pub struct DialogCreationForm<'a> {
     pub name: &'a str,
     pub main_char_id: &'a str,
+    pub order: usize,
 }
 
 pub struct PhylumDiff<'a> {
@@ -170,13 +173,18 @@ impl DialogMetadata {
 }
 
 impl SimpleDialog {
-    pub fn from_dialog(dialog: &Dialog) -> Self {
+    pub fn from_dialog(dialog: &Dialog, order:usize) -> Self {
         SimpleDialog {
             id: dialog.id,
             name: dialog.name.clone(),
             main_character: dialog.main_character,
             characters: dialog.characters_ids.clone(),
+            order:order,
         }
+    }
+
+    pub fn get_order(&self) -> usize {
+        return self.order
     }
 }
 

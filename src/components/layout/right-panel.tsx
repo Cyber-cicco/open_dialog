@@ -1,7 +1,6 @@
 import { useRightPanel } from "../../context/right-panel.context";
 import { useGlobalState } from "../../context/global-state.context";
 import { useGetCharacterById } from "../../hooks/queries/character";
-import DialogFeed from "../dialogs/feed.dialogs";
 import { PlayMode } from "../dialogs/play-mode.dialogs";
 import { getImageSrc } from "../common/img";
 
@@ -46,7 +45,7 @@ const FloatingPortrait = () => {
 const LayoutRightPanel = () => {
   const { isOpen, content, closePanel, openPanel } = useRightPanel();
 
-  const panelContent = content ?? <DialogFeed />;
+  const panelContent = content ?? <PlayMode />;
 
   return (
     <div className="relative h-full">

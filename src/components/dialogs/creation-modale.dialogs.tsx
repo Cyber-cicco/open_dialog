@@ -6,7 +6,9 @@ import { useAppForm } from "../../hooks/form"
 import { useGlobalState } from "../../context/global-state.context"
 import { Button } from "../common/buttons/base.buttons"
 
-export const DialogCreationModale: React.FC<ModalProps> = ({ onClose, isOpen }) => {
+type DialogCreationModaleProps = { order: number } & ModalProps
+
+export const DialogCreationModale: React.FC<DialogCreationModaleProps> = ({ onClose, isOpen, order }) => {
 
   const { project } = useGlobalState();
   const ref = useAutoFocusRef(isOpen);
@@ -23,6 +25,7 @@ export const DialogCreationModale: React.FC<ModalProps> = ({ onClose, isOpen }) 
       await createMutation.mutateAsync({
         projectId: project.id,
         form: {
+          order:order,
           name: value.name,
           main_char_id: value.mainCharacterId,
         },

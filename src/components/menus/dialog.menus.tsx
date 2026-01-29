@@ -39,6 +39,7 @@ export const DialogMenu = () => {
       {modalVisible && (
         <DialogCreationModale
           isOpen={modalVisible}
+          order={metadata ? Object.values(metadata.data).length: 1}
           onClose={() => setModalVisible(false)}
         />
       )}

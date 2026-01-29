@@ -7,7 +7,6 @@ import { Phylum } from "../bindings/Phylum"
 import { useGlobalState } from "./global-state.context"
 import { getOptimalHandles, traverseDialogAndGetNodesAndEdges } from "./helpers/dialog.helpers"
 import { useGraphMaps } from "../hooks/useGraphMaps"
-import { useDialogFeed } from "../hooks/useDialogFeed"
 import { useDialogPersistence } from "../hooks/useDialogPersistence"
 import { Conditions } from "../bindings/Conditions"
 import { Choice } from "../bindings/Choice"
@@ -27,7 +26,6 @@ export type DialogContextType = {
   edges: Edge[]
   rootNodeId: string | null
   dialog: Dialog | undefined
-  dialogFeed: AppNode[]
 
   loadDialog: (dialog: Dialog) => void
   saveDialog: () => Promise<void>
@@ -58,8 +56,6 @@ export const DialogProvider = ({ children }: PropsWithChildren) => {
 
   // Derived state via hooks
   const { forwardMap, reverseMap } = useGraphMaps(edges)
-  const dialogFeed = useDialogFeed(rootNodeId, nodes, forwardMap)
-
   // Persistence
   const persistence = useDialogPersistence(project?.id, {
     onStructuralChange: true,
@@ -283,7 +279,6 @@ export const DialogProvider = ({ children }: PropsWithChildren) => {
       edges,
       rootNodeId,
       dialog,
-      dialogFeed,
       loadDialog,
       createDialogNode,
       createPhylumNode,
