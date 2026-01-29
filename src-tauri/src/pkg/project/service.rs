@@ -5,9 +5,9 @@ use git2::Repository;
 use serde::{Deserialize, Serialize};
 
 use crate::shared::{
-    config::{ASSETS_DIRNAME, CHAR_DIRNAME, DIALOG_DIRNAME, DIALOG_META, META_DIRNAME, META_FK_VARS_DIALOGS, ODConfig, STATS_DIRNAME, VARS},
+    config::{ASSETS_DIRNAME, CHAR_DIRNAME, CHARACTER_META, DIALOG_DIRNAME, DIALOG_META, META_DIRNAME, META_FK_VARS_DIALOGS, ODConfig, STATS_DIRNAME, VARS},
     types::{
-        dialog::DialogMetadata, interfaces::Shared, meta::VarToPhylum, project::{AtomicProject, AtomicProjects, Project}, variables::VariableStore
+        character::CharacterMetadata, dialog::DialogMetadata, interfaces::Shared, meta::VarToPhylum, project::{AtomicProject, AtomicProjects, Project}, variables::VariableStore
     },
 };
 
@@ -37,6 +37,7 @@ impl<C: ODConfig> ProjectServiceLocaleImpl<C> {
         self.save_file(&project, META_FK_VARS_DIALOGS, &VarToPhylum::new()).context("error creating meta var dialogs filek")?;
         self.save_file(&project, VARS, &VariableStore::new()).context("error creating vars file")?;
         self.save_file(&project, DIALOG_META, &DialogMetadata::new()).context("error creating dialog meta file")?;
+        self.save_file(&project, CHARACTER_META, &CharacterMetadata::new()).context("error creating dialog meta file")?;
 
         
         Repository::init(project.get_path())?;

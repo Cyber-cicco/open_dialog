@@ -1,9 +1,9 @@
-use std::path::Path;
 use std::sync::Arc;
+use anyhow::anyhow;
+use std::{collections::HashMap, path::Path};
 
-use anyhow::Result;
+use anyhow::{bail, Result};
 use serde::{Deserialize, Serialize};
-use tauri::http::header::RETRY_AFTER;
 use ts_rs::TS;
 use uuid::Uuid;
 
@@ -30,6 +30,23 @@ pub struct Character {
     portrait_link: Option<String>,
     artwork_link: Option<String>,
     background_link: Option<String>,
+}
+
+#[derive(TS)]
+#[ts(export, export_to = "../../src/bindings/")]
+#[derive(Debug, Serialize, Deserialize)]
+pub struct CharacterMetadata {
+    data: HashMap<Uuid, SimpleCharacter>,
+}
+
+#[derive(TS)]
+#[ts(export, export_to = "../../src/bindings/")]
+#[derive(Debug, Serialize, Deserialize)]
+pub struct SimpleCharacter {
+    id: Uuid,
+    display_name: String,
+    portrait_link: Option<String>,
+    order: usize,
 }
 
 /// CharacterForm represents the form a user can fill
@@ -103,7 +120,7 @@ impl Character {
     }
 
     pub fn get_name(&self) -> &String {
-        return &self.display_name
+        return &self.display_name;
     }
 
     pub fn validate_name(name: &str) -> Result<()> {
@@ -152,5 +169,50 @@ impl Character {
         self.display_name = char_form.display_name.clone();
         self.first_name = char_form.first_name.clone();
         self.description = None;
+    }
+}
+
+impl CharacterMetadata {
+    pub fn new() -> Self {
+        Self {
+            data: HashMap::new(),
+        }
+    }
+
+    pub fn persist_character(&mut self, simple_character: SimpleCharacter) {
+        self.data.insert(simple_character.id, simple_character);
+    }
+
+    pub fn enforce_characters_unchanged(&self, other: &CharacterMetadata) -> Result<()> {
+        for (k, _v) in &self.data {
+            if other.data.get(k).is_none() {
+                bail!("metadata not equal to other metadata in dialogs")
+            }
+        }
+        for (k, _v) in &other.data {
+            if self.data.get(k).is_none() {
+                bail!("metadata not equal to other metadata in dialogs")
+            }
+        }
+        Ok(())
+    }
+
+    pub fn get_character_by_id(&self, id: &Uuid) -> Result<&SimpleCharacter> {
+        self.data.get(id).ok_or(anyhow!("could not find user in metadata"))
+    }
+}
+
+impl SimpleCharacter {
+    pub fn from_character(character: &Character, order: usize) -> Self {
+        return Self {
+            id: character.id,
+            display_name: character.display_name.clone(),
+            portrait_link: character.portrait_link.clone(),
+            order: order,
+        };
+    }
+
+    pub fn get_order(&self) -> usize {
+        return self.order
     }
 }

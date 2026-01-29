@@ -1,1 +1,1 @@
-I want to be able to drag and drop my dialogs to rearrange the order. I'm using dnd kit. I do not want to replace the arrow way of reordeering, I want to have both. 
+I want to be able to drag and drop my characters to rearrange the order. I also want arrows to change the order. Use the dialogs as an example.

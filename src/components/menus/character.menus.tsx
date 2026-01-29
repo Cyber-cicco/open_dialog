@@ -15,7 +15,8 @@ export const CharacterMenu = () => {
 
   return (
     <div className="flex h-full flex-col w-full relative">
-      <div className="flex-1 overflow-y-auto space-y-1">
+      <h2 className="py-1">Characters</h2>
+      <div className="flex-1 overflow-y-auto max-h-[90%] space-y-1">
         {isPending && <p className="text-text-muted text-sm p-2">Loading...</p>}
         {error && <p className="text-red-500 text-sm p-2">Error loading characters</p>}
         {characters?.length === 0 && (
@@ -36,6 +37,7 @@ export const CharacterMenu = () => {
         <CharacterCreationModale 
           isOpen={modalVisible} 
           onClose={() => setModaleVisible(false)} 
+          order={characters ? characters.length + 1 : 1}
         />
       )}
     </div>

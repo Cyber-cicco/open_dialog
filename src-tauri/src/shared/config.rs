@@ -23,6 +23,7 @@ pub const ASSETS_DIRNAME: &str = "assets";
 pub const VARS: &str = "vars.json";
 pub const META_FK_VARS_DIALOGS: &str = "meta/vars_dialogs.json";
 pub const DIALOG_META: &str = "dialog/meta.json";
+pub const CHARACTER_META: &str = "character/meta.json";
 
 #[async_trait::async_trait]
 pub trait ODConfig: Sized + Clone + Send + Sync + 'static {

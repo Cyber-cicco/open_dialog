@@ -7,7 +7,9 @@ import { useGlobalState } from "../../context/global-state.context"
 import { Button } from "../common/buttons/base.buttons"
 import { useNavigate } from "react-router-dom"
 
-export const CharacterCreationModale: React.FC<ModalProps> = ({ onClose, isOpen }) => {
+type CharacterCreationModaleProps = ModalProps & { order: number }
+
+export const CharacterCreationModale: React.FC<CharacterCreationModaleProps> = ({ onClose, isOpen, order }) => {
   const { project } = useGlobalState();
   const ref = useAutoFocusRef(isOpen);
   const navigate = useNavigate();
@@ -20,9 +22,10 @@ export const CharacterCreationModale: React.FC<ModalProps> = ({ onClose, isOpen 
       if (!project) {
         return
       }
-      const newChar =  await chatMutation.mutateAsync({
+      const newChar = await chatMutation.mutateAsync({
         projectId: project.id,
         name: value.name,
+        order,
       });
       form.reset();
       navigate(`/character/${newChar.id}`);

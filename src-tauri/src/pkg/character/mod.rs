@@ -1,11 +1,11 @@
-use crate::shared::types::character::{Character, CharacterForm, ImageField};
+use crate::shared::types::character::{Character, CharacterForm, CharacterMetadata, ImageField};
 use od_macros::tauri_command;
 
 pub mod dao;
 pub mod service;
 
 #[tauri_command(character_service)]
-pub fn create_character(project_id: &str, name: &str) -> Character {}
+pub fn create_character(project_id: &str, name: &str, order:usize) -> Character {}
 
 #[tauri_command(character_service)]
 pub fn change_character(project_id: &str, char_form: CharacterForm) -> Character {}
@@ -15,3 +15,7 @@ pub fn upload_image(project_id: &str, char_id: &str, path: &str, field: ImageFie
 
 #[tauri_command(character_service)]
 pub fn get_all_characters(project_id: &str) -> Vec<Character> {}
+
+
+#[tauri_command(character_service)]
+pub fn persist_metadata(project_id: &str, metadata:CharacterMetadata) {}

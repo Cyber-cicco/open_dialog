@@ -11,7 +11,10 @@ use uuid::Uuid;
 
 use crate::shared::{
     config::{ODConfig, CHAR_DIRNAME},
-    types::{character::Character, interfaces::Shared},
+    types::{
+        character::{Character, CharacterMetadata},
+        interfaces::Shared,
+    },
 };
 
 pub struct FileCharacterDao<C: ODConfig> {
@@ -25,9 +28,27 @@ pub trait CharacterDao<C: ODConfig> {
     fn get_all_characters(&self, project_id: &str) -> Result<Vec<Character>>;
     fn get_character_identifiers(&self, project_id: &str) -> Result<HashSet<Uuid>>;
     fn enforce_character_existence(&self, project_id: &str, char_id: &Uuid) -> Result<()>;
+    fn get_meta_file(&self, project_id: &str) -> Result<CharacterMetadata>;
+    fn save_metadata(&self, project_id: &str, metadata: CharacterMetadata) -> Result<()>;
 }
 
 impl<C: ODConfig> CharacterDao<C> for FileCharacterDao<C> {
+    fn save_metadata(&self, project_id: &str, metadata: CharacterMetadata) -> Result<()> {
+        Ok(self
+            .get_char_dir(project_id)
+            .map(|cp| File::create(cp.join("meta.json")))
+            .context("error creating the metadata file")?
+            .map(|file| BufWriter::new(file))
+            .map(|writer| serde_json::to_writer(writer, &metadata))
+            .context("could not serialize character to write into file")??)
+    }
+
+    fn get_meta_file(&self, project_id: &str) -> Result<CharacterMetadata> {
+        Ok(fs::read(self.get_char_dir(project_id)?.join("meta.json"))
+            .context("could not read character file")
+            .map(|b| serde_json::from_slice(&b))
+            .context("could not deserialize file into character metadata.")??)
+    }
     fn persist_character(&self, project_id: &str, character: &Character) -> Result<()> {
         Ok(self
             .get_char_path(project_id, character.get_id())

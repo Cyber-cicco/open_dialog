@@ -7,6 +7,7 @@ import { ImageField } from "../../bindings/ImageField";
 interface CreateCharacterParams {
   projectId: string;
   name: string;
+  order: number;
 }
 
 interface ChangeCharacterParams {
@@ -25,8 +26,8 @@ export function useCreateCharacter(): UseMutationResult<Character, Error, Create
   const queryClient = useQueryClient();
   return useMutation({
     mutationKey: ['characters', 'create'],
-    mutationFn: async ({ projectId, name }: CreateCharacterParams) =>
-      invoke<Character>("create_character", { projectId, name }),
+    mutationFn: async ({ projectId, name, order }: CreateCharacterParams) =>
+      invoke<Character>("create_character", { projectId, name, order }),
     onSuccess: (_, { projectId }) => {
       queryClient.invalidateQueries({ queryKey: ['characters', 'all', projectId] });
     }

@@ -21,6 +21,7 @@ pub fn run() {
             pkg::character::change_character,
             pkg::character::upload_image,
             pkg::character::get_all_characters,
+            pkg::character::persist_metadata,
 
             pkg::dialog::create_dialog,
             pkg::dialog::get_dialog_by_id,
