@@ -27,27 +27,32 @@ Ce qui a été fait :
 [x] Créer les Nodes ReactFlow pour les Choix.
 [x] Créer l'élement customisé pour le choix.
 
+Ce qui est en train d'être fait:
+
+[] Pouvoir créer des groupes de personnage / dialogues.
+[] Pouvoir ordonnancer les dialogues / personnages.
+[] Mode histoire permettant de relier des dialogues entre eux.
+
 Ce qu'il reste à faire dans l'immédiat:
 
-
-[] Pouvoir ajouter une variable à un personnage (front)
-[] Pouvoir ajouter une variable à un dialogue (front)
-[] Pouvoir supprimer une variable (front)
-[] Pouvoir récupérer les variables d'un personnage (back)
 [] Pouvoir modifier le nom d'un dialogue.
-[] Donner la possibilité de supprimer un dialogue / personnage
-[] Pouvoir ordonnancer les dialogues / personnages
+[] Pouvoir supprimer un dialogue.
+[] Pouvoir supprimer une variable (front).
+[] Donner la possibilité de supprimer un dialogue / personnage.
+[] Possibilité pour un noeud de changer l'état d'une variable.
 
 Quelques éléments qu'il ne faudra pas oublier:
 
+[] Pouvoir récupérer les variables d'un personnage (back)
+[] Pouvoir ajouter une variable à un personnage (front)
+[] Pouvoir ajouter une variable à un dialogue (front)
 [] Créer un système de notifiaction
 [] Faire remonter les messages d'erreur dans le système de notification
 [] Créer un système de log digne de ce nom
-[] Pouvoir créer des groupes de personnage / dialogues
+[] Créer 
 
 À développer plus en détails plus tard
 
-[] Mode histoire permettant de relier des dialogues entre eux avec gestion de l'impact des dialogues sur certaines variables
 [] wiki et bilbiothèque de ressource utilisant le markdown
 
 

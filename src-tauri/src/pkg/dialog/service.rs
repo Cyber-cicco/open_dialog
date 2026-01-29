@@ -1,6 +1,6 @@
 use std::{str::FromStr, sync::Arc};
 
-use anyhow::{Result, anyhow};
+use anyhow::{anyhow, Result};
 use uuid::Uuid;
 
 use crate::{
@@ -59,9 +59,10 @@ impl<C: ODConfig, DD: DialogDao<C>, CD: CharacterDao<C>, MD: MetaDao<C>>
             .or_else(|_| self.dialog_dao.create_metadata(project_id))?;
         let order = form.order;
         let new_dialog = Dialog::from_dialog_creation_form(form)?;
-        metadata
-            .data
-            .insert(new_dialog.get_id(), SimpleDialog::from_dialog(&new_dialog, order));
+        metadata.data.insert(
+            new_dialog.get_id(),
+            SimpleDialog::from_dialog(&new_dialog, order),
+        );
         self.dialog_dao.persist_dialog(project_id, new_dialog)?;
 
         //TODO: should retry and delete the dialog if it fails.
@@ -92,17 +93,20 @@ impl<C: ODConfig, DD: DialogDao<C>, CD: CharacterDao<C>, MD: MetaDao<C>>
     }
 
     pub fn save_dialog(&self, project_id: &str, mut dialog: Dialog) -> Result<()> {
-
-
         let mut fks = self.meta_srv.get_var_to_phylum(project_id)?;
         let vars = self.meta_srv.get_all_variable_hashet(&fks)?;
         dialog.enforce_links_coherence(vars)?;
-        let prev_dialog = self.dialog_dao.get_dialog_by_id(project_id, &dialog.get_id().to_string())?;
+        let prev_dialog = self
+            .dialog_dao
+            .get_dialog_by_id(project_id, &dialog.get_id().to_string())?;
         let diffs = dialog.get_diffs(&prev_dialog);
         fks.mutate_to_match_diffs(diffs)?;
 
         let mut metadata = self.dialog_dao.get_metadata(project_id)?;
-        let prev = metadata.data.get(&dialog.get_id()).ok_or(anyhow!("dialog did not exist"))?;
+        let prev = metadata
+            .data
+            .get(&dialog.get_id())
+            .ok_or(anyhow!("dialog did not exist"))?;
         let simple_dialog = SimpleDialog::from_dialog(&dialog, prev.get_order());
         metadata.data.insert(dialog.get_id(), simple_dialog);
         let mut collector: Vec<DialogContent> = vec![];
@@ -120,6 +124,20 @@ impl<C: ODConfig, DD: DialogDao<C>, CD: CharacterDao<C>, MD: MetaDao<C>>
         self.dialog_dao.persist_dialog(project_id, dialog)?;
         self.meta_srv.save_var_to_phylum_fk(project_id, fks)?;
         self.dialog_dao.persist_metadata(project_id, &metadata)
+    }
+
+    /// Used only to change metadata, and not add / supress a dialog.
+    /// Throws if the old metadata and the new do not contain the same dialogs
+    pub fn save_dialog_metadata(
+        &self,
+        project_id: &str,
+        dialog_metadata: DialogMetadata,
+    ) -> Result<()> {
+        let old = self.dialog_dao.get_metadata(project_id)?;
+        dialog_metadata.enforce_metadata_contains_same_dialogs(old)?;
+        self.dialog_dao
+            .persist_metadata(project_id, &dialog_metadata)?;
+        Ok(())
     }
 
     pub fn save_dialog_content(

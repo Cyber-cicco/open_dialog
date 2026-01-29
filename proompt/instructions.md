@@ -1,1 +1,1 @@
-Create a svg for the story icon on the left panel.
+In the dialog menu, implement arrows to change the order of the dialogs

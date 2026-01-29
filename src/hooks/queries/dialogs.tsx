@@ -14,6 +14,11 @@ interface SaveDialogParams {
   dialog: Dialog;
 }
 
+interface SaveDialogMetadataParams {
+  projectId:string;
+  dialogMetadata:DialogMetadata;
+}
+
 interface SaveDialogContentParams {
   projectId: string;
   dialogId: string;
@@ -58,6 +63,19 @@ export function useSaveDialog(): UseMutationResult<void, Error, SaveDialogParams
     },
     onSuccess: (_, { projectId, dialog }) => {
       queryClient.invalidateQueries({ queryKey: ['dialogs', 'byId', projectId, dialog.id] });
+      queryClient.invalidateQueries({ queryKey: ['dialogs', 'metadata', projectId] });
+    }
+  });
+}
+
+export function useSaveDialogMetadata(): UseMutationResult<void, Error, SaveDialogMetadataParams, unknown> {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationKey: ['dialogs', 'save'],
+    mutationFn: async ({ projectId, dialogMetadata }: SaveDialogMetadataParams) => {
+      invoke<void>("save_dialog_metadata", { projectId, dialogMetadata })
+    },
+    onSuccess: (_, { projectId }) => {
       queryClient.invalidateQueries({ queryKey: ['dialogs', 'metadata', projectId] });
     }
   });

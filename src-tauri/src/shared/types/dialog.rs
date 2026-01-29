@@ -170,6 +170,20 @@ impl DialogMetadata {
             groups:HashMap::new(),
         }
     }
+
+    pub fn enforce_metadata_contains_same_dialogs(&self, metadata:DialogMetadata) -> Result<()> {
+        for (k, _v) in &self.data {
+            if metadata.data.get(k).is_none() {
+                bail!("metadata not equal to other metadata in dialogs")
+            }
+        }
+        for (k, _v) in &metadata.data {
+            if self.data.get(k).is_none() {
+                bail!("metadata not equal to other metadata in dialogs")
+            }
+        }
+        Ok(())
+    }
 }
 
 impl SimpleDialog {

@@ -17,4 +17,7 @@ pub fn get_dialog_metadata(project_id: &str) -> DialogMetadata {}
 pub fn save_dialog(project_id: &str, dialog: Dialog) {}
 
 #[tauri_command(dialog_service)]
-pub fn save_dialog_content(project_id:&str, dialog_id: &str, node_id: &str, content: &str) {}
+pub fn save_dialog_content(project_id: &str, dialog_id: &str, node_id: &str, content: &str) {}
+
+#[tauri_command(dialog_service)]
+pub fn save_dialog_metadata(project_id: &str, dialog_metadata: DialogMetadata) {}
