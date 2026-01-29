@@ -13,6 +13,8 @@ import { VariablesMenu } from "../menus/variables.menu";
 import { VersionsMenu } from "../menus/versions.menus";
 import { BranchesMenu } from "../menus/branches.menus";
 import { useNavigate } from "react-router-dom";
+import { StoryMenu } from "../menus/story.menus";
+import { StorySvg } from "../common/svg/story.svg";
 
 type LeftPanelOpt = {
   name: string
@@ -22,6 +24,7 @@ type LeftPanelOpt = {
 
 const menus = [
   <DialogMenu />,
+  <StoryMenu />,
   <CharacterMenu />,
   <VariablesMenu />,
   <VersionsMenu />,
@@ -33,6 +36,11 @@ const opts: LeftPanelOpt[] = [
     name: 'Dialogs',
     icon: <DialogSvg width={25} height={25} color="#ffffff" />,
     hover: "Create the dialogs of your characters",
+  },
+  {
+    name: 'Story',
+    icon: <StorySvg width={25} height={25} color="#ffffff" />,
+    hover: "Assemble the dialog into a coherent story",
   },
   {
     name: 'Characters',

@@ -22,6 +22,14 @@ pub struct SimpleDialog {
 #[ts(export, export_to = "../../src/bindings/")]
 pub struct DialogMetadata {
     pub data: HashMap<Uuid, SimpleDialog>,
+    pub groups: HashMap<Uuid, DialogGroup>
+}
+
+#[derive(TS, Serialize, Deserialize, Debug)]
+#[ts(export, export_to = "../../src/bindings/")]
+pub struct DialogGroup {
+    id:Uuid,
+    name:String,
 }
 
 #[derive(TS, Serialize, Deserialize, Debug)]
@@ -156,6 +164,7 @@ impl DialogMetadata {
     pub fn new() -> Self {
         DialogMetadata {
             data: HashMap::new(),
+            groups:HashMap::new(),
         }
     }
 }

@@ -1,13 +1,9 @@
-// src/components/layout/right-panel.tsx
-import { useState } from "react";
 import { useRightPanel } from "../../context/right-panel.context";
 import { useGlobalState } from "../../context/global-state.context";
 import { useGetCharacterById } from "../../hooks/queries/character";
 import DialogFeed from "../dialogs/feed.dialogs";
 import { PlayMode } from "../dialogs/play-mode.dialogs";
 import { getImageSrc } from "../common/img";
-
-type PanelMode = "feed" | "play";
 
 const FloatingPortrait = () => {
   const { isOpen, currentSpeakerId } = useRightPanel();
@@ -22,8 +18,8 @@ const FloatingPortrait = () => {
   return (
     <div
       className={`absolute border-5 border-blue-deep z-50 top-4 p-2 py-8 rounded-md bg-base-primary transition-all duration-300 ease-out ${isOpen
-          ? "-left-39 opacity-100 scale-100"
-          : "-left-20 opacity-0 scale-90 pointer-events-none"
+        ? "-left-39 opacity-100 scale-100"
+        : "-left-20 opacity-0 scale-90 pointer-events-none"
         }`}>
       <div className="w-32 h-32 rounded-lg bg-base-surface shadow-lg shadow-blue-deep/30 overflow-hidden">
         {character.portrait_link && project ? (
@@ -47,32 +43,8 @@ const FloatingPortrait = () => {
   );
 };
 
-const ModeToggle = ({ mode, setMode }: { mode: PanelMode; setMode: (m: PanelMode) => void }) => (
-  <div className="flex gap-1 p-1 bg-base-400 rounded">
-    <button
-      onClick={() => setMode("feed")}
-      className={`px-3 py-1 text-xs rounded transition-colors ${mode === "feed"
-        ? "bg-blue-deep text-text-primary"
-        : "text-text-subtle hover:text-text-primary"
-        }`}
-    >
-      Feed
-    </button>
-    <button
-      onClick={() => setMode("play")}
-      className={`px-3 py-1 text-xs rounded transition-colors ${mode === "play"
-        ? "bg-blue-deep text-text-primary"
-        : "text-text-subtle hover:text-text-primary"
-        }`}
-    >
-      Play
-    </button>
-  </div>
-);
-
 const LayoutRightPanel = () => {
   const { isOpen, content, closePanel, openPanel } = useRightPanel();
-  const [mode, setMode] = useState<PanelMode>("feed");
 
   const panelContent = content ?? <DialogFeed />;
 
@@ -92,14 +64,9 @@ const LayoutRightPanel = () => {
         className={`right-panel-content rounded-l-sm h-full bg-base-surface text-white flex flex-col ${isOpen ? "open" : "closed"
           }`}
       >
-        {/* Header with mode toggle */}
-        <div className="flex justify-end p-2 border-b border-base-600">
-          <ModeToggle mode={mode} setMode={setMode} />
-        </div>
-
         {/* Content */}
         <div className="flex-1 overflow-hidden">
-          {mode === "feed" ? <DialogFeed /> : <PlayMode key={mode} />}
+          <PlayMode />
         </div>
       </div>
     </div>
