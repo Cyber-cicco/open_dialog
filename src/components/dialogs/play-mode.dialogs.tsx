@@ -1,5 +1,3 @@
-// play-mode.dialogs.tsx
-
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useDialogContext } from "../../hooks/useDialog";
 import { useGlobalState } from "../../context/global-state.context";
@@ -37,7 +35,6 @@ const evaluateNecessity = (
         return v.Dialog.current_state === necessary_state;
       }
       if ("GlobalChar" in v && v.GlobalChar.id === var_id) {
-        // GlobalChar vars have per-character states - check if any match
         return v.GlobalChar.characters.some(c => c.current_state === necessary_state);
       }
     }
@@ -250,11 +247,6 @@ export const PlayMode = () => {
           nextId = getNextNodeId(current.id, `branch-${branchIndex}`) ?? branch.next_node;
           break;
         }
-      }
-
-      // Fallback if no branch matched
-      if (!nextId) {
-        nextId = getNextNodeId(current.id, `branch-0`) || getNextNodeId(current.id);
       }
     }
 
