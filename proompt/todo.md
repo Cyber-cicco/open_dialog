@@ -28,19 +28,24 @@ Ce qui a été fait :
 [x] Créer l'élement customisé pour le choix.
 [x] Pouvoir ordonnancer les dialogues / personnages.
 [x] Donner la possibilité de supprimer un personnage.
+[x] Pouvoir supprimer un dialogue.
+[x] Pouvoir modifier le nom d'un dialogue.
 
 Ce qui est en train d'être fait:
 
-[] Pouvoir supprimer un dialogue.
+[] Système de commit.
+[] Système de branche.
+[] Système de gestion de remote.
+
 
 Ce qu'il reste à faire dans l'immédiat:
 
-[] Pouvoir modifier le nom d'un dialogue.
 [] Pouvoir supprimer une variable (front).
 [] Possibilité pour un noeud de changer l'état d'une variable.
 
 Quelques éléments qu'il ne faudra pas oublier:
 
+[] Revoir tout ce qui est UX dans l'écriture des dialgues
 [] Mode histoire permettant de relier des dialogues entre eux.
 [] Pouvoir créer des groupes de personnage / dialogues.
 [] Pouvoir récupérer les variables d'un personnage (back)
@@ -49,11 +54,17 @@ Quelques éléments qu'il ne faudra pas oublier:
 [] Créer un système de notifiaction
 [] Faire remonter les messages d'erreur dans le système de notification
 [] Créer un système de log digne de ce nom
-[] Créer 
+[] Créer un système de note à ajouter à une entité.
 
 À développer plus en détails plus tard
 
 [] wiki et bilbiothèque de ressource utilisant le markdown
 
+Gestion des commits:
+
+ * Récupération des logs pour voir un graph de commits
+ * possibilité de revenir sur un vieux commit: va proposer un écran en mode "locked" (pas de possibilité de changer), et un bouton qui crée une nouvelle branche.
+ * 
 
 Ne le fait pas pour l'instant
+

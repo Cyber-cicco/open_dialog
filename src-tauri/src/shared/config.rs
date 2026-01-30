@@ -119,8 +119,7 @@ impl ODConfig for ODConfigLocal {
 
     async fn save_async(&self) -> Result<()> {
         let file =
-            File::create(self.root_dir.join(CONFIG_FILE_PATH)).expect("failed to open config file");
-        serde_json::to_writer(BufWriter::new(file), &self).expect("failed to write config to file");
-        Ok(())
+            File::create(self.root_dir.join(CONFIG_FILE_PATH)).context("failed to open config file")?;
+        serde_json::to_writer(BufWriter::new(file), &self).context("failed to write config to file")
     }
 }

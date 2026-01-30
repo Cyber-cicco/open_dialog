@@ -5,3 +5,4 @@ pub mod project;
 pub mod dialog;
 pub mod variables;
 pub mod meta;
+pub mod gitter;

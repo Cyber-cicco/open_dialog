@@ -1,6 +1,6 @@
 use std::fs;
 use std::path::{Path, PathBuf};
-use std::sync::{Arc, Mutex, MutexGuard, RwLock};
+use std::sync::{Arc, Mutex, MutexGuard};
 
 use anyhow::{anyhow, Context, Result};
 use uuid::Uuid;
@@ -22,7 +22,7 @@ pub trait Uploader: Send + Sync {
             .context("no extension")?;
         let name = format!("{}.{}", uuid.to_string(), extension);
         let to_path = project_path.join("assets").join(&name);
-        fs::copy(from_path, to_path).expect("Could not copy the file to the repository");
+        fs::copy(from_path, to_path).context("Could not copy the file to the repository")?;
         Ok(name)
     }
 }
