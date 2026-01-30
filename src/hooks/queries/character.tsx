@@ -16,6 +16,11 @@ interface ChangeCharacterParams {
   charForm: CharacterForm;
 }
 
+interface SaveMetadataParams {
+  projectId: string;
+  metadata: CharacterMetadata;
+}
+
 interface UploadImageParams {
   projectId: string;
   charId: string;
@@ -45,6 +50,18 @@ export function useChangeCharacter(): UseMutationResult<Character, Error, Change
       queryClient.invalidateQueries({ queryKey: ['characters', 'all', projectId] }).then(() => {
         queryClient.invalidateQueries({ queryKey: ['characters', 'byId', projectId, character.id] })
       });
+    }
+  });
+}
+
+export function useSaveCharacterMetadata(): UseMutationResult<void, Error, SaveMetadataParams, unknown> {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationKey: ['characters', 'change'],
+    mutationFn: async ({ projectId, metadata }: SaveMetadataParams) =>
+      invoke<void>("persist_metadata", { projectId, metadata }),
+    onSuccess: (_, { projectId }) => {
+      queryClient.invalidateQueries({ queryKey: ['characters', 'all', projectId] });
     }
   });
 }

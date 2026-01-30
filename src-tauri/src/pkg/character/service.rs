@@ -47,7 +47,7 @@ impl<C: ODConfig, D: CharacterDao<C>> CharacterServiceLocalImpl<C, D> {
     pub fn persist_metadata(&self, project_id: &str, metadata: CharacterMetadata) -> Result<()> {
         let old = self.dao.get_meta_file(project_id)?;
         old.enforce_characters_unchanged(&metadata)?;
-        self.persist_metadata(project_id, metadata)
+        self.dao.save_metadata(project_id, metadata)
     }
 
     pub fn change_character(

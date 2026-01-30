@@ -27,6 +27,7 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import { GripIcon } from "../common/svg/grip.svg";
 
 export const DialogMenu = () => {
   const { project } = useGlobalState();
@@ -221,14 +222,3 @@ const SortableDialogItem = ({
     </div>
   );
 };
-
-const GripIcon = () => (
-  <svg width={12} height={12} viewBox="0 0 16 16" fill="currentColor">
-    <circle cx="4" cy="3" r="1.5" />
-    <circle cx="12" cy="3" r="1.5" />
-    <circle cx="4" cy="8" r="1.5" />
-    <circle cx="12" cy="8" r="1.5" />
-    <circle cx="4" cy="13" r="1.5" />
-    <circle cx="12" cy="13" r="1.5" />
-  </svg>
-);
