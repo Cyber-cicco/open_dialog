@@ -43,6 +43,12 @@ Ce qu'il reste à faire dans l'immédiat:
 [] Pouvoir supprimer une variable (front).
 [] Possibilité pour un noeud de changer l'état d'une variable.
 
+Avant Alpha 0.0.1
+
+[] Système NLDJSON pour les dialogues, order by ID.
+[] Fichiers meta dans gitignore, reconstruits à chaque merge.
+
+
 Quelques éléments qu'il ne faudra pas oublier:
 
 [] Revoir tout ce qui est UX dans l'écriture des dialgues
