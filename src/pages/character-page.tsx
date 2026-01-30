@@ -30,6 +30,7 @@ const InnerCharacterPage: React.FC<{ project: Project; charId: string }> = ({ pr
   }
 
   if (error || !character) {
+    console.error(error)
     return <div className="text-text-primary p-4">Character not found</div>
   }
 

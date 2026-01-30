@@ -4,7 +4,7 @@ use anyhow::{Context, Result};
 use uuid::Uuid;
 
 use crate::{
-    pkg::character::dao::CharacterDao,
+    pkg::character::{self, dao::CharacterDao},
     shared::{
         config::ODConfig,
         types::{
@@ -112,7 +112,12 @@ impl<C: ODConfig, D: CharacterDao<C>> CharacterServiceLocalImpl<C, D> {
         self.dao.persist_character(project_id, &character)
     }
 
-    pub fn get_all_characters(&self, project_id: &str) -> Result<Vec<Character>> {
-        self.dao.get_all_characters(project_id)
+
+    pub fn get_all_characters(&self, project_id: &str) -> Result<CharacterMetadata> {
+        self.dao.get_meta_file(project_id)
+    }
+
+    pub fn get_character_by_id(&self, project_id: &str, character_id:Uuid) -> Result<Character> {
+        self.dao.get_character(project_id, &character_id)
     }
 }

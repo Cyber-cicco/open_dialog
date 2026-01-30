@@ -1,8 +1,9 @@
 import { Character } from "../../bindings/Character"
 import { Project } from "../../bindings/Project"
+import { SimpleCharacter } from "../../bindings/SimpleCharacter"
 import { getImageSrc } from "../common/img"
 
-export const CharacterAvatar = ({project, character }: {project:Project | undefined, character: Character }) => {
+export const CharacterAvatar = ({project, character }: {project:Project | undefined, character: Character | SimpleCharacter }) => {
   if (character.portrait_link && project) { 
     const portraitSrc = getImageSrc(project, character.portrait_link)
     return (

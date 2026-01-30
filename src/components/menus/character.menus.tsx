@@ -7,11 +7,13 @@ import { CharacterCreationModale } from "../characters/creation-modale.character
 import { CharacterAvatar } from "../characters/avatar.character"
 import { Link } from "react-router-dom"
 import { Project } from "../../bindings/Project"
+import { SimpleCharacter } from "../../bindings/SimpleCharacter"
 
 export const CharacterMenu = () => {
   const { project } = useGlobalState();
   const [modalVisible, setModaleVisible] = useState(false);
-  const { data: characters, error, isPending } = useGetAllCharacters(project?.id!);
+  const { data: metadata, error, isPending } = useGetAllCharacters(project?.id!);
+  const characters = metadata ? Object.values(metadata.data) : undefined;
 
   return (
     <div className="flex h-full flex-col w-full relative">
@@ -23,7 +25,7 @@ export const CharacterMenu = () => {
           <p className="text-text-muted text-sm p-2">No characters yet</p>
         )}
         {characters?.map(char => (
-          <CharacterListItem key={char.id} project={project} character={char} />
+          <CharacterListItem key={char!.id} project={project} character={char!} />
         ))}
       </div>
       
@@ -44,7 +46,7 @@ export const CharacterMenu = () => {
   )
 }
 
-const CharacterListItem = ({ project, character }: {project:Project | undefined, character: Character }) => (
+const CharacterListItem = ({ project, character }: {project:Project | undefined, character: SimpleCharacter }) => (
   <Link to={`character/${character.id}`} className="flex outline-none items-center focus-visible:ring-2 focus-visible:ring-blue-deep/50 focus-visible:ring-offset-2 focus-visible:ring-offset-base-surface gap-3 p-2 rounded-lg hover:bg-highlight-200 cursor-pointer transition-colors">
     <CharacterAvatar project={project} character={character} />
     <span className="text-text-primary text-sm truncate">{character.display_name}</span>

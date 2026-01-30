@@ -3,8 +3,8 @@ import { useFieldContext } from '../../../hooks/form'
 import { useGetAllCharacters } from '../../../hooks/queries/character'
 import { useGlobalState } from '../../../context/global-state.context'
 import { CharacterAvatar } from '../../characters/avatar.character'
-import { Character } from '../../../bindings/Character'
 import { KEYMAP_PRIO, useKeybindings } from '../../../context/keymap.context'
+import { SimpleCharacter } from '../../../bindings/SimpleCharacter'
 
 type CharacterSearchFieldProps = {
   label?: string
@@ -23,12 +23,13 @@ export const CharacterSearchField: React.FC<CharacterSearchFieldProps> = ({
 }) => {
   const { project } = useGlobalState()
   const field = useFieldContext<string>()
-  const { data: characters, isPending } = useGetAllCharacters(project?.id!)
+  const { data: metadata, isPending } = useGetAllCharacters(project?.id!)
 
   const [query, setQuery] = useState('')
   const [isOpen, setIsOpen] = useState(false)
   const [highlightedIndex, setHighlightedIndex] = useState(0)
   const containerRef = useRef<HTMLDivElement>(null)
+  const characters = metadata ? Object.values(metadata?.data) as SimpleCharacter[] : undefined
 
   const selectedCharacter = characters?.find(c => c.id === field.state.value)
 
@@ -58,7 +59,7 @@ export const CharacterSearchField: React.FC<CharacterSearchFieldProps> = ({
     return () => document.removeEventListener('mousedown', handleClick)
   }, [])
 
-  const handleSelect = (character: Character) => {
+  const handleSelect = (character: SimpleCharacter) => {
     field.handleChange(character.id)
     setQuery('')
     setIsOpen(false)

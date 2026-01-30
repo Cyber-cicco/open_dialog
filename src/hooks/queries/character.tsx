@@ -3,6 +3,7 @@ import { Character } from "../../bindings/Character";
 import { useMutation, UseMutationResult, useQuery, useQueryClient, UseQueryResult } from "@tanstack/react-query";
 import { CharacterForm } from "../../bindings/CharacterForm";
 import { ImageField } from "../../bindings/ImageField";
+import { CharacterMetadata } from "../../bindings/CharacterMetadata";
 
 interface CreateCharacterParams {
   projectId: string;
@@ -62,10 +63,10 @@ export function useUploadImage(): UseMutationResult<void, Error, UploadImagePara
   });
 }
 
-export function useGetAllCharacters(projectId: string): UseQueryResult<Character[], Error> {
+export function useGetAllCharacters(projectId: string): UseQueryResult<CharacterMetadata, Error> {
   return useQuery({
     queryKey: ['characters', 'all', projectId],
-    queryFn: async () => invoke<Character[]>("get_all_characters", { projectId }),
+    queryFn: async () => invoke<CharacterMetadata>("get_all_characters", { projectId }),
     enabled: !!projectId,
   });
 }
@@ -74,26 +75,10 @@ export function useGetCharacterById(
   projectId: string,
   characterId: string
 ): UseQueryResult<Character, Error> {
-  const queryClient = useQueryClient();
 
   return useQuery({
     queryKey: ['characters', 'byId', projectId, characterId],
-    queryFn: async () => {
-      let cached = queryClient.getQueryData<Character[]>(['characters', 'all', projectId]);
-      
-      if (!cached) {
-        cached = await queryClient.fetchQuery({
-          queryKey: ['characters', 'all', projectId],
-          queryFn: () => invoke<Character[]>("get_all_characters", { projectId }),
-        });
-      }
-      
-      const character = cached?.find(c => c.id === characterId);
-      if (!character) {
-        throw new Error(`Character with id "${characterId}" not found`);
-      }
-      return character;
-    },
+    queryFn: async () => invoke<Character>("get_character_by_id", { projectId, characterId }),
     enabled: !!projectId && !!characterId,
   });
 }

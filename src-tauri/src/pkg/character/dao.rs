@@ -6,7 +6,7 @@ use std::{
     str::FromStr,
 };
 
-use anyhow::{bail, Context, Ok, Result};
+use anyhow::{bail, Context, Result};
 use uuid::Uuid;
 
 use crate::shared::{
@@ -60,12 +60,22 @@ impl<C: ODConfig> CharacterDao<C> for FileCharacterDao<C> {
     }
 
     fn get_character(&self, project_id: &str, char_id: &Uuid) -> Result<Character> {
-        Ok(self
+        let mut character:Character = self
             .get_char_path(project_id, char_id)
             .map(|path| fs::read(&path))
             .context("could not read character file")?
             .map(|b| serde_json::from_slice(&b))
-            .context("could not deserialize file into character.")??)
+            .context("could not deserialize file into character.")??;
+        let dl_opt = character.get_description_link();
+        match dl_opt {
+            Some(dl) => {
+                let desc_file_path = self.get_desc_file_name(project_id, &dl)?;
+                let file = fs::read_to_string(desc_file_path)?;
+                character.set_description(&file);
+            }
+            None => (),
+        };
+        Ok(character)
     }
 
     fn persist_description(&self, project_id: &str, desc_id: &Uuid, desc: &str) -> Result<()> {
