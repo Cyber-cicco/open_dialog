@@ -25,14 +25,28 @@ pub trait CharacterDao<C: ODConfig> {
     fn persist_character(&self, project_id: &str, character: &Character) -> Result<()>;
     fn get_character(&self, project_id: &str, char_id: &Uuid) -> Result<Character>;
     fn persist_description(&self, project_id: &str, desc_id: &Uuid, desc: &str) -> Result<()>;
-    fn get_all_characters(&self, project_id: &str) -> Result<Vec<Character>>;
     fn get_character_identifiers(&self, project_id: &str) -> Result<HashSet<Uuid>>;
     fn enforce_character_existence(&self, project_id: &str, char_id: &Uuid) -> Result<()>;
     fn get_meta_file(&self, project_id: &str) -> Result<CharacterMetadata>;
     fn save_metadata(&self, project_id: &str, metadata: CharacterMetadata) -> Result<()>;
+    fn delete_character_by_id(&self, project_id: &str, char_id: &Uuid) -> Result<()>;
 }
 
 impl<C: ODConfig> CharacterDao<C> for FileCharacterDao<C> {
+    fn delete_character_by_id(&self, project_id: &str, char_id: &Uuid) -> Result<()> {
+        let char = self.get_character(project_id, char_id)?;
+        match char.get_description_link() {
+            Some(d) => {
+                let desc_file_name = self.get_desc_file_name(project_id, &d)?;
+                fs::remove_file(desc_file_name)
+                    .context("could not delete description file of character to be deleted")?;
+            }
+            None => {}
+        }
+        let char_path = self.get_char_path(project_id, char_id)?;
+        fs::remove_file(char_path).context("could not delete file of character")
+    }
+
     fn save_metadata(&self, project_id: &str, metadata: CharacterMetadata) -> Result<()> {
         Ok(self
             .get_char_dir(project_id)
@@ -60,7 +74,7 @@ impl<C: ODConfig> CharacterDao<C> for FileCharacterDao<C> {
     }
 
     fn get_character(&self, project_id: &str, char_id: &Uuid) -> Result<Character> {
-        let mut character:Character = self
+        let mut character: Character = self
             .get_char_path(project_id, char_id)
             .map(|path| fs::read(&path))
             .context("could not read character file")?
@@ -83,36 +97,6 @@ impl<C: ODConfig> CharacterDao<C> for FileCharacterDao<C> {
             .get_desc_file_name(project_id, desc_id)
             .map(|dfs| fs::write(dfs, desc))
             .context("could not write description to file")??)
-    }
-
-    fn get_all_characters(&self, project_id: &str) -> Result<Vec<Character>> {
-        let char_dir = self.get_char_dir(project_id)?;
-        let mut res: Vec<Character> = fs::read_dir(&char_dir)
-            .context("Could not access this character directory")?
-            .filter_map(|entry| entry.ok())
-            .map(|e| e.path())
-            .filter(|path| path.extension().is_some_and(|ext| ext == "char"))
-            .filter_map(|path| {
-                fs::read(&path)
-                    .ok()
-                    .and_then(|data| serde_json::from_slice(&data).ok())
-                    .or_else(|| {
-                        eprintln!("character file was corrupted: {}", path.display());
-                        None
-                    })
-            })
-            .collect();
-        for character in &mut res {
-            let dl_opt = character.get_description_link();
-            let dl = match dl_opt {
-                Some(dl) => dl,
-                None => continue,
-            };
-            let desc_file_path = self.get_desc_file_name(project_id, &dl)?;
-            let file = fs::read_to_string(desc_file_path)?;
-            character.set_description(&file);
-        }
-        Ok(res)
     }
 
     fn enforce_character_existence(&self, project_id: &str, char_id: &Uuid) -> Result<()> {

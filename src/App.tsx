@@ -11,6 +11,7 @@ const router = createHashRouter([
   {
     path: '/',
     element: <MainLayout><Outlet /></MainLayout>,
+    errorElement: <MainLayout><ProjectPage/></MainLayout>,
     children: [
       {
         path: "",

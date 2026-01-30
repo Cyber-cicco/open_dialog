@@ -1,5 +1,5 @@
-use std::sync::Arc;
 use anyhow::anyhow;
+use std::sync::Arc;
 use std::{collections::HashMap, path::Path};
 
 use anyhow::{bail, Result};
@@ -198,7 +198,16 @@ impl CharacterMetadata {
     }
 
     pub fn get_character_by_id(&self, id: &Uuid) -> Result<&SimpleCharacter> {
-        self.data.get(id).ok_or(anyhow!("could not find user in metadata"))
+        self.data
+            .get(id)
+            .ok_or(anyhow!("could not find user in metadata"))
+    }
+
+    pub fn delete_character_by_id(&mut self, id: &Uuid) -> Result<()> {
+        self.data
+            .remove_entry(id)
+            .ok_or(anyhow!("entry did not exist in metadata"))?;
+        Ok(())
     }
 }
 
@@ -213,6 +222,6 @@ impl SimpleCharacter {
     }
 
     pub fn get_order(&self) -> usize {
-        return self.order
+        return self.order;
     }
 }

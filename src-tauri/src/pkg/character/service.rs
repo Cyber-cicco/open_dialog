@@ -4,7 +4,7 @@ use anyhow::{Context, Result};
 use uuid::Uuid;
 
 use crate::{
-    pkg::character::{self, dao::CharacterDao},
+    pkg::character::{dao::CharacterDao},
     shared::{
         config::ODConfig,
         types::{
@@ -42,6 +42,14 @@ impl<C: ODConfig, D: CharacterDao<C>> CharacterServiceLocalImpl<C, D> {
         self.dao.persist_character(project_id, &character)?;
         self.dao.save_metadata(project_id, metadata)?;
         Ok(character)
+    }
+
+    pub fn delete_character(&self, project_id: &str, character_id:Uuid) -> Result<()> {
+        let mut metadata = self.dao.get_meta_file(project_id)?;
+        metadata.delete_character_by_id(&character_id)?;
+        self.dao.delete_character_by_id(project_id, &character_id)?;
+        self.dao.save_metadata(project_id, metadata)
+
     }
 
     pub fn persist_metadata(&self, project_id: &str, metadata: CharacterMetadata) -> Result<()> {

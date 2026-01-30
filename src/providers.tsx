@@ -6,6 +6,7 @@ import { KeymapProvider } from "./context/keymap.context";
 import { DialogProvider } from "./context/dialog.context";
 import { RightPanelProvider } from "./context/right-panel.context";
 import { PhylumCreationModalProvider } from "./context/condition-creation-modale.context";
+import { ConfirmationProvider } from "./context/confirmation-modal.context";
 
 
 export const Providers = ({ children }: PropsWithChildren) => {
@@ -15,13 +16,15 @@ export const Providers = ({ children }: PropsWithChildren) => {
       <GlobalStateProvider>
         <KeymapProvider>
           <ProjectCreationModalProvider>
-            <DialogProvider>
-              <PhylumCreationModalProvider>
-                <RightPanelProvider>
-                  {children}
-                </RightPanelProvider>
-              </PhylumCreationModalProvider>
-            </DialogProvider>
+            <ConfirmationProvider>
+              <DialogProvider>
+                <PhylumCreationModalProvider>
+                  <RightPanelProvider>
+                    {children}
+                  </RightPanelProvider>
+                </PhylumCreationModalProvider>
+              </DialogProvider>
+            </ConfirmationProvider>
           </ProjectCreationModalProvider>
         </KeymapProvider>
       </GlobalStateProvider>

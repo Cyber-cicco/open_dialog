@@ -97,6 +97,7 @@ export const DialogMenu = () => {
 
   return (
     <div className="flex h-full flex-col w-full relative">
+      <h2 className="py-1">Dialogs</h2>
       <div className="flex-1 overflow-y-auto space-y-1">
         {isPending && <p className="text-text-muted text-sm p-2">Loading...</p>}
         {error && <p className="text-red-500 text-sm p-2">Error loading dialogs</p>}

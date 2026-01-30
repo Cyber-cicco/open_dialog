@@ -1,1 +1,3 @@
-I want to be able to drag and drop my characters to rearrange the order. I also want arrows to change the order. Use the dialogs as an example.
+Add a way to change the dialog title in the dialog page.
+
+Add a way to delete the dialog.

@@ -22,3 +22,6 @@ pub fn persist_metadata(project_id: &str, metadata: CharacterMetadata) {}
 
 #[tauri_command(character_service)]
 pub fn get_character_by_id(project_id: &str, character_id: Uuid) -> Character {}
+
+#[tauri_command(character_service)]
+pub fn delete_character(project_id: &str, character_id:Uuid) {}

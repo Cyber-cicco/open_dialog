@@ -9,7 +9,7 @@ const getModelStyles = (disabled: boolean, model: ButtonModel) => {
     case "secondary":
       return "text-text-subtle hover:text-text-primary hover:cursor-pointer bg-base-overlay hover:bg-base-500"
     case "danger":
-      return "text-white bg-red-600 hover:bg-red-700 hover:cursor-pointer"
+      return "text-white bg-red-900 hover:bg-red-950 hover:cursor-pointer"
     case "primary":
     default:
       return "text-base-primary bg-blue-primary hover:bg-blue-light hover:cursor-pointer"

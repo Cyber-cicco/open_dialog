@@ -21,6 +21,11 @@ interface SaveMetadataParams {
   metadata: CharacterMetadata;
 }
 
+interface DeleteCharacterParams {
+  projectId: string;
+  characterId: string;
+}
+
 interface UploadImageParams {
   projectId: string;
   charId: string;
@@ -60,6 +65,18 @@ export function useSaveCharacterMetadata(): UseMutationResult<void, Error, SaveM
     mutationKey: ['characters', 'change'],
     mutationFn: async ({ projectId, metadata }: SaveMetadataParams) =>
       invoke<void>("persist_metadata", { projectId, metadata }),
+    onSuccess: (_, { projectId }) => {
+      queryClient.invalidateQueries({ queryKey: ['characters', 'all', projectId] });
+    }
+  });
+}
+
+export function useDeleteCharacter(): UseMutationResult<void, Error, DeleteCharacterParams, unknown> {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationKey: ['characters', 'delete'],
+    mutationFn: async ({ projectId, characterId }: DeleteCharacterParams) =>
+      invoke<void>("delete_character", { projectId, characterId }),
     onSuccess: (_, { projectId }) => {
       queryClient.invalidateQueries({ queryKey: ['characters', 'all', projectId] });
     }

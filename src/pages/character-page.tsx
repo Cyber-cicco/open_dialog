@@ -10,6 +10,10 @@ import { useFileExplorer } from "../hooks/useFileExplorer"
 import { Project } from "../bindings/Project"
 import { getImageSrc } from "../components/common/img"
 import { getInitials } from "../hooks/useInitials"
+import { useDeleteCharacter } from "../hooks/queries/character"
+import { useConfirmation } from "../context/confirmation-modal.context"
+import { useNavigate } from "react-router-dom"
+import { TrashSvg } from "../components/common/svg/trash.svg"
 
 export const CharacterPage: React.FC = () => {
   const { id } = useParams()
@@ -39,6 +43,26 @@ const InnerCharacterPage: React.FC<{ project: Project; charId: string }> = ({ pr
 
 
 const CharacterPanel: React.FC<{ character: Character; project: Project }> = ({ character, project }) => {
+
+  const deleteMutation = useDeleteCharacter()
+  const { openConfirmation } = useConfirmation()
+  const navigate = useNavigate()
+
+  const handleDelete = () => {
+    openConfirmation({
+      title: "Delete Character",
+      message: `Are you sure you want to delete "${character.display_name}"? This action cannot be undone.`,
+      confirmLabel: "Delete",
+      variant: "danger",
+      onConfirm: async () => {
+        await deleteMutation.mutateAsync({
+          projectId: project.id,
+          characterId: character.id,
+        })
+        navigate(`/`)
+      },
+    })
+  }
 
   const characterMutation = useChangeCharacter()
   const uploadMutation = useUploadImage()
@@ -101,16 +125,26 @@ const CharacterPanel: React.FC<{ character: Character; project: Project }> = ({ 
         <div className="absolute inset-0 bg-gradient-to-br from-base-400 to-base-200" />
       )}
 
-      {/* Background upload button (top-right corner) */}
-      <button
-        type="button"
-        onClick={() => handleImageUpload("Background")}
-        disabled={uploadMutation.isPending}
-        className="absolute top-4 right-4 z-20 px-3 py-1.5 rounded bg-base-overlay/80 hover:bg-base-500 text-text-subtle text-sm transition-colors cursor-pointer disabled:opacity-50"
-        aria-label="Change background"
-      >
-        {uploadMutation.isPending ? "Uploading..." : "Change Background"}
-      </button>
+      {/* Top-right controls */}
+      <div className="absolute top-4 right-4 z-20 flex gap-2">
+        <button
+          type="button"
+          onClick={() => handleImageUpload("Background")}
+          disabled={uploadMutation.isPending}
+          className="px-3 py-1.5 rounded bg-base-overlay/80 hover:bg-base-500 text-text-subtle text-sm transition-colors cursor-pointer disabled:opacity-50"
+          aria-label="Change background"
+        >
+          {uploadMutation.isPending ? "Uploading..." : "Change Background"}
+        </button>
+        <button
+          type="button"
+          onClick={handleDelete}
+          className="p-1.5 rounded bg-base-overlay/80 hover:bg-red-500/20 text-text-subtle hover:text-white transition-colors cursor-pointer"
+          aria-label="Delete character"
+        >
+          <TrashSvg width={16} height={16} />
+        </button>
+      </div>
 
       {/* Content overlay */}
       <div className="relative z-10 flex h-full">

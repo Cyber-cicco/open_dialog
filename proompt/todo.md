@@ -26,11 +26,11 @@ Ce qui a été fait :
 [x] Créer les Nodes ReactFlow pour les Phylum.
 [x] Créer les Nodes ReactFlow pour les Choix.
 [x] Créer l'élement customisé pour le choix.
+[x] Pouvoir ordonnancer les dialogues / personnages.
 
 Ce qui est en train d'être fait:
 
 [] Pouvoir créer des groupes de personnage / dialogues.
-[] Pouvoir ordonnancer les dialogues / personnages.
 [] Mode histoire permettant de relier des dialogues entre eux.
 
 Ce qu'il reste à faire dans l'immédiat:
