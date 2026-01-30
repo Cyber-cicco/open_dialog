@@ -5,7 +5,6 @@ use git2::Repository;
 use uuid::Uuid;
 
 use crate::{
-    pkg::project,
     shared::{
         config::ODConfig,
         types::{
@@ -15,7 +14,7 @@ use crate::{
     },
 };
 
-struct GitService<C: ODConfig> {
+pub struct GitService<C: ODConfig> {
     config: Shared<C>,
 }
 
@@ -24,8 +23,8 @@ impl<C: ODConfig> GitService<C> {
         Self { config }
     }
 
-    pub fn commit(&self, project_id: &Uuid, message: &str) -> Result<()> {
-        let repo = self.open_repository(project_id)?;
+    pub fn commit(&self, project_id: Uuid, message: &str) -> Result<()> {
+        let repo = self.open_repository(&project_id)?;
         let sig = repo.signature()?;
         let tree_oid = repo.index()?.write_tree()?;
         let tree = repo.find_tree(tree_oid)?;
@@ -34,9 +33,9 @@ impl<C: ODConfig> GitService<C> {
         Ok(())
     }
 
-    pub fn get_logs(&self, project_id: &Uuid) -> Result<CommitGraph> {
+    pub fn get_logs(&self, project_id: Uuid) -> Result<CommitGraph> {
         let mut commits: Vec<CommitInfo> = vec![];
-        let repo = self.open_repository(project_id)?;
+        let repo = self.open_repository(&project_id)?;
         let branches = self.get_branches(&repo)?;
         let mut rev_walk = repo.revwalk()?;
         for branch in &branches {

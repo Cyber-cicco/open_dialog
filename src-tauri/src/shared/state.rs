@@ -2,6 +2,7 @@ use crate::pkg::character::dao::FileCharacterDao;
 use crate::pkg::character::service::CharacterServiceLocalImpl;
 use crate::pkg::dialog::dao::FileDialogDao;
 use crate::pkg::dialog::service::DialogServiceLocalImpl;
+use crate::pkg::gitter::service::GitService;
 use crate::pkg::meta::dao::FileMetaDao;
 use crate::pkg::project::service::ProjectServiceLocaleImpl;
 use crate::pkg::variables::dao::FileVariableDao;
@@ -25,4 +26,5 @@ pub struct AppState {
         FileDialogDao<ODConfigLocal>,
         FileMetaDao<ODConfigLocal>,
     >,
+    pub git_service: GitService<ODConfigLocal>
 }

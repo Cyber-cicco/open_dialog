@@ -2,6 +2,7 @@ use crate::pkg::character::dao::FileCharacterDao;
 use crate::pkg::character::service::CharacterServiceLocalImpl;
 use crate::pkg::dialog::dao::FileDialogDao;
 use crate::pkg::dialog::service::DialogServiceLocalImpl;
+use crate::pkg::gitter::service::GitService;
 use crate::pkg::meta::dao::FileMetaDao;
 use crate::pkg::meta::service::MetaServiceLocalImpl;
 use crate::pkg::project::service::ProjectServiceLocaleImpl;
@@ -25,6 +26,7 @@ pub fn init_local_app_state() -> Result<AppState> {
     let dialog_dao = Arc::new(FileDialogDao::new(shared_conf.clone()));
     let meta_dao = Arc::new(FileMetaDao::new(shared_conf.clone()));
     let meta_srv = MetaServiceLocalImpl::new(shared_conf.clone(), meta_dao.clone());
+    let git_srv = GitService::new(shared_conf.clone());
 
     Ok(AppState {
         project_service: ProjectServiceLocaleImpl::new(shared_conf.clone()),
@@ -46,5 +48,6 @@ pub fn init_local_app_state() -> Result<AppState> {
             dialog_dao.clone(),
             meta_dao.clone(),
         ),
+        git_service: git_srv,
     })
 }

@@ -37,6 +37,9 @@ pub fn run() {
             pkg::variables::persist_variables,
             pkg::variables::delete_variable,
 
+            pkg::gitter::get_logs,
+            pkg::gitter::commit,
+
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

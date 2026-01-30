@@ -1,3 +1,3 @@
-How can I get the tip of each branch in get_logs ?
+Can tauri commands be async, aka non blocking for the UI ? And if it can, why isn't it the default behaviour ?
 
 
