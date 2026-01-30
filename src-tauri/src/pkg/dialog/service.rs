@@ -69,15 +69,14 @@ impl<C: ODConfig, DD: DialogDao<C>, CD: CharacterDao<C>, MD: MetaDao<C>>
         self.dialog_dao.persist_metadata(project_id, &metadata)
     }
 
-    pub fn get_dialog_by_id(&self, project_id: &str, dialog_id: &str) -> Result<Dialog> {
-        let mut dialog = self.dialog_dao.get_dialog_by_id(project_id, dialog_id)?;
-        for (mut _uuid, node) in dialog.get_nodes() {
-            let node_id = &node.get_id().to_string();
+    pub fn get_dialog_by_id(&self, project_id: &str, dialog_id: Uuid) -> Result<Dialog> {
+        let mut dialog = self.dialog_dao.get_dialog_by_id(project_id, &dialog_id)?;
+        for (uuid, node) in dialog.get_nodes() {
             if let NodeData::Dialog(dialog) = node.get_data() {
                 if dialog.content_link.is_some() {
                     let content = self
                         .dialog_dao
-                        .get_content(project_id, dialog_id, node_id)?;
+                        .get_content(project_id, &dialog_id, uuid)?;
                     dialog.content = Some(content);
                 }
             };
@@ -98,7 +97,7 @@ impl<C: ODConfig, DD: DialogDao<C>, CD: CharacterDao<C>, MD: MetaDao<C>>
         dialog.enforce_links_coherence(vars)?;
         let prev_dialog = self
             .dialog_dao
-            .get_dialog_by_id(project_id, &dialog.get_id().to_string())?;
+            .get_dialog_by_id(project_id, &dialog.get_id())?;
         let diffs = dialog.get_diffs(&prev_dialog);
         fks.mutate_to_match_diffs(diffs)?;
 
@@ -110,13 +109,14 @@ impl<C: ODConfig, DD: DialogDao<C>, CD: CharacterDao<C>, MD: MetaDao<C>>
         let simple_dialog = SimpleDialog::from_dialog(&dialog, prev.get_order());
         metadata.data.insert(dialog.get_id(), simple_dialog);
         let mut collector: Vec<DialogContent> = vec![];
-        let dialog_id = &dialog.get_id().to_string();
+        let dialog_id = &dialog.get_id();
+
         dialog.collect_content(&mut collector);
         for content in collector {
             self.dialog_dao.persist_dialog_content(
                 project_id,
                 dialog_id,
-                &content.node_id.to_string(),
+                &content.node_id,
                 &content.content,
             )?;
         }
@@ -140,14 +140,21 @@ impl<C: ODConfig, DD: DialogDao<C>, CD: CharacterDao<C>, MD: MetaDao<C>>
         Ok(())
     }
 
+    pub fn delete_dialog(&self, project_id: &str, dialog_id: Uuid) -> Result<()> {
+        let mut metadata = self.dialog_dao.get_metadata(project_id)?;
+        metadata.delete_dialog_by_id(&dialog_id)?;
+        self.dialog_dao.delete_dialog_by_id(project_id, &dialog_id)?;
+        self.dialog_dao.persist_metadata(project_id, &metadata)
+    }
+
     pub fn save_dialog_content(
         &self,
         project_id: &str,
-        dialog_id: &str,
-        node_id: &str,
+        dialog_id: Uuid,
+        node_id: Uuid,
         content: &str,
     ) -> Result<()> {
         self.dialog_dao
-            .persist_dialog_content(project_id, dialog_id, node_id, content)
+            .persist_dialog_content(project_id, &dialog_id, &node_id, content)
     }
 }

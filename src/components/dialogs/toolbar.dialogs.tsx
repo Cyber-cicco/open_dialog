@@ -2,9 +2,13 @@ import { DialogSvg } from "../common/svg/dialog.svg"
 import { BranchesSvg } from "../common/svg/branches.svg"
 import { NodeType } from "../../pages/dialog-page"
 import { ChoiceSvg } from "../common/svg/choice.svg"
+import { useAppForm } from "../../hooks/form"
+import { useSaveDialog } from "../../hooks/queries/dialogs"
+import { Dialog } from "../../bindings/Dialog"
 
 type NodeToolbarProps = {
-  dialogName: string
+  dialog: Dialog
+  projectId: string
   onNodeCreate?: (type: NodeType) => void
 }
 
@@ -28,10 +32,45 @@ const ToolbarButton: React.FC<ToolbarButtonProps> = ({ icon, label, onClick }) =
   )
 }
 
-export const NodeToolbar: React.FC<NodeToolbarProps> = ({ dialogName, onNodeCreate }) => {
+export const NodeToolbar: React.FC<NodeToolbarProps> = ({ dialog, projectId, onNodeCreate }) => {
+  const saveDialogMutation = useSaveDialog()
+
+  const form = useAppForm({
+    defaultValues: {
+      name: dialog.name,
+    },
+    onSubmit: async ({ value }) => {
+      if (value.name === dialog.name) return
+      await saveDialogMutation.mutateAsync({
+        projectId,
+        dialog: { ...dialog, name: value.name },
+      })
+    },
+  })
+
+  const submitOnBlur = () => {
+    form.handleSubmit()
+  }
+
   return (
-    <div className="absolute bg-base-primary/50 top-4 p-2 rounded-md left-4 z-10 flex flex-col gap-2">
-      <h2 className="text-text-primary text-lg font-medium mb-1">{dialogName}</h2>
+    <div className="absolute top-4 left-4 z-10 flex flex-col gap-2">
+      <form
+        onSubmit={(e) => {
+          e.preventDefault()
+          e.stopPropagation()
+          form.handleSubmit()
+        }}
+      >
+        <form.AppField
+          name="name"
+          children={(field) => (
+            <field.TextField
+              onBlur={submitOnBlur}
+              placeholder="Dialog name"
+            />
+          )}
+        />
+      </form>
       <ToolbarButton
         icon={<DialogSvg width={18} height={18} />}
         label="Dialog"

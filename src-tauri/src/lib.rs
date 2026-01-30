@@ -31,6 +31,7 @@ pub fn run() {
             pkg::dialog::save_dialog,
             pkg::dialog::save_dialog_content,
             pkg::dialog::save_dialog_metadata,
+            pkg::dialog::delete_dialog,
 
             pkg::variables::load_variables,
             pkg::variables::persist_variables,

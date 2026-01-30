@@ -27,22 +27,22 @@ Ce qui a été fait :
 [x] Créer les Nodes ReactFlow pour les Choix.
 [x] Créer l'élement customisé pour le choix.
 [x] Pouvoir ordonnancer les dialogues / personnages.
+[x] Donner la possibilité de supprimer un personnage.
 
 Ce qui est en train d'être fait:
 
-[] Pouvoir créer des groupes de personnage / dialogues.
-[] Mode histoire permettant de relier des dialogues entre eux.
+[] Pouvoir supprimer un dialogue.
 
 Ce qu'il reste à faire dans l'immédiat:
 
 [] Pouvoir modifier le nom d'un dialogue.
-[] Pouvoir supprimer un dialogue.
 [] Pouvoir supprimer une variable (front).
-[] Donner la possibilité de supprimer un dialogue / personnage.
 [] Possibilité pour un noeud de changer l'état d'une variable.
 
 Quelques éléments qu'il ne faudra pas oublier:
 
+[] Mode histoire permettant de relier des dialogues entre eux.
+[] Pouvoir créer des groupes de personnage / dialogues.
 [] Pouvoir récupérer les variables d'un personnage (back)
 [] Pouvoir ajouter une variable à un personnage (front)
 [] Pouvoir ajouter une variable à un dialogue (front)

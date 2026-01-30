@@ -3,7 +3,7 @@ use std::{
     str::FromStr,
 };
 
-use anyhow::{bail, Result};
+use anyhow::{Result, anyhow, bail};
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use ts_rs::TS;
@@ -184,6 +184,13 @@ impl DialogMetadata {
         }
         Ok(())
     }
+
+    pub fn delete_dialog_by_id(&mut self, id:&Uuid) -> Result<()> {
+        self.data
+            .remove_entry(id)
+            .ok_or(anyhow!("entry did not exist in metadata"))?;
+        Ok(())
+    }
 }
 
 impl SimpleDialog {
@@ -292,6 +299,7 @@ impl Dialog {
             }
         }
     }
+
 }
 
 impl Coherent for DialogNode {

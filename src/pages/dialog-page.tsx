@@ -1,7 +1,8 @@
-import { useParams } from "react-router-dom"
+import { useParams, useNavigate } from "react-router-dom"
 import { NodeToolbar } from "../components/dialogs/toolbar.dialogs"
-import { useGetDialogById } from "../hooks/queries/dialogs"
+import { useGetDialogById, useDeleteDialog } from "../hooks/queries/dialogs"
 import { useGlobalState } from "../context/global-state.context"
+import { useConfirmation } from "../context/confirmation-modal.context"
 import { Project } from "../bindings/Project"
 import { Dialog } from "../bindings/Dialog"
 import { Background, Controls, MarkerType, ReactFlow, ReactFlowProvider, useReactFlow } from "@xyflow/react"
@@ -9,6 +10,7 @@ import { useRef } from "react"
 import { DialogNodeComp } from "../components/dialogs/dialog-node.dialogs"
 import { PhylumNode } from "../components/dialogs/phylum-node.dialog"
 import { ChoiceNode } from "../components/dialogs/choice-node.dialogs"
+import { TrashSvg } from "../components/common/svg/trash.svg"
 import '@xyflow/react/dist/style.css'
 import { KEYMAP_PRIO, useKeybindings } from "../context/keymap.context"
 import { useDialog } from "../hooks/useDialog"
@@ -83,7 +85,11 @@ export const OuterDialogPage: React.FC = () => {
   )
 }
 
-const InnerDialogPage: React.FC<{ project: Project; dialog: Dialog }> = ({ dialog }) => {
+const InnerDialogPage: React.FC<{ project: Project; dialog: Dialog }> = ({ project, dialog }) => {
+  const navigate = useNavigate()
+  const deleteMutation = useDeleteDialog()
+  const { openConfirmation } = useConfirmation()
+  
   const {
     createNode,
     nodes,
@@ -94,12 +100,28 @@ const InnerDialogPage: React.FC<{ project: Project; dialog: Dialog }> = ({ dialo
   } = useDialog(dialog);
   const panelRef = useRef<HTMLDivElement>(null);
   const { screenToFlowPosition } = useReactFlow();
+  
   useKeybindings({
     "Ctrl+n": () => createNodeOnCursor(NodeType.DIALOG),
     "Ctrl+p": () => createNodeOnCursor(NodeType.PHYLUM),
     "Ctrl+m": () => createNodeOnCursor(NodeType.CHOICE),
-
   }, { enabled: true, priority: KEYMAP_PRIO.PANEL })
+
+  const handleDelete = () => {
+    openConfirmation({
+      title: "Delete Dialog",
+      message: `Are you sure you want to delete "${dialog.name}"? This action cannot be undone.`,
+      confirmLabel: "Delete",
+      variant: "danger",
+      onConfirm: async () => {
+        await deleteMutation.mutateAsync({
+          projectId: project.id,
+          dialogId: dialog.id,
+        })
+        navigate(`/`)
+      },
+    })
+  }
 
   const getCanvasCenter = () => {
     const container = panelRef.current;
@@ -123,7 +145,7 @@ const InnerDialogPage: React.FC<{ project: Project; dialog: Dialog }> = ({ dialo
 
   const mousePosRef = useRef({ x: 0, y: 0 });
 
-  const createNodeOnCursor = (nodeType:NodeType) => {
+  const createNodeOnCursor = (nodeType: NodeType) => {
     const flowPos = screenToFlowPosition(mousePosRef.current);
     const size = NODE_SIZES[nodeType]
 
@@ -135,7 +157,20 @@ const InnerDialogPage: React.FC<{ project: Project; dialog: Dialog }> = ({ dialo
 
   return (
     <div className="w-full h-full relative">
-      <NodeToolbar dialogName={dialog.name} onNodeCreate={handleNodeCreate} />
+      <NodeToolbar dialog={dialog} projectId={project.id} onNodeCreate={handleNodeCreate} />
+
+      {/* Top-right controls */}
+      <div className="absolute top-4 right-4 z-10 flex gap-2">
+        <button
+          type="button"
+          onClick={handleDelete}
+          className="p-1.5 rounded bg-base-surface border border-blue-deep hover:bg-red-500/20 text-text-subtle hover:text-white transition-colors cursor-pointer"
+          aria-label="Delete dialog"
+        >
+          <TrashSvg width={16} height={16} />
+        </button>
+      </div>
+
       <div ref={panelRef} style={{ width: "100%", height: "100%" }}>
         <ReactFlow
           nodes={nodes}
@@ -148,7 +183,7 @@ const InnerDialogPage: React.FC<{ project: Project; dialog: Dialog }> = ({ dialo
           }}
           deleteKeyCode={["Backspace", "Delete"]}
           defaultEdgeOptions={{
-            focusable:true,
+            focusable: true,
             markerEnd: {
               type: MarkerType.ArrowClosed,
               width: 20,

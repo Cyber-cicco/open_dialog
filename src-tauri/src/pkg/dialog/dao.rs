@@ -1,5 +1,9 @@
 use std::{
-    collections::HashSet, fs::{self, File}, io::BufWriter, path::{PathBuf}, str::FromStr
+    collections::HashSet,
+    fs::{self, File},
+    io::BufWriter,
+    path::PathBuf,
+    str::FromStr,
 };
 
 use anyhow::{Context, Result};
@@ -22,17 +26,18 @@ pub trait DialogDao<C: ODConfig> {
     fn persist_metadata(&self, project_id: &str, metadata: &DialogMetadata) -> Result<()>;
     fn get_metadata(&self, project_id: &str) -> Result<DialogMetadata>;
     fn create_metadata(&self, project_id: &str) -> Result<DialogMetadata>;
-    fn get_dialog_by_id(&self, project_id: &str, dialog_id: &str) -> Result<Dialog>;
+    fn get_dialog_by_id(&self, project_id: &str, dialog_id: &Uuid) -> Result<Dialog>;
     fn get_dialog_metadata(&self, project_id: &str) -> Result<DialogMetadata>;
-    fn get_content(&self, project_id: &str, character_id: &str, node_id: &str) -> Result<String>;
+    fn get_content(&self, project_id: &str, character_id: &Uuid, node_id: &Uuid) -> Result<String>;
     fn persist_dialog_content(
         &self,
         project_id: &str,
-        dialog_id: &str,
-        node_id: &str,
+        dialog_id: &Uuid,
+        node_id: &Uuid,
         content: &str,
     ) -> Result<()>;
     fn get_dialog_identifiers(&self, project_id: &str) -> Result<HashSet<Uuid>>;
+    fn delete_dialog_by_id(&self, project_id: &str, dialog_id: &Uuid) -> Result<()>;
 }
 
 impl<C: ODConfig> FileDialogDao<C> {
@@ -42,8 +47,13 @@ impl<C: ODConfig> FileDialogDao<C> {
 }
 
 impl<C: ODConfig> DialogDao<C> for FileDialogDao<C> {
+    fn delete_dialog_by_id(&self, project_id: &str, dialog_id: &Uuid) -> Result<()> {
+        fs::remove_dir_all(self.get_dialog_dir_id(project_id, dialog_id)?)
+            .context("deleting the directory of the dialog did not work")
+    }
+
     fn persist_dialog(&self, project_id: &str, dialog: Dialog) -> Result<()> {
-        let dir_path = self.get_dialog_dir_id(project_id, &dialog.get_id().to_string())?;
+        let dir_path = self.get_dialog_dir_id(project_id, &dialog.get_id())?;
         if !dir_path.is_dir() {
             fs::create_dir(&dir_path).context("could not create character directory")?;
         }
@@ -72,7 +82,7 @@ impl<C: ODConfig> DialogDao<C> for FileDialogDao<C> {
         Ok(())
     }
 
-    fn get_dialog_by_id(&self, project_id: &str, dialog_id: &str) -> Result<Dialog> {
+    fn get_dialog_by_id(&self, project_id: &str, dialog_id: &Uuid) -> Result<Dialog> {
         let path = self.get_dialog_meta_file(project_id, dialog_id)?;
         let file = fs::read(path).context("could not read dialog file")?;
         Ok(serde_json::from_slice(&file).context("could not deserialize dialog")?)
@@ -87,8 +97,8 @@ impl<C: ODConfig> DialogDao<C> for FileDialogDao<C> {
     fn persist_dialog_content(
         &self,
         project_id: &str,
-        dialog_id: &str,
-        node_id: &str,
+        dialog_id: &Uuid,
+        node_id: &Uuid,
         content: &str,
     ) -> Result<()> {
         let path = self.get_dialog_content_node_file(project_id, dialog_id, node_id)?;
@@ -96,7 +106,7 @@ impl<C: ODConfig> DialogDao<C> for FileDialogDao<C> {
         Ok(())
     }
 
-    fn get_content(&self, project_id: &str, dialog_id: &str, node_id: &str) -> Result<String> {
+    fn get_content(&self, project_id: &str, dialog_id: &Uuid, node_id: &Uuid) -> Result<String> {
         let path = self.get_dialog_content_node_file(project_id, dialog_id, node_id)?;
         fs::read_to_string(path).context("could not read content file")
     }
@@ -107,7 +117,9 @@ impl<C: ODConfig> DialogDao<C> for FileDialogDao<C> {
             .filter_map(|entry| entry.ok())
             .filter_map(|e| e.path().file_name()?.to_str().map(String::from))
             .filter(|file_name| file_name != "meta.json")
-            .map(|name| Uuid::from_str(&name).context(format!("could not create uuid from string {name}")))
+            .map(|name| {
+                Uuid::from_str(&name).context(format!("could not create uuid from string {name}"))
+            })
             .collect::<Result<HashSet<Uuid>>>()
     }
 }
@@ -127,11 +139,11 @@ impl<C: ODConfig> FileDialogDao<C> {
         Ok(self.get_dialog_dir(project_id)?.join("meta.json"))
     }
 
-    pub fn get_dialog_dir_id(&self, project_id: &str, dialog_id: &str) -> Result<PathBuf> {
-        Ok(self.get_dialog_dir(project_id)?.join(dialog_id))
+    pub fn get_dialog_dir_id(&self, project_id: &str, dialog_id: &Uuid) -> Result<PathBuf> {
+        Ok(self.get_dialog_dir(project_id)?.join(dialog_id.to_string()))
     }
 
-    pub fn get_dialog_meta_file(&self, project_id: &str, dialog_id: &str) -> Result<PathBuf> {
+    pub fn get_dialog_meta_file(&self, project_id: &str, dialog_id: &Uuid) -> Result<PathBuf> {
         Ok(self
             .get_dialog_dir_id(project_id, dialog_id)?
             .join("meta.json"))
@@ -140,8 +152,8 @@ impl<C: ODConfig> FileDialogDao<C> {
     pub fn get_dialog_content_node_file(
         &self,
         project_id: &str,
-        dialog_id: &str,
-        node_id: &str,
+        dialog_id: &Uuid,
+        node_id: &Uuid,
     ) -> Result<PathBuf> {
         Ok(self
             .get_dialog_dir_id(project_id, dialog_id)?

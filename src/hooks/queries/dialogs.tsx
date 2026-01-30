@@ -26,6 +26,11 @@ interface SaveDialogContentParams {
   content: string;
 }
 
+interface DeleteDialogParams {
+  projectId: string;
+  dialogId: string;
+}
+
 export function useCreateDialog(): UseMutationResult<void, Error, CreateDialogParams, unknown> {
   const queryClient = useQueryClient();
   return useMutation({
@@ -89,6 +94,18 @@ export function useSaveDialogContent(): UseMutationResult<void, Error, SaveDialo
       invoke<void>("save_dialog_content", { projectId, dialogId, nodeId, content }),
     onSuccess: (_, { projectId, dialogId }) => {
       queryClient.invalidateQueries({ queryKey: ['dialogs', 'byId', projectId, dialogId] });
+    }
+  });
+}
+
+export function useDeleteDialog(): UseMutationResult<void, Error, DeleteDialogParams, unknown> {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationKey: ['dialogs', 'delete'],
+    mutationFn: async ({ projectId, dialogId }: DeleteDialogParams) =>
+      invoke<void>("delete_dialog", { projectId, dialogId }),
+    onSuccess: (_, { projectId }) => {
+      queryClient.invalidateQueries({ queryKey: ['dialogs', 'metadata', projectId] });
     }
   });
 }
