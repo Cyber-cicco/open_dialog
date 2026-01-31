@@ -1,8 +1,8 @@
 import { useRightPanel } from "../../context/right-panel.context";
 import { useGlobalState } from "../../context/global-state.context";
 import { useGetCharacterById } from "../../hooks/queries/character";
-import { PlayMode } from "../dialogs/play-mode.dialogs";
 import { getImageSrc } from "../common/img";
+import { PlayMode } from "../dialogs/playmode/main";
 
 const FloatingPortrait = () => {
   const { isOpen, currentSpeakerId } = useRightPanel();

@@ -38,19 +38,17 @@ Ce qui est en train d'être fait:
 [] Système de gestion de remote.
 
 
-Ce qu'il reste à faire dans l'immédiat:
-
-[] Pouvoir supprimer une variable (front).
-[] Possibilité pour un noeud de changer l'état d'une variable.
-
 Avant Alpha 0.0.1
 
+[] Pouvoir supprimer une variable (front).
 [] Système NLDJSON pour les dialogues, order by ID.
 [] Fichiers meta dans gitignore, reconstruits à chaque merge.
+[] Système de gestion de conflit
 
 
 Quelques éléments qu'il ne faudra pas oublier:
 
+[] Possibilité pour un noeud de changer l'état d'une variable.
 [] Revoir tout ce qui est UX dans l'écriture des dialgues
 [] Mode histoire permettant de relier des dialogues entre eux.
 [] Pouvoir créer des groupes de personnage / dialogues.

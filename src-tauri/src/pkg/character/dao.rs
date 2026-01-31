@@ -22,9 +22,12 @@ pub struct FileCharacterDao<C: ODConfig> {
 }
 
 pub trait CharacterDao<C: ODConfig> {
-    fn persist_character(&self, project_id: &str, character: &Character) -> Result<()>;
-    fn get_character(&self, project_id: &str, char_id: &Uuid) -> Result<Character>;
-    fn persist_description(&self, project_id: &str, desc_id: &Uuid, desc: &str) -> Result<()>;
+    fn persist_character(&self, project_id: &str, character: &Character) -> Result<()>; // persistence
+    // d'une seule entité
+    fn get_character(&self, project_id: &str, char_id: &Uuid) -> Result<Character>; // récupérer une
+    // seule entité par son id
+    fn persist_description(&self, project_id: &str, desc_id: &Uuid, desc: &str) -> Result<()>; // persistence
+    // edes éléments linked
     fn get_character_identifiers(&self, project_id: &str) -> Result<HashSet<Uuid>>;
     fn enforce_character_existence(&self, project_id: &str, char_id: &Uuid) -> Result<()>;
     fn get_meta_file(&self, project_id: &str) -> Result<CharacterMetadata>;
